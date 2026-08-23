@@ -15,4 +15,7 @@ public class RabbitMqProperties {
     private String noteCreatedExchange;
     private String noteCreatedQueue;
     private String noteCreatedRoutingKey;
+    private String noteEnrichedExchange;
+    private String noteEnrichedQueue;
+    private String noteEnrichedRoutingKey;
 }

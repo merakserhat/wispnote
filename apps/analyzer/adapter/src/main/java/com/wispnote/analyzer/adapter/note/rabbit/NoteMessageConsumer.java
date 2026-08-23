@@ -15,11 +15,17 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
-public class NoteCreatedMessageConsumer {
+public class NoteMessageConsumer {
 
     @RabbitListener(queues = "${rabbitmq.note-created-queue}")
-    public void analyzeNote(Message message) {
+    public void consumeNoteCreatedMessage(Message message) {
         String payload = new String(message.getBody(), StandardCharsets.UTF_8);
         log.info("Received note created message {}", kv("payload", payload));
+    }
+
+    @RabbitListener(queues = "${rabbitmq.note-enriched-queue}")
+    public void consumeNoteEnrichedMessage(Message message) {
+        String payload = new String(message.getBody(), StandardCharsets.UTF_8);
+        log.info("Received note enriched message {}", kv("payload", payload));
     }
 }

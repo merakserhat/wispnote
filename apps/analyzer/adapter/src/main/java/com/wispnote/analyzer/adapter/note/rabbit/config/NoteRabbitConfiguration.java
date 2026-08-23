@@ -24,8 +24,20 @@ public class NoteRabbitConfiguration {
     }
 
     @Bean
+    TopicExchange noteEnrichedExchange() {
+        return new TopicExchange(rabbitMqProperties.getNoteEnrichedExchange());
+    }
+
+    @Bean
     Queue noteCreatedQueue() {
         return QueueBuilder.durable(rabbitMqProperties.getNoteCreatedQueue())
+                .classic()
+                .build();
+    }
+
+    @Bean
+    Queue noteEnrichedQueue() {
+        return QueueBuilder.durable(rabbitMqProperties.getNoteEnrichedQueue())
                 .classic()
                 .build();
     }
@@ -35,5 +47,12 @@ public class NoteRabbitConfiguration {
         return BindingBuilder.bind(noteCreatedQueue)
                 .to(noteCreatedExchange)
                 .with(rabbitMqProperties.getNoteCreatedRoutingKey());
+    }
+
+    @Bean
+    Binding noteEnrichedBinding(TopicExchange noteEnrichedExchange, Queue noteEnrichedQueue) {
+        return BindingBuilder.bind(noteEnrichedQueue)
+                .to(noteEnrichedExchange)
+                .with(rabbitMqProperties.getNoteEnrichedRoutingKey());
     }
 }
