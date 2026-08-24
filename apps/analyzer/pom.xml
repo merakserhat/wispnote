@@ -31,6 +31,8 @@
         <logback-encoder.version>8.0</logback-encoder.version>
         <lombok.version>1.18.46</lombok.version>
         <archunit-junit5.version>1.4.2</archunit-junit5.version>
+        <anthropic-java.version>2.34.0</anthropic-java.version>
+        <victools.version>4.38.0</victools.version>
     </properties>
 
     <dependencies>
