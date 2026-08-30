@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "skipLibCheck": true,
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.main.tsbuildinfo",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022"],
+
+    /* Electron's main and preload processes are CommonJS. `Node16` is the
+       modern spelling of that: `moduleResolution: node` means node10, which
+       TypeScript 7 removes. */
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "types": ["node", "electron"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Absolute imports, the Wamo convention. `baseUrl` is what Wamo uses, but
+       TypeScript 7 removes it for resolution - `paths` alone does the same job
+       and resolves relative to this file. */
+    "paths": {
+      "shared/*": ["./src/shared/*"]
+    },
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/main", "src/preload", "src/shared"]
+}
