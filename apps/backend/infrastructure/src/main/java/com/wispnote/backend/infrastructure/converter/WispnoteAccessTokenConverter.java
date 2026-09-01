@@ -1,7 +1,7 @@
 package com.wispnote.backend.infrastructure.converter;
 
-import com.wispnote.backend.adapter.common.auth.model.CustomUserDetails;
-import com.wispnote.backend.adapter.common.auth.model.WispnoteAccessToken;
+import com.wispnote.backend.adapter.auth.model.CustomUserDetails;
+import com.wispnote.backend.adapter.auth.model.WispnoteAccessToken;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;

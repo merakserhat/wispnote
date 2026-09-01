@@ -28,4 +28,16 @@ public class JwtConfiguration {
     public JwtDecoder accessTokenJwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(rsaKeyProperties.accessToken().publicKey()).build();
     }
+
+    @Bean
+    public JwtEncoder refreshTokenJwtEncoder() {
+        return NimbusJwtEncoder
+                .withKeyPair(rsaKeyProperties.refreshToken().publicKey(), rsaKeyProperties.refreshToken().privateKey())
+                .build();
+    }
+
+    @Bean
+    public JwtDecoder refreshTokenJwtDecoder() {
+        return NimbusJwtDecoder.withPublicKey(rsaKeyProperties.refreshToken().publicKey()).build();
+    }
 }
