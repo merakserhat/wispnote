@@ -6,7 +6,6 @@ import com.wispnote.backend.application.note.model.Note;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public record NoteResponse(UUID id,
@@ -21,7 +20,6 @@ public record NoteResponse(UUID id,
                            Map<String, Object> location,
                            String windowTitle,
                            EnrichmentStatus enrichmentStatus,
-                           Set<String> tags,
                            Instant createdAt) {
 
     public static NoteResponse from(Note note) {
@@ -37,7 +35,6 @@ public record NoteResponse(UUID id,
                 note.location(),
                 note.windowTitle(),
                 note.enrichmentStatus(),
-                note.tags(),
                 note.createdAt());
     }
 }

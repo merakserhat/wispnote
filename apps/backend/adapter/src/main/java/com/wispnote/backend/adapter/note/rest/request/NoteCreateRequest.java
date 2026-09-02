@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Map;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -28,7 +27,6 @@ public class NoteCreateRequest {
     private Map<String, Object> location;
     private String windowTitle;
     private Map<String, Object> rawCapture;
-    private Set<String> tags;
 
     public NoteCapture toModel() {
         return new NoteCapture(source.toModel(),
@@ -41,7 +39,6 @@ public class NoteCreateRequest {
                 pageNumber,
                 location,
                 windowTitle,
-                rawCapture,
-                tags);
+                rawCapture);
     }
 }

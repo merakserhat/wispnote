@@ -8,23 +8,15 @@ import com.wispnote.backend.application.note.enums.NoteKind;
 import com.wispnote.backend.application.note.model.Note;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-
-import static java.util.stream.Collectors.toSet;
 
 @Getter
 @Setter
@@ -70,13 +62,6 @@ public class NoteEntity extends BaseEntity {
     @Column(nullable = false)
     private Map<String, Object> rawCapture = new HashMap<>();
 
-    @BatchSize(size = 50)
-    @ManyToMany
-    @JoinTable(name = "note_tag",
-            joinColumns = @JoinColumn(name = "note_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private Set<TagEntity> tags = new HashSet<>();
-
     public Note toModel() {
         return new Note(getId(),
                 memberId,
@@ -92,7 +77,6 @@ public class NoteEntity extends BaseEntity {
                 windowTitle,
                 EnrichmentStatusConverter.jpa.toEnum(enrichmentStatus),
                 rawCapture,
-                tags.stream().map(TagEntity::getName).collect(toSet()),
                 getCreatedAt());
     }
 }

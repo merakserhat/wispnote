@@ -43,22 +43,3 @@ CREATE TABLE note
 
 CREATE INDEX idx_note_source ON note (source_id);
 CREATE INDEX idx_note_member_created ON note (member_id, created_at DESC) WHERE deleted IS FALSE;
-
-CREATE TABLE tag
-(
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    deleted    BOOLEAN          DEFAULT FALSE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE       NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE,
-    name       TEXT                           NOT NULL
-);
-
-CREATE UNIQUE INDEX uq_tag_name ON tag (name) WHERE deleted IS FALSE;
-
-CREATE TABLE note_tag
-(
-    note_id UUID NOT NULL REFERENCES note (id) ON DELETE CASCADE,
-    tag_id  UUID NOT NULL REFERENCES tag (id) ON DELETE CASCADE,
-
-    PRIMARY KEY (note_id, tag_id)
-);

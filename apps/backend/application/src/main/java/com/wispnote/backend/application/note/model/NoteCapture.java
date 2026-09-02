@@ -5,7 +5,6 @@ import com.wispnote.backend.application.note.enums.NoteKind;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public record NoteCapture(SourceCapture source,
@@ -18,8 +17,7 @@ public record NoteCapture(SourceCapture source,
                           Integer pageNumber,
                           Map<String, Object> location,
                           String windowTitle,
-                          Map<String, Object> rawCapture,
-                          Set<String> tags) {
+                          Map<String, Object> rawCapture) {
 
     public Note toNote(UUID memberId, UUID sourceId) {
         return new Note(null,
@@ -36,7 +34,6 @@ public record NoteCapture(SourceCapture source,
                 this.windowTitle(),
                 EnrichmentStatus.PENDING,
                 orEmptyMap(this.rawCapture()),
-                orEmptySet(this.tags()),
                 null);
     }
 
@@ -50,9 +47,5 @@ public record NoteCapture(SourceCapture source,
 
     private static Map<String, Object> orEmptyMap(Map<String, Object> value) {
         return value == null ? new HashMap<>() : value;
-    }
-
-    private static Set<String> orEmptySet(Set<String> value) {
-        return value == null ? Set.of() : value;
     }
 }

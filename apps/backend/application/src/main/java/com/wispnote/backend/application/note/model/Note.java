@@ -5,7 +5,6 @@ import com.wispnote.backend.application.note.enums.NoteKind;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public record Note(UUID id,
@@ -22,6 +21,5 @@ public record Note(UUID id,
                    String windowTitle,
                    EnrichmentStatus enrichmentStatus,
                    Map<String, Object> rawCapture,
-                   Set<String> tags,
                    Instant createdAt) {
 }
