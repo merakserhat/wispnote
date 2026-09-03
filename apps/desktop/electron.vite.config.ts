@@ -37,7 +37,9 @@ export default defineConfig({
     resolve: {
       alias: {
         shared,
+        api: resolve(__dirname, 'src/renderer/src/api'),
         components: resolve(__dirname, 'src/renderer/src/components'),
+        configs: resolve(__dirname, 'src/renderer/src/configs'),
         screens: resolve(__dirname, 'src/renderer/src/screens'),
         hooks: resolve(__dirname, 'src/renderer/src/hooks'),
         context: resolve(__dirname, 'src/renderer/src/context'),

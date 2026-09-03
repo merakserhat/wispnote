@@ -1,4 +1,5 @@
 import { TCaptureContext } from './capture.types';
+import { TErrorResponse } from './common';
 import { TEngineAction, TToastFrame } from './engine.types';
 
 export type TPanelMode = 'panel' | 'note';
@@ -23,6 +24,19 @@ export type TWispBridge = {
   onToastShow: (handler: (payload: TToastPayload) => void) => () => void;
   onToastHide: (handler: () => void) => () => void;
   runAction: (request: TActionRequest) => Promise<unknown>;
+  ipcRequest: <TResult>(request: TIpcRequest) => Promise<TIpcResponse<TResult>>;
+  onSessionExpired: (handler: () => void) => () => void;
   focusInput: () => void;
   dismiss: () => void;
 };
+
+export type TIpcRequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export type TIpcRequest = {
+  method: TIpcRequestMethod;
+  url: string;
+  data?: object;
+};
+
+export type TIpcResponse<TResult> =
+  { ok: true; data: TResult } | { ok: false; error: TErrorResponse };

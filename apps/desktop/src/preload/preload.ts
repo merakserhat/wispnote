@@ -1,7 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 import { IPC_CHANNELS } from 'shared/constants/channels';
-import { TActionRequest, TPanelPayload, TToastPayload, TWispBridge } from 'shared/types/ipc.types';
+import {
+  TActionRequest,
+  TIpcRequest,
+  TPanelPayload,
+  TToastPayload,
+  TWispBridge,
+} from 'shared/types/ipc.types';
 
 /**
  * The only surface the renderer gets.
@@ -25,6 +31,8 @@ const bridge: TWispBridge = {
   onToastShow: (handler) => subscribe<TToastPayload>(IPC_CHANNELS.toastShow, handler),
   onToastHide: (handler) => subscribe<void>(IPC_CHANNELS.toastHide, () => handler()),
   runAction: (request: TActionRequest) => ipcRenderer.invoke(IPC_CHANNELS.action, request),
+  ipcRequest: (request: TIpcRequest) => ipcRenderer.invoke(IPC_CHANNELS.apiRequest, request),
+  onSessionExpired: (handler) => subscribe<void>(IPC_CHANNELS.sessionExpired, () => handler()),
   focusInput: () => ipcRenderer.send(IPC_CHANNELS.focusInput),
   dismiss: () => ipcRenderer.send(IPC_CHANNELS.dismiss),
 };

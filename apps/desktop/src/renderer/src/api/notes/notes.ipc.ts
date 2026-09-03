@@ -8,12 +8,12 @@ import {
   TNotesFilterParams,
 } from 'shared/types/note.types';
 
-import Api from '../../helpers/api';
+import Ipc from 'helpers/ipc';
 
 export async function requestCreateNote(
   params: TCreateNoteRequestParams
 ): Promise<TCommonResponse<TNote>> {
-  const response = await Api.post<TCommonResponse<TNote>>(API_ENDPOINT.NOTES, params);
+  const response = await Ipc.post<TCommonResponse<TNote>>(API_ENDPOINT.NOTES, params);
   return response.data;
 }
 
@@ -22,7 +22,7 @@ export async function requestNotes({
   size = 20,
   ...filterParams
 }: TPaginationRequestParams<TNotesFilterParams>): Promise<TPaginatedResponse<TNote>> {
-  const response = await Api.get<TPaginatedResponse<TNote>>(
+  const response = await Ipc.get<TPaginatedResponse<TNote>>(
     normalizeUrl(API_ENDPOINT.NOTES, {
       queryParams: { page, size, ...filterParams },
     })
@@ -33,12 +33,12 @@ export async function requestNotes({
 export async function requestNoteDetail({
   noteId,
 }: TNoteDetailRequestParams): Promise<TCommonResponse<TNote>> {
-  const response = await Api.get<TCommonResponse<TNote>>(
+  const response = await Ipc.get<TCommonResponse<TNote>>(
     normalizeUrl(API_ENDPOINT.NOTE_DETAIL, { pathVariables: { noteId } })
   );
   return response.data;
 }
 
 export async function requestDeleteNote({ noteId }: TNoteDetailRequestParams): Promise<void> {
-  await Api.delete<void>(normalizeUrl(API_ENDPOINT.NOTE_DETAIL, { pathVariables: { noteId } }));
+  await Ipc.delete<void>(normalizeUrl(API_ENDPOINT.NOTE_DETAIL, { pathVariables: { noteId } }));
 }
