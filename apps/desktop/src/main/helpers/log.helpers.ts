@@ -21,6 +21,8 @@ export type TLogChannel =
   | 'db'
   | 'result'
   | 'python'
+  | 'api'
+  | 'auth'
   | 'error'
   | 'beat';
 
