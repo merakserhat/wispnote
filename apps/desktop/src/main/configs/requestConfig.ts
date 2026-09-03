@@ -1,4 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 import API_ENDPOINT from 'shared/constants/apiEndpoint';
 import { TTokenResponse } from 'shared/types/auth.types';
@@ -70,34 +70,44 @@ ApiClient.interceptors.request.use(
   }
 );
 
-ApiClient.interceptors.response.use(
-  function passResponse(response) {
-    return response;
-  },
-  async function refreshOnUnauthorized(error: AxiosError) {
-    const originalRequest = error?.config as TRetriableRequestConfig | undefined;
-    const refreshToken = storage.readStorage(STORAGE_KEYS.REFRESH_TOKEN);
+async function refreshOnUnauthorized(error: AxiosError) {
+  const originalRequest = error?.config as TRetriableRequestConfig | undefined;
+  const refreshToken = storage.readStorage(STORAGE_KEYS.REFRESH_TOKEN);
 
-    if (error?.response?.status !== 401 || !refreshToken || !originalRequest) {
-      return Promise.reject(error?.response ?? error);
-    }
-
-    if (originalRequest.alreadyRetried) {
-      return Promise.reject(error?.response ?? error);
-    }
-
-    const accessToken = await refreshTokens(refreshToken);
-
-    if (!accessToken) {
-      return Promise.reject(error?.response ?? error);
-    }
-
-    originalRequest.alreadyRetried = true;
-    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
-    return ApiClient(originalRequest);
+  if (error?.response?.status !== 401 || !refreshToken || !originalRequest) {
+    return Promise.reject(error?.response ?? error);
   }
-);
+
+  if (originalRequest.alreadyRetried) {
+    return Promise.reject(error?.response ?? error);
+  }
+
+  const accessToken = await refreshTokens(refreshToken);
+
+  if (!accessToken) {
+    return Promise.reject(error?.response ?? error);
+  }
+
+  originalRequest.alreadyRetried = true;
+  originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+  return ApiClient(originalRequest);
+}
+
+function storeTokensOnLogin(response: AxiosResponse): AxiosResponse {
+  if (response.config.url === API_ENDPOINT.LOGIN) {
+    const { accessToken, refreshToken } = (response.data as TCommonResponse<TTokenResponse>).result;
+
+    storage.writeStorageFromKeys({
+      [STORAGE_KEYS.ACCESS_TOKEN]: accessToken,
+      [STORAGE_KEYS.REFRESH_TOKEN]: refreshToken,
+    });
+  }
+
+  return response;
+}
+
+ApiClient.interceptors.response.use(storeTokensOnLogin, refreshOnUnauthorized);
 
 export function onSessionExpired(listener: () => void): () => void {
   sessionExpiryListeners.add(listener);

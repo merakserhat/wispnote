@@ -26,6 +26,7 @@ export type TWispBridge = {
   runAction: (request: TActionRequest) => Promise<unknown>;
   ipcRequest: <TResult>(request: TIpcRequest) => Promise<TIpcResponse<TResult>>;
   onSessionExpired: (handler: () => void) => () => void;
+  signOut: () => void;
   focusInput: () => void;
   dismiss: () => void;
 };

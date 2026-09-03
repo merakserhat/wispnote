@@ -33,6 +33,7 @@ const bridge: TWispBridge = {
   runAction: (request: TActionRequest) => ipcRenderer.invoke(IPC_CHANNELS.action, request),
   ipcRequest: (request: TIpcRequest) => ipcRenderer.invoke(IPC_CHANNELS.apiRequest, request),
   onSessionExpired: (handler) => subscribe<void>(IPC_CHANNELS.sessionExpired, () => handler()),
+  signOut: () => ipcRenderer.send(IPC_CHANNELS.signOut),
   focusInput: () => ipcRenderer.send(IPC_CHANNELS.focusInput),
   dismiss: () => ipcRenderer.send(IPC_CHANNELS.dismiss),
 };

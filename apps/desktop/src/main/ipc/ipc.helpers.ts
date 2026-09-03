@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 
+import API_ENDPOINT from 'shared/constants/apiEndpoint';
 import { TErrorResponse } from 'shared/types/common';
 import { TSaveResult } from 'shared/types/engine.types';
 import { TIpcRequest } from 'shared/types/ipc.types';
@@ -65,6 +66,15 @@ export function sendApiRequest({
     default:
       return Promise.reject(new Error(`unsupported method: ${method}`));
   }
+}
+
+export function toIpcData({ url }: TIpcRequest, response: AxiosResponse<unknown>): unknown {
+  // INFO: (serhat) the login body carries the token pair - it stays in main.
+  if (url === API_ENDPOINT.LOGIN) {
+    return null;
+  }
+
+  return response.data;
 }
 
 export function toErrorResponse(error: unknown): TErrorResponse {

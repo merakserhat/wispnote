@@ -7,6 +7,7 @@ export const IPC_CHANNELS = {
   dismiss: 'panel:dismiss',
   apiRequest: 'api:request',
   sessionExpired: 'auth:session-expired',
+  signOut: 'auth:sign-out',
 } as const;
 
 export type TIpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

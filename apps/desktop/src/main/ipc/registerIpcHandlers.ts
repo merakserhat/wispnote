@@ -5,7 +5,8 @@ import { TActionRequest, TIpcRequest, TIpcResponse } from 'shared/types/ipc.type
 
 import { onSessionExpired } from '../configs/requestConfig';
 import { log } from '../helpers';
-import { runAction, sendApiRequest, toErrorResponse } from './ipc.helpers';
+import storage from '../helpers/storage';
+import { runAction, sendApiRequest, toErrorResponse, toIpcData } from './ipc.helpers';
 import { TIpcContext } from './ipc.types';
 
 export function registerIpcHandlers(context: TIpcContext): void {
@@ -34,7 +35,7 @@ export function registerIpcHandlers(context: TIpcContext): void {
     async function handleApiRequest(_event, request: TIpcRequest): Promise<TIpcResponse<unknown>> {
       try {
         const response = await sendApiRequest(request);
-        return { ok: true, data: response.data };
+        return { ok: true, data: toIpcData(request, response) };
       } catch (error) {
         const failure = toErrorResponse(error);
         log('api', `${request.method} ${request.url} failed: ${failure.status}`);
@@ -42,6 +43,10 @@ export function registerIpcHandlers(context: TIpcContext): void {
       }
     }
   );
+
+  ipcMain.on(IPC_CHANNELS.signOut, function handleSignOut() {
+    storage.removeTokens();
+  });
 
   onSessionExpired(function broadcastSessionExpiry() {
     webContents.getAllWebContents().forEach(function sendToWindow(contents) {
