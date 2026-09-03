@@ -28,26 +28,21 @@ export function createTray({ engine, onShowPanel, onOpenMainWindow }: TCreateTra
         { label: `PID: ${engine.ready?.pid ?? '—'}`, enabled: false },
         {
           label: 'Restart engine',
-          click: function restartEngine() {
+          click: () => {
             engine.failures = 0;
             engine.kill();
           },
         },
         {
           label: 'Open data folder',
-          click: function openDataFolder() {
+          click: () => {
             if (engine.ready) {
               shell.openPath(engine.ready.data_dir);
             }
           },
         },
         { type: 'separator' },
-        {
-          label: 'Quit',
-          click: function quitApp() {
-            app.quit();
-          },
-        },
+        { label: 'Quit', click: () => app.quit() },
       ])
     );
   }

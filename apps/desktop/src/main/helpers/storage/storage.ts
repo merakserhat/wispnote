@@ -57,7 +57,7 @@ function writeStorage(key: TStorageKeys, data: string): void {
 }
 
 function writeStorageFromKeys(keyValuePairs: Partial<Record<TStorageKeys, string>>): void {
-  Object.entries(keyValuePairs).forEach(function writeEach([key, value]) {
+  Object.entries(keyValuePairs).forEach(([key, value]) => {
     load()[key as TStorageKeys] = value as string;
   });
   persist();
@@ -69,7 +69,7 @@ function removeStorage(key: TStorageKeys): void {
 }
 
 function removeStorageFromKeys(keys: TStorageKeys[]): void {
-  keys.forEach(function removeEach(key) {
+  keys.forEach((key) => {
     delete load()[key];
   });
   persist();

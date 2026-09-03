@@ -16,16 +16,14 @@ function Sidebar({ activeKey, onSelect }: TSidebarProps) {
 
   return (
     <SidebarContainer>
-      {NAV_ITEMS.map(function renderItem(item) {
-        return (
-          <SidebarItem
-            key={item.key}
-            item={item}
-            isActive={item.key === activeKey}
-            onSelect={onSelect}
-          />
-        );
-      })}
+      {NAV_ITEMS.map((item) => (
+        <SidebarItem
+          key={item.key}
+          item={item}
+          isActive={item.key === activeKey}
+          onSelect={onSelect}
+        />
+      ))}
       <SidebarFooter>
         <Button label="Sign out" loading={isPending} onPress={handleSignOut} block />
       </SidebarFooter>

@@ -38,16 +38,14 @@ async function requestNewTokens(refreshToken: string): Promise<string | null> {
   } catch {
     log('auth', 'refresh rejected, signing out');
     storage.removeTokens();
-    sessionExpiryListeners.forEach(function notify(listener) {
-      listener();
-    });
+    sessionExpiryListeners.forEach((listener) => listener());
     return null;
   }
 }
 
 function refreshTokens(refreshToken: string): Promise<string | null> {
   if (!refreshRequest) {
-    refreshRequest = requestNewTokens(refreshToken).finally(function clearRefreshRequest() {
+    refreshRequest = requestNewTokens(refreshToken).finally(() => {
       refreshRequest = null;
     });
   }
@@ -56,7 +54,7 @@ function refreshTokens(refreshToken: string): Promise<string | null> {
 }
 
 ApiClient.interceptors.request.use(
-  function attachAccessToken(request) {
+  (request) => {
     const accessToken = storage.readStorage(STORAGE_KEYS.ACCESS_TOKEN);
 
     if (accessToken) {
@@ -65,9 +63,7 @@ ApiClient.interceptors.request.use(
 
     return request;
   },
-  function rejectRequest(error) {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 async function refreshOnUnauthorized(error: AxiosError) {
@@ -112,7 +108,7 @@ ApiClient.interceptors.response.use(storeTokensOnLogin, refreshOnUnauthorized);
 export function onSessionExpired(listener: () => void): () => void {
   sessionExpiryListeners.add(listener);
 
-  return function unsubscribe() {
+  return () => {
     sessionExpiryListeners.delete(listener);
   };
 }

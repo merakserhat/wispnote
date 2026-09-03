@@ -18,23 +18,21 @@ function FormInput<TFormValues extends FieldValues>({
     <Controller
       control={control}
       name={name}
-      render={function renderInput({ field, fieldState }) {
-        return (
-          <Input
-            name={field.name}
-            value={field.value}
-            label={label}
-            placeholder={placeholder}
-            secure={secure}
-            autoFocus={autoFocus}
-            disabled={disabled}
-            size={size}
-            error={fieldState.error?.message}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-          />
-        );
-      }}
+      render={({ field, fieldState }) => (
+        <Input
+          name={field.name}
+          value={field.value}
+          label={label}
+          placeholder={placeholder}
+          secure={secure}
+          autoFocus={autoFocus}
+          disabled={disabled}
+          size={size}
+          error={fieldState.error?.message}
+          onChangeText={field.onChange}
+          onBlur={field.onBlur}
+        />
+      )}
     />
   );
 }

@@ -1,6 +1,6 @@
 import { Engine } from '../engine/Engine';
 
-export type TRegisterShutdownProps = {
+export type TRegisterShutdownParams = {
   app: Electron.App;
   engine: Engine;
 };

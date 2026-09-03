@@ -12,7 +12,7 @@ import { TIpcContext } from './ipc.types';
 export function registerIpcHandlers(context: TIpcContext): void {
   const { panel } = context;
 
-  ipcMain.handle(IPC_CHANNELS.action, async function handleAction(_event, request: TActionRequest) {
+  ipcMain.handle(IPC_CHANNELS.action, async (_event, request: TActionRequest) => {
     try {
       return await runAction({ ...context, request });
     } catch (error) {
@@ -22,17 +22,13 @@ export function registerIpcHandlers(context: TIpcContext): void {
     }
   });
 
-  ipcMain.on(IPC_CHANNELS.focusInput, function handleFocusInput() {
-    panel.focus();
-  });
+  ipcMain.on(IPC_CHANNELS.focusInput, () => panel.focus());
 
-  ipcMain.on(IPC_CHANNELS.dismiss, function handleDismiss() {
-    panel.hide();
-  });
+  ipcMain.on(IPC_CHANNELS.dismiss, () => panel.hide());
 
   ipcMain.handle(
     IPC_CHANNELS.apiRequest,
-    async function handleApiRequest(_event, request: TIpcRequest): Promise<TIpcResponse<unknown>> {
+    async (_event, request: TIpcRequest): Promise<TIpcResponse<unknown>> => {
       try {
         const response = await sendApiRequest(request);
         return { ok: true, data: toIpcData(request, response) };
@@ -44,13 +40,13 @@ export function registerIpcHandlers(context: TIpcContext): void {
     }
   );
 
-  ipcMain.handle(IPC_CHANNELS.signOut, function handleSignOut() {
+  ipcMain.handle(IPC_CHANNELS.signOut, () => {
     storage.removeTokens();
     log('auth', 'signed out');
   });
 
-  onSessionExpired(function broadcastSessionExpiry() {
-    webContents.getAllWebContents().forEach(function sendToWindow(contents) {
+  onSessionExpired(() => {
+    webContents.getAllWebContents().forEach((contents) => {
       contents.send(IPC_CHANNELS.sessionExpired);
     });
   });

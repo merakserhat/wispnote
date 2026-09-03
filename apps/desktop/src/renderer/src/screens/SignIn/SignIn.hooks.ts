@@ -14,9 +14,7 @@ export function useSignInForm() {
 
   const { login, isPending, error } = useLogin();
 
-  const submit = handleSubmit(function submitCredentials(values) {
-    login(values);
-  });
+  const submit = handleSubmit((values) => login(values));
 
   return {
     control,

@@ -1,39 +1,35 @@
-import { TRegisterShutdownProps } from './registerShutdown.types';
+import { TRegisterShutdownParams } from './registerShutdown.types';
+import { EXIT_SIGNALS } from './registerShutdown.constants';
 
-/**
- * Quitting means stopping the engine first.
- *
- * A surviving engine keeps the Fn event tap with no UI attached, which breaks
- * the key system-wide - so every exit route (menu, Ctrl+C, SIGTERM) funnels
- * through the same guarded shutdown.
- */
-export const registerShutdown = ({ app, engine }: TRegisterShutdownProps): void => {
-  let quitting = false;
+export function registerShutdown({ app, engine }: TRegisterShutdownParams): void {
+  let isQuitting = false;
 
-  app.on('window-all-closed', () => {
-    // Intentionally empty: this process outlives its windows.
-  });
-
-  const shutdown = async (): Promise<void> => {
-    if (quitting) {
+  async function shutdown(): Promise<void> {
+    if (isQuitting) {
       return;
     }
-    quitting = true;
+
+    isQuitting = true;
+    // INFO: (serhat) a surviving engine keeps the Fn event tap with no UI attached, which breaks the key system-wide.
     await engine.stop();
     app.exit(0);
-  };
+  }
+
+  // INFO: (serhat) the host outlives its windows - closing them all must not quit.
+  app.on('window-all-closed', () => {});
 
   app.on('before-quit', (event: Electron.Event) => {
-    if (quitting) {
+    if (isQuitting) {
       return;
     }
+
     event.preventDefault();
     shutdown();
   });
 
-  ['SIGINT', 'SIGTERM'].forEach((signal) => {
+  EXIT_SIGNALS.forEach((signal) => {
     process.on(signal, () => {
       shutdown();
     });
   });
-};
+}
