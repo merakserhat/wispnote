@@ -1,7 +1,5 @@
 import { createGlobalStyle } from 'styled-components';
 
-import { darkColors } from 'theme/theme';
-
 export const GlobalStyle = createGlobalStyle`
   :root { color-scheme: light dark; }
 
@@ -15,9 +13,5 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.colors.text};
     -webkit-user-select: none;
     overflow: hidden;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    html, body, #root { color: ${darkColors.text}; }
   }
 `;

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { SYSTEM_DARK_QUERY } from './AntdProvider.constants';
+import { SYSTEM_DARK_QUERY } from './useIsSystemDark.constants';
 
-export function useIsSystemDark() {
+function useIsSystemDark(): boolean {
   const [isSystemDark, setIsSystemDark] = useState(
     () => window.matchMedia(SYSTEM_DARK_QUERY).matches
   );
@@ -22,3 +22,5 @@ export function useIsSystemDark() {
 
   return isSystemDark;
 }
+
+export default useIsSystemDark;

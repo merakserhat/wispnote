@@ -1,10 +1,10 @@
 import { ConfigProvider, theme as antdTheme } from 'antd';
 
+import useIsSystemDark from 'hooks/useIsSystemDark';
 import { darkColors, theme } from 'theme';
 import { TChildrenOnly } from 'types/common';
 
 import { ANTD_CONTROL_HEIGHT, ANTD_FONT_SIZE } from './AntdProvider.constants';
-import { useIsSystemDark } from './AntdProvider.hooks';
 
 function AntdProvider({ children }: TChildrenOnly) {
   const isSystemDark = useIsSystemDark();

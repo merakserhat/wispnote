@@ -8,7 +8,7 @@ import { log } from './helpers';
 import { registerIpcHandlers } from './ipc';
 import { registerShutdown } from './lifecycle';
 import { createTray } from './tray';
-import { createPanelController, HudWindow, PanelWindow } from './windows';
+import { createPanelController, HudWindow, MainWindow, PanelWindow } from './windows';
 
 /**
  * Wiring only.
@@ -26,6 +26,9 @@ app.whenReady().then(() => {
 
   const hud = new HudWindow();
   hud.create(preloadPath);
+
+  const mainWindow = new MainWindow();
+  mainWindow.create(preloadPath);
 
   const controller = createPanelController(panel);
 
@@ -46,7 +49,11 @@ app.whenReady().then(() => {
     }
   };
 
-  registerIpcHandlers({ engine, panel, getContext: controller.getContext });
-  createTray(engine, showPanelFromMenu);
+  registerIpcHandlers({ engine, panel, mainWindow, getContext: controller.getContext });
+  createTray({
+    engine,
+    onShowPanel: showPanelFromMenu,
+    onOpenMainWindow: () => mainWindow.show(),
+  });
   registerShutdown({ app, engine });
 });

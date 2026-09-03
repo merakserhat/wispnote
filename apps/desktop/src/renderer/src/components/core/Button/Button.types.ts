@@ -7,6 +7,6 @@ export type TButtonProps = Pick<ButtonProps, 'icon' | 'block' | 'htmlType'> & {
   variant?: TButtonVariant;
   disabled?: boolean;
   loading?: boolean;
-  onPress: () => void;
+  onPress?: () => void;
   className?: string;
 };

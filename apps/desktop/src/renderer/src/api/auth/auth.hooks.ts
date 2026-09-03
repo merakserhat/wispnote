@@ -5,7 +5,7 @@ import { TCommonResponse, TErrorResponse } from 'shared/types/common';
 
 import { TMutationHookParams, TQueryHookParams } from 'types/common';
 
-import { requestLogin, requestMember, requestRegister } from './auth.ipc';
+import { requestLogin, requestMember, requestRegister, requestSignOut } from './auth.ipc';
 import authQueryKeys from './auth.queries';
 
 export function useGetMember({ queryParams }: TQueryHookParams = {}) {
@@ -68,13 +68,19 @@ export function useRegister({
   };
 }
 
-export function useLogout() {
+export function useLogout({ onSuccess }: TMutationHookParams = {}) {
   const queryClient = useQueryClient();
 
-  function logout() {
-    window.wisp.signOut();
-    queryClient.clear();
-  }
+  const { mutate: logout, isPending } = useMutation<void, TErrorResponse, void>({
+    mutationFn: requestSignOut,
+    onSettled: () => {
+      queryClient.resetQueries();
+      onSuccess?.();
+    },
+  });
 
-  return { logout };
+  return {
+    logout,
+    isPending,
+  };
 }

@@ -12,6 +12,7 @@ export async function runAction({
   request,
   engine,
   panel,
+  mainWindow,
   getContext,
 }: TRunActionParams): Promise<unknown> {
   const { action, text } = request;
@@ -35,7 +36,8 @@ export async function runAction({
       return engine.request('sync_source', { context });
 
     case 'open_notes':
-      return engine.request('list_notes', { limit: 20 });
+      mainWindow.show();
+      return null;
 
     default:
       return null;

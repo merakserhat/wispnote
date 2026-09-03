@@ -44,8 +44,9 @@ export function registerIpcHandlers(context: TIpcContext): void {
     }
   );
 
-  ipcMain.on(IPC_CHANNELS.signOut, function handleSignOut() {
+  ipcMain.handle(IPC_CHANNELS.signOut, function handleSignOut() {
     storage.removeTokens();
+    log('auth', 'signed out');
   });
 
   onSessionExpired(function broadcastSessionExpiry() {

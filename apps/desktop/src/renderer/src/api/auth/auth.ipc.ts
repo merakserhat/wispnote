@@ -19,3 +19,7 @@ export async function requestMember(): Promise<TCommonResponse<TMember>> {
   const response = await Ipc.get<TCommonResponse<TMember>>(API_ENDPOINT.MEMBERS_ME);
   return response.data;
 }
+
+export async function requestSignOut(): Promise<void> {
+  await window.wisp.signOut();
+}

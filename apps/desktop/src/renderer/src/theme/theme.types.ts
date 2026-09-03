@@ -1,8 +1,10 @@
 import { theme } from './theme';
 
-export type TTheme = typeof theme;
+export type TThemePrimitives = Record<keyof typeof theme.colors, string>;
 
-export type TThemePrimitives = TTheme['colors'];
+export type TTheme = Omit<typeof theme, 'colors'> & {
+  colors: TThemePrimitives;
+};
 
 export type TTextVariantKeys = keyof TTheme['textVariants'];
 
