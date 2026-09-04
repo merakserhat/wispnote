@@ -3,15 +3,33 @@ import type { Meta, StoryObj } from '@storybook/react';
 import Box from 'components/core/Box';
 import Text from 'components/core/Text';
 
-import { ArrowRightIcon, CheckIcon, SearchSmIcon, Trash01Icon, XCloseIcon } from '.';
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  File05Icon,
+  FolderIcon,
+  Logout01Icon,
+  SearchSmIcon,
+  Settings01Icon,
+  Trash01Icon,
+  WispLogoIcon,
+  XCloseIcon,
+  ZapIcon,
+} from '.';
 import { TIconComponent, TIconProps } from './Icon.types';
 
 const ICONS: Array<[string, TIconComponent]> = [
   ['ArrowRightIcon', ArrowRightIcon],
   ['CheckIcon', CheckIcon],
+  ['File05Icon', File05Icon],
+  ['FolderIcon', FolderIcon],
+  ['Logout01Icon', Logout01Icon],
   ['SearchSmIcon', SearchSmIcon],
+  ['Settings01Icon', Settings01Icon],
   ['Trash01Icon', Trash01Icon],
+  ['WispLogoIcon', WispLogoIcon],
   ['XCloseIcon', XCloseIcon],
+  ['ZapIcon', ZapIcon],
 ];
 
 function IconGallery({ width = 24, height = 24, strokeWidth = 2, iconColor }: TIconProps) {

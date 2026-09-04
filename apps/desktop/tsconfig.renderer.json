@@ -29,6 +29,7 @@
       "screens/*": ["./src/renderer/src/screens/*"],
       "hooks/*": ["./src/renderer/src/hooks/*"],
       "context/*": ["./src/renderer/src/context/*"],
+      "enums/*": ["./src/renderer/src/enums/*"],
       "helpers/*": ["./src/renderer/src/helpers/*"],
       "theme/*": ["./src/renderer/src/theme/*"],
       "theme": ["./src/renderer/src/theme"],

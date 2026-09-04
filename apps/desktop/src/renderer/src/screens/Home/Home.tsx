@@ -1,29 +1,19 @@
-import { useState } from 'react';
+import NavBar from 'components/NavBar';
 
-import Text from 'components/core/Text';
+import NavigationProvider from 'context/NavigationProvider';
 
-import { ContentContainer, ContentHeader, HomeContainer } from './Home.styles';
-import { THomeProps, TNavItemKey } from './Home.types';
-import Sidebar from './views/Sidebar';
+import { HomeContainer } from './Home.styles';
+import { THomeProps } from './Home.types';
+import HomeContent from './views/HomeContent';
 
 function Home({ member }: THomeProps) {
-  const [activeKey, setActiveKey] = useState<TNavItemKey>('notes');
-
   return (
-    <HomeContainer>
-      <Sidebar activeKey={activeKey} onSelect={setActiveKey} />
-      <ContentContainer>
-        <ContentHeader>
-          <Text variant="heading">Welcome back</Text>
-          <Text variant="body" color="textSecondary">
-            {member.email}
-          </Text>
-        </ContentHeader>
-        <Text variant="body" color="textSecondary">
-          Nothing here yet - captured highlights will show up on this screen.
-        </Text>
-      </ContentContainer>
-    </HomeContainer>
+    <NavigationProvider>
+      <HomeContainer>
+        <NavBar email={member.email} />
+        <HomeContent member={member} />
+      </HomeContainer>
+    </NavigationProvider>
   );
 }
 

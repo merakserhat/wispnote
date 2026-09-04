@@ -1,6 +1,12 @@
 export { default as ArrowRightIcon } from './views/ArrowRightIcon';
 export { default as CheckIcon } from './views/CheckIcon';
+export { default as File05Icon } from './views/File05Icon';
+export { default as FolderIcon } from './views/FolderIcon';
+export { default as Logout01Icon } from './views/Logout01Icon';
 export { default as SearchSmIcon } from './views/SearchSmIcon';
+export { default as Settings01Icon } from './views/Settings01Icon';
 export { default as Trash01Icon } from './views/Trash01Icon';
+export { default as WispLogoIcon } from './views/WispLogoIcon';
 export { default as XCloseIcon } from './views/XCloseIcon';
+export { default as ZapIcon } from './views/ZapIcon';
 export * from './Icon.types';

@@ -15,6 +15,7 @@ export function rendererAlias(root: string) {
     screens: resolve(src, 'screens'),
     hooks: resolve(src, 'hooks'),
     context: resolve(src, 'context'),
+    enums: resolve(src, 'enums'),
     helpers: resolve(src, 'helpers'),
     theme: resolve(src, 'theme'),
     types: resolve(src, 'types'),
