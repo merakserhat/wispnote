@@ -34,16 +34,19 @@ export function toNoteSource(context: TCaptureContext): TNoteSource {
     appName: context.appName || undefined,
     bundleId: context.bundleId || undefined,
     documentId: needsDocumentId ? context.sourceKey : undefined,
+    pageCount: toPageCount(context),
   };
+}
+
+function toPageCount(context: TCaptureContext): number | undefined {
+  const total = context.extras.total_pages;
+  return typeof total === 'number' && total > 0 ? total : undefined;
 }
 
 function toLocation(context: TCaptureContext): Record<string, unknown> {
   const location: Record<string, unknown> = {};
   if (context.lineNumber) {
     location.lineNumber = context.lineNumber;
-  }
-  if (context.extras.total_pages) {
-    location.totalPages = context.extras.total_pages;
   }
   if (context.extras.page_hint_source) {
     location.pageHintSource = context.extras.page_hint_source;

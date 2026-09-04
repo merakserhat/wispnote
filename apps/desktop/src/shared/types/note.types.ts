@@ -10,6 +10,7 @@ export type TNoteSource = {
   appName?: string;
   bundleId?: string;
   documentId?: string;
+  pageCount?: number;
   metadata?: Record<string, unknown>;
 };
 

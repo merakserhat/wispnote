@@ -5,6 +5,7 @@ const API_ENDPOINT = {
   MEMBERS_ME: '/v1/members/me',
   NOTES: '/v1/notes',
   NOTE_DETAIL: '/v1/notes/{noteId}',
+  SOURCES: '/v1/sources',
 } as const;
 
 export default API_ENDPOINT;
