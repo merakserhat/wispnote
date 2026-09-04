@@ -1,0 +1,10 @@
+# Tool configuration only. Dependencies are in requirements.txt.
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+# E/F: pyflakes + pycodestyle · I: import order · UP: modern syntax ·
+# B: likely bugs · SIM: simplifications
+select = ["E", "F", "I", "UP", "B", "SIM"]

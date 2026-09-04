@@ -1,0 +1,11 @@
+# WispNote engine dependencies
+
+# --- required: the Fn event tap (Quartz) and the Accessibility API
+pyobjc-core>=10.0
+pyobjc-framework-Cocoa>=10.0
+pyobjc-framework-Quartz>=10.0
+pyobjc-framework-ApplicationServices>=10.0
+
+# --- optional: page, section and surrounding text for PDF highlights, and
+#     importing a PDF's own annotations. Without it PDF notes still save.
+pymupdf>=1.24

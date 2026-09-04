@@ -2,3 +2,12 @@ node_modules/
 dist/
 out/
 .DS_Store
+
+.claude/
+
+# Python engine
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ruff_cache/
