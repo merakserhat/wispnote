@@ -11,7 +11,7 @@ Two processes:
 | Process | Owns |
 | --- | --- |
 | **Electron** (this repo) | All UI. Supervises the engine. Eventually: SQLite, messaging, cloud API |
-| **Python engine** (`../wispnote-app`) | Only what nothing else can do: the Fn event tap, the Accessibility API, PyMuPDF |
+| **Python engine** (`engine/`) | Only what nothing else can do: the Fn event tap, the Accessibility API, PyMuPDF. Stateless: no disk, no network |
 
 The guiding rule: **Python keeps only what is impossible elsewhere.** Everything
 else moves here over time.
@@ -22,17 +22,21 @@ TypeScript throughout, built with electron-vite. The panel and HUD are
 implemented; the notes and settings screens are not.
 
 - ✅ Panel (capture + actions + note field), HUD, tray, supervisor, bridge
+- ✅ Engine rewritten in `engine/` (protocol v2); saves go main → backend via `src/main/actions/`
 - ⬜ Next: notes window, settings, then packaging
 - ⬜ Later: move SQLite + messaging here, leaving Python stateless
 
-Run `npm run dev`. It spawns the engine itself — never run `python main.py` too,
-or two Fn event taps fight over the same key.
+Run `npm run dev`. It spawns the engine itself — never run `python main.py serve`
+too, or two Fn event taps fight over the same key.
 
 ## Documentation
 
 | File | When to read |
 | --- | --- |
 | `.claude/tech-design/architecture.md` | What every file and folder is for, the invariants, and where to add a command / action / window / screen |
+| `.claude/tech-design/backend-architecture.md` | Moving off local storage onto a backend: engine scope, API client in main, auth, outbox, TanStack Query over IPC |
+| `.claude/tech-design/engine-migration.md` | The Python engine in `engine/`: what was carried from `../wispnote-app`, protocol v2, the traps the code used to explain in comments, Python conventions |
+| `.claude/tech-design/implementation-status.md` | What is actually built, decisions taken while building, next steps |
 
 ## Architecture invariants
 
@@ -49,20 +53,25 @@ Break these and the app breaks in ways that are hard to trace.
 3. **Never block the engine's main thread.** The `CGEventTap` run loop lives
    there, and macOS disables a tap that blocks (`kCGEventTapDisabledByTimeout`).
    Slow work goes on a thread.
-4. **Every user-visible outcome needs a window.** Actions that finish inside the
-   engine (`quick_highlight`, `sync_source`) emit only a `toast`. Route it
-   somewhere or a working save looks like a dead shortcut.
+4. **Every user-visible outcome needs a window.** `quick_highlight` and
+   `sync_source` save with no panel open; `src/main/actions/` must end every
+   path in a HUD toast or a working save looks like a dead shortcut.
 
 ## Bridge protocol
 
 Line-delimited JSON over stdin/stdout. stdout is taken away from Python's `print`
 so diagnostics (stderr) cannot corrupt it.
 
-**Engine → host:** `ready` `heartbeat` `trigger` `toast` `data` `result` `error`
-**Host → engine:** `ping` `capture` `save_highlight` `save_note` `sync_source`
-`list_notes` `list_sources` `stats` `settings` `shutdown`
+Protocol v2. Every Fn gesture is a `trigger`; the engine never decides what an
+action means. The host sends `configure` on every `ready`.
 
-Engine side: `../wispnote-app/wispnote/bridge.py`. Host side: `src/main/engine.js`.
+**Engine → host:** `ready` `heartbeat` `trigger` `result` `error`
+**Host → engine:** `ping` `capture` `configure` `pdf_info` `pdf_locate`
+`pdf_annotations` `shutdown`
+
+Engine side: `engine/wispnote/bridge/`. Host side: `src/main/engine/`, with
+`src/shared/types/engine.types.ts` as the contract. `ENGINE_PROTOCOL_VERSION`
+must match `PROTOCOL_VERSION` in `bridge.py`; a mismatch quits the app.
 
 ## macOS + Electron facts (learned the hard way)
 
@@ -90,9 +99,10 @@ Do not re-derive these.
 - **Accessibility permission attaches to the binary.** In dev that is
   `node_modules/electron/dist/Electron.app`; reinstalling `node_modules` or
   bumping Electron voids the grant.
-- **Electron 33 ships Node 20.18.3 — `node:sqlite` is unavailable.** Storage here
-  means `better-sqlite3` (native module → `@electron/rebuild` + signing) or an
-  Electron new enough to ship Node 22. Decide before writing the storage layer.
+- **`node:sqlite` is unavailable on Electron 33 (Node 20.18.3) — and no longer
+  matters.** Local storage is gone; the backend is the source of truth. No
+  `better-sqlite3`, no `@electron/rebuild`, no native-module signing. The only
+  thing written to disk here is the offline outbox, as JSON.
 
 ## Supervision facts
 
@@ -109,9 +119,16 @@ Do not re-derive these.
 ## Decisions already made
 
 - **Pipelines are a separate cloud service**, event-driven. Nothing local.
-- **SQLite is the source of truth**, not the event stream — so a dropped
-  RabbitMQ/API event is backfillable and a durable outbox is deliberately deferred.
-- **`Publisher` is a Protocol** in Python; RabbitMQ → cloud HTTP is a class swap.
+- **The backend is the source of truth.** SQLite and RabbitMQ leave the desktop
+  app entirely — the engine extracts, main posts. This reverses the earlier
+  "SQLite is the source of truth" decision.
+- **The offline outbox is therefore mandatory**, not deferred. A capture with no
+  network, no token, or no account must survive. JSON under `WISPNOTE_HOME`.
+- **The API client lives in main, never the renderer.** `quick_highlight` saves
+  with no window open, and a rotating refresh token cannot have two refreshers.
+- **TanStack Query runs over IPC**, not HTTP: the queryFn calls
+  `window.wisp.apiRequest`. Main-window only; the panel keeps `useBridgeAction`.
+- See `.claude/tech-design/backend-architecture.md` for all of the above.
 - **`../wispnote-app`'s PyObjC UI stays for now.** It is inert in `serve` mode
   (one lazy import in `cli.cmd_run`), it is the working fallback, and it is the
   spec for each screen. Delete it per-screen as an Electron replacement lands;
@@ -240,11 +257,12 @@ Prettier hook in `.claude/settings.json`, and reference them from a table here.
 
 ## Environment
 
-- Engine path is resolved as `../wispnote-app`; override the interpreter with
-  `WISPNOTE_PYTHON`.
+- Engine path is `engine/` (`process.resourcesPath/engine` when packaged);
+  override the interpreter with `WISPNOTE_PYTHON`. Install its dependencies with
+  `pip install -r engine/requirements.txt`.
 - `WISPNOTE_HOME` relocates the data directory — always set it when testing so
   real notes are untouched.
 - `WISPNOTE_NO_TAP=1` skips the event tap (no Accessibility permission needed).
 - `WISPNOTE_VERBOSE=1` prints heartbeats.
-- The Python suite (`python main.py test`, 185 tests) must stay green when the
-  bridge changes.
+- The engine has no test suite by decision. Smoke-test it with
+  `WISPNOTE_NO_TAP=1 python3 engine/main.py serve` and `{"id":1,"cmd":"ping"}`.
