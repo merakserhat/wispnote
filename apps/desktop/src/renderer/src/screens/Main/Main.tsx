@@ -16,7 +16,7 @@ function Main() {
   if (isLoading) {
     return (
       <LoadingContainer>
-        <Text variant="body" muted>
+        <Text variant="body" color="textSecondary">
           Loading…
         </Text>
       </LoadingContainer>

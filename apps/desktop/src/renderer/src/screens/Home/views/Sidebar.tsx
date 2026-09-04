@@ -25,7 +25,13 @@ function Sidebar({ activeKey, onSelect }: TSidebarProps) {
         />
       ))}
       <SidebarFooter>
-        <Button label="Sign out" loading={isPending} onPress={handleSignOut} block />
+        <Button
+          label="Sign out"
+          variant="secondary"
+          loading={isPending}
+          onPress={handleSignOut}
+          block
+        />
       </SidebarFooter>
     </SidebarContainer>
   );

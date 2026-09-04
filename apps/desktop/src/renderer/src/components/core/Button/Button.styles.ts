@@ -4,8 +4,11 @@ import { Button } from 'antd';
 export const StyledButton = styled(Button)`
   && {
     -webkit-app-region: no-drag;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
+`;
+
+export const ButtonLabel = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;

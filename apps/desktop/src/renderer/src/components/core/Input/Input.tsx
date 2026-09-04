@@ -28,11 +28,12 @@ function Input({
   return (
     <InputWrapper className={className}>
       {label ? (
-        <Text variant="label" muted>
+        <Text as="label" htmlFor={name} variant="bodySubBold" color="textSecondary">
           {label}
         </Text>
       ) : null}
       <InputComponent
+        id={name}
         name={name}
         size={size}
         value={value}
@@ -44,7 +45,7 @@ function Input({
         onBlur={onBlur}
       />
       {error ? (
-        <Text variant="meta" color="danger">
+        <Text variant="caption" color="statusErrorPrimary">
           {error}
         </Text>
       ) : null}

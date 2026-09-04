@@ -10,7 +10,8 @@ export const GlobalStyle = createGlobalStyle`
     height: 100%;
     background: transparent;
     font-family: ${({ theme }) => theme.fonts.system};
-    color: ${({ theme }) => theme.colors.text};
+    color: ${({ theme }) => theme.colors.textPrimary};
+    -webkit-font-smoothing: antialiased;
     -webkit-user-select: none;
     overflow: hidden;
   }

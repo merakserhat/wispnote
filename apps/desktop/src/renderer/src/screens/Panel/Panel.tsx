@@ -31,7 +31,7 @@ function Panel() {
       <CaptureHeader context={payload.context} />
 
       <Preview $empty={!selection}>
-        <Text variant="body">{selection || 'no selection'}</Text>
+        <Text variant="bodySub">{selection || 'no selection'}</Text>
       </Preview>
 
       {mode === 'note' ? (

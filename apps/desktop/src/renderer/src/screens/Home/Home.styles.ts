@@ -9,9 +9,9 @@ export const SidebarContainer = styled.nav`
   display: flex;
   width: 208px;
   flex-direction: column;
-  padding: ${({ theme }) => theme.space[8]}px ${({ theme }) => theme.space[5]}px
-    ${({ theme }) => theme.space[5]}px;
-  gap: ${({ theme }) => theme.space[1]}px;
+  padding: ${({ theme }) => theme.space.xl}px ${({ theme }) => theme.space.sm}px
+    ${({ theme }) => theme.space.sm}px;
+  gap: ${({ theme }) => theme.space.xxs}px;
   -webkit-app-region: drag;
 `;
 
@@ -25,15 +25,16 @@ export const SidebarButton = styled.button<{ $isActive: boolean }>`
   display: flex;
   width: 100%;
   align-items: center;
-  padding: ${({ theme }) => theme.space[3]}px ${({ theme }) => theme.space[4]}px;
+  padding: ${({ theme }) => theme.space.s}px ${({ theme }) => theme.space.sm}px;
   border: none;
-  border-radius: ${({ theme }) => theme.radii.lg}px;
-  background: ${({ theme, $isActive }) => ($isActive ? theme.colors.surfaceMuted : 'transparent')};
+  border-radius: 10px;
+  background: ${({ theme, $isActive }) =>
+    $isActive ? theme.colors.backgroundSecondaryActive : 'transparent'};
   cursor: pointer;
   text-align: left;
 
   &:hover {
-    background: ${({ theme }) => theme.colors.hover};
+    background: ${({ theme }) => theme.colors.backgroundSecondary};
   }
 `;
 
@@ -41,17 +42,17 @@ export const ContentContainer = styled.main`
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space[5]}px;
-  padding: ${({ theme }) => theme.space[8]}px;
-  border-top-left-radius: ${({ theme }) => theme.radii.xl}px;
-  border-bottom-left-radius: ${({ theme }) => theme.radii.xl}px;
-  background: ${({ theme }) => theme.colors.background};
+  gap: ${({ theme }) => theme.space.sm}px;
+  padding: ${({ theme }) => theme.space.xl}px;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  background: ${({ theme }) => theme.colors.backgroundTertiary};
   overflow-y: auto;
 `;
 
 export const ContentHeader = styled.header`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space[2]}px;
+  gap: ${({ theme }) => theme.space.xs}px;
   -webkit-app-region: drag;
 `;

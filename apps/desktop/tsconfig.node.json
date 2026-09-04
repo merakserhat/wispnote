@@ -5,10 +5,16 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "noEmit": true
   },
-  "include": ["electron.vite.config.ts"]
+  "include": [
+    "electron.vite.config.ts",
+    "vite.aliases.ts",
+    ".storybook/main.ts"
+  ]
 }

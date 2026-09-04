@@ -5,19 +5,19 @@ export const SignInContainer = styled.div`
   height: 100%;
   align-items: center;
   justify-content: center;
-  background: ${({ theme }) => theme.colors.background};
+  background: ${({ theme }) => theme.colors.backgroundPrimary};
 `;
 
 export const SignInCard = styled.form`
   display: flex;
-  width: 320px;
+  width: 340px;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space[5]}px;
+  gap: ${({ theme }) => theme.space.m}px;
 `;
 
 export const SignInHeader = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space[2]}px;
-  margin-bottom: ${({ theme }) => theme.space[3]}px;
+  gap: ${({ theme }) => theme.space.xs}px;
+  margin-bottom: ${({ theme }) => theme.space.xs}px;
 `;

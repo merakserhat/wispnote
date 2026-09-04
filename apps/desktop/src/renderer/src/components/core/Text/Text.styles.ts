@@ -1,33 +1,26 @@
 import styled, { css } from 'styled-components';
-import { Typography } from 'antd';
+import { compose, space, textAlign } from 'styled-system';
 
-import { darkColors } from 'theme/theme';
-
+import { TEXT_STYLE_PROP_NAMES } from './Text.constants';
 import { TTextStyleProps } from './Text.types';
 
-export const StyledText = styled(Typography.Text)<TTextStyleProps>`
-  && {
-    ${({ theme, $variant = 'body' }) => css(theme.textVariants[$variant])}
-    color: ${({ theme, $color = 'text' }) => theme.colors[$color]};
+export const StyledText = styled.p.withConfig({
+  shouldForwardProp: (prop) => !TEXT_STYLE_PROP_NAMES.has(prop),
+})<TTextStyleProps>`
+  margin: 0;
+  font-family: inherit;
+  overflow-wrap: anywhere;
+  ${({ theme, $variant }) => css(theme.textVariants[$variant])}
+  color: ${({ theme, $color }) => theme.colors[$color]};
 
-    ${({ $muted }) =>
-      $muted &&
-      css`
-        opacity: 0.6;
-      `}
+  ${({ $numberOfLines }) =>
+    $numberOfLines &&
+    css`
+      display: -webkit-box;
+      -webkit-line-clamp: ${$numberOfLines};
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    `}
 
-    ${({ $truncate }) =>
-      $truncate &&
-      css`
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      `}
-
-    @media (prefers-color-scheme: dark) {
-      color: ${({ $color = 'text' }) =>
-        $color === 'text' || $color === 'textMuted' ? darkColors[$color] : undefined};
-    }
-  }
+  ${compose(space, textAlign)}
 `;

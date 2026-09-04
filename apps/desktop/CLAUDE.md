@@ -163,7 +163,18 @@ Mirrors `~/Documents/Wamo/wamo-business-web-app-new`. Follow these in all new co
 - **Server state:** TanStack Query — here the "server" is the bridge, so wrap
   engine commands in query/mutation hooks named `use[Action][Domain]`
   (`useGetNotes`, `useSaveHighlight`).
-- **Styling:** styled-components + styled-system, light/dark theme.
+- **Styling:** styled-components + styled-system, light/dark theme. Colors are
+  **theme primitives** (`textPrimary`, `backgroundTertiary`, `buttonPrimary`…) from
+  `theme/lightThemePrimitives.ts` / `darkThemePrimitives.ts`; components never see a hex.
+  Spacing is the named `theme.space` scale (`xs` `s` `sm` `m` `ml` `l` `xl`…), text
+  `theme.textVariants`. Border radius is a plain even pixel number (4 6 8 10 12 16 20), no
+  scale. The palette is **Linen** (`theme/palette.ts`).
+- **Core components** (`components/core/`): antd underneath, our props on top. Variant
+  and size maps (`Button.constants.ts`) translate our props into **antd's own props**
+  (`color`, `variant`, `size`); colors and metrics go through ConfigProvider tokens in
+  `AntdProvider.helpers.ts`. Never repaint an antd component in CSS when a token exists. `Box` and `Text` take styled-system props directly (`p="m"`, `gap="s"`) and strip
+  them with `shouldForwardProp`; everything else styled uses transient `$` props. Every
+  core component ships a `Name.stories.tsx` (CSF3 objects, `title: 'Core/Name'`).
 - **Forms:** react-hook-form + Yup.
 - **Enums:** explicit values, default export, MAP + getter pattern.
 
@@ -179,12 +190,13 @@ Same setup as the Wamo app, adapted for Electron. Versions match.
 | `npm run lint:fix` | The same, auto-fixing what it can |
 | `npm run typecheck` | `tsc -b` across the project references |
 | `npm run format` / `format:check` | Prettier over `src/**` |
+| `npm run storybook` | Storybook 8 (react-vite) on :6006, stories from `src/renderer/src/**/*.stories.tsx` |
 
 `tsconfig.json` holds project references only. `tsconfig.main.json` covers main
 and preload (CommonJS via `Node16`, Node types, no DOM); `tsconfig.renderer.json`
 covers the renderer (bundler mode, DOM, `react-jsx`); `tsconfig.node.json` covers
 the Vite config. **Path aliases must be kept in step with
-`electron.vite.config.ts`** — TypeScript and Vite resolve them separately.
+`vite.aliases.ts`** (used by `electron.vite.config.ts` and `.storybook/main.ts`) — TypeScript and Vite resolve them separately.
 
 Two options Wamo uses are **removed in TypeScript 7** and are spelled
 differently here — do not copy them back:

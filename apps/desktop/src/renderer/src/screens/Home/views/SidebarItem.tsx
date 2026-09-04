@@ -10,7 +10,7 @@ function SidebarItem({ item, isActive, onSelect }: TSidebarItemProps) {
 
   return (
     <SidebarButton type="button" $isActive={isActive} onClick={handleSelect}>
-      <Text variant="subheading" muted={!isActive}>
+      <Text variant="subtitle" color={isActive ? 'textPrimary' : 'textSecondary'}>
         {item.label}
       </Text>
     </SidebarButton>

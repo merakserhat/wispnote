@@ -9,5 +9,5 @@ export const LoadingContainer = styled.div`
   height: 100%;
   align-items: center;
   justify-content: center;
-  background: ${({ theme }) => theme.colors.background};
+  background: ${({ theme }) => theme.colors.backgroundPrimary};
 `;

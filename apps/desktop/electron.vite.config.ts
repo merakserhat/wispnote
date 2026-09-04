@@ -2,6 +2,8 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'electron-vite';
 import { resolve } from 'path';
 
+import { rendererAlias, sharedAlias } from './vite.aliases';
+
 /**
  * Three builds, one config.
  *
@@ -9,12 +11,11 @@ import { resolve } from 'path';
  * between the engine, the main process and the renderer, so all three resolve
  * it the same way.
  */
-const shared = resolve(__dirname, 'src/shared');
 
 export default defineConfig({
   main: {
     resolve: {
-      alias: { shared },
+      alias: sharedAlias(__dirname),
     },
     build: {
       rollupOptions: {
@@ -24,7 +25,7 @@ export default defineConfig({
   },
   preload: {
     resolve: {
-      alias: { shared },
+      alias: sharedAlias(__dirname),
     },
     build: {
       rollupOptions: {
@@ -35,18 +36,7 @@ export default defineConfig({
   renderer: {
     root: resolve(__dirname, 'src/renderer'),
     resolve: {
-      alias: {
-        shared,
-        api: resolve(__dirname, 'src/renderer/src/api'),
-        components: resolve(__dirname, 'src/renderer/src/components'),
-        configs: resolve(__dirname, 'src/renderer/src/configs'),
-        screens: resolve(__dirname, 'src/renderer/src/screens'),
-        hooks: resolve(__dirname, 'src/renderer/src/hooks'),
-        context: resolve(__dirname, 'src/renderer/src/context'),
-        helpers: resolve(__dirname, 'src/renderer/src/helpers'),
-        theme: resolve(__dirname, 'src/renderer/src/theme'),
-        types: resolve(__dirname, 'src/renderer/src/types'),
-      },
+      alias: rendererAlias(__dirname),
     },
     plugins: [react()],
     build: {

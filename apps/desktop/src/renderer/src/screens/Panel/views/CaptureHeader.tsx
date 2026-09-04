@@ -10,14 +10,14 @@ function CaptureHeader({ context }: TCaptureHeaderProps) {
   return (
     <>
       <Header>
-        <Text variant="title" truncate>
+        <Text variant="bodySubBold" numberOfLines={1}>
           {context.sourceTitle || context.appName || 'Unknown source'}
         </Text>
         <KindBadge>{context.sourceKind}</KindBadge>
       </Header>
 
       {Boolean(meta) && (
-        <Text variant="meta" muted truncate>
+        <Text variant="caption" color="textSecondary" numberOfLines={1}>
           {meta}
         </Text>
       )}

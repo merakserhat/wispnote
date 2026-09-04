@@ -1,28 +1,36 @@
+import { BUTTON_SIZE_MAP, BUTTON_VARIANT_MAP } from './Button.constants';
+import { ButtonLabel, StyledButton } from './Button.styles';
 import { TButtonProps } from './Button.types';
-import { StyledButton } from './Button.styles';
 
 function Button({
   label,
-  variant = 'secondary',
-  disabled = false,
+  variant = 'primary',
+  size = 'medium',
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
   loading = false,
+  disabled = false,
+  block = false,
   onPress,
-  className,
-  icon,
-  block,
   htmlType = 'button',
+  className,
 }: TButtonProps) {
+  const { antdSize, iconSize } = BUTTON_SIZE_MAP[size];
+  const Icon = LeftIcon ?? RightIcon;
+
   return (
     <StyledButton
       className={className}
-      type={variant === 'primary' ? 'primary' : 'default'}
+      {...BUTTON_VARIANT_MAP[variant]}
+      size={antdSize}
       htmlType={htmlType}
-      icon={icon}
-      block={block}
-      disabled={disabled}
+      icon={Icon ? <Icon width={iconSize} height={iconSize} /> : undefined}
+      iconPlacement={LeftIcon ? 'start' : 'end'}
       loading={loading}
+      disabled={disabled}
+      block={block}
       onClick={onPress}>
-      {label}
+      <ButtonLabel>{label}</ButtonLabel>
     </StyledButton>
   );
 }

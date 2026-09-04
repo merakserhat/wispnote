@@ -1,14 +1,14 @@
 import { ThemeProvider as StyledComponentProvider } from 'styled-components';
 
-import useIsSystemDark from 'hooks/useIsSystemDark';
-import { darkColors, theme } from 'theme';
-import { TChildrenOnly } from 'types/common';
+import useIsDark from 'hooks/useIsDark';
+import { darkThemePrimitives, lightThemePrimitives, theme } from 'theme';
 
 import { GlobalStyle } from './ThemeProvider.styles';
+import { TThemeProviderProps } from './ThemeProvider.types';
 
-function ThemeProvider({ children }: TChildrenOnly) {
-  const isSystemDark = useIsSystemDark();
-  const colors = isSystemDark ? { ...theme.colors, ...darkColors } : theme.colors;
+function ThemeProvider({ children, colorScheme = 'system' }: TThemeProviderProps) {
+  const isDark = useIsDark({ colorScheme });
+  const colors = isDark ? darkThemePrimitives : lightThemePrimitives;
 
   return (
     <StyledComponentProvider theme={{ ...theme, colors }}>

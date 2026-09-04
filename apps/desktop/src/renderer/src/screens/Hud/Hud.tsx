@@ -9,11 +9,11 @@ function Hud() {
 
   return (
     <HudRoot $visible={visible}>
-      <Text variant="title" truncate>
+      <Text variant="bodySubBold" numberOfLines={1}>
         {toast?.message ?? ''}
       </Text>
       {Boolean(toast?.detail) && (
-        <Text variant="meta" muted truncate>
+        <Text variant="caption" color="textSecondary" numberOfLines={1}>
           {toast?.detail}
         </Text>
       )}

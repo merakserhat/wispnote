@@ -4,7 +4,7 @@ import { Input } from 'antd';
 export const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space[2]}px;
+  gap: ${({ theme }) => theme.space.xs}px;
   width: 100%;
 `;
 

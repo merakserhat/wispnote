@@ -11,9 +11,11 @@ function ActionButton({ action, label, primary, disabled, loading, onAction }: T
     <Button
       label={label}
       variant={primary ? 'primary' : 'secondary'}
+      size="small"
       disabled={disabled}
       loading={loading}
       onPress={handlePress}
+      block
     />
   );
 }

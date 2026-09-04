@@ -15,11 +15,11 @@ function Home({ member }: THomeProps) {
       <ContentContainer>
         <ContentHeader>
           <Text variant="heading">Welcome back</Text>
-          <Text variant="body" muted>
+          <Text variant="body" color="textSecondary">
             {member.email}
           </Text>
         </ContentHeader>
-        <Text variant="body" muted>
+        <Text variant="body" color="textSecondary">
           Nothing here yet - captured highlights will show up on this screen.
         </Text>
       </ContentContainer>

@@ -14,7 +14,7 @@ function SignIn() {
       <SignInCard onSubmit={submit}>
         <SignInHeader>
           <Text variant="heading">Sign in to WispNote</Text>
-          <Text variant="body" muted>
+          <Text variant="body" color="textSecondary">
             Your highlights sync to your account.
           </Text>
         </SignInHeader>
@@ -35,11 +35,18 @@ function SignIn() {
           secure
         />
         {error ? (
-          <Text variant="meta" color="danger">
+          <Text variant="caption" color="statusErrorPrimary">
             {error.errorMessage}
           </Text>
         ) : null}
-        <Button label="Sign in" variant="primary" htmlType="submit" loading={isPending} block />
+        <Button
+          label="Sign in"
+          variant="primary"
+          size="large"
+          htmlType="submit"
+          loading={isPending}
+          block
+        />
       </SignInCard>
     </SignInContainer>
   );
