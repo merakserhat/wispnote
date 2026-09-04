@@ -1,4 +1,4 @@
-import { Menu, nativeImage, shell, Tray, app } from 'electron';
+import { Menu, nativeImage, Tray, app } from 'electron';
 
 import { TEngineStatus } from 'shared/types/engine.types';
 
@@ -31,14 +31,6 @@ export function createTray({ engine, onShowPanel, onOpenMainWindow }: TCreateTra
           click: () => {
             engine.failures = 0;
             engine.kill();
-          },
-        },
-        {
-          label: 'Open data folder',
-          click: () => {
-            if (engine.ready) {
-              shell.openPath(engine.ready.data_dir);
-            }
           },
         },
         { type: 'separator' },

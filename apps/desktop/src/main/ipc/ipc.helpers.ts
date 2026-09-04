@@ -2,47 +2,9 @@ import { AxiosResponse } from 'axios';
 
 import API_ENDPOINT from 'shared/constants/apiEndpoint';
 import { TErrorResponse } from 'shared/types/common';
-import { TSaveResult } from 'shared/types/engine.types';
 import { TIpcRequest } from 'shared/types/ipc.types';
 
 import Api from '../helpers/api';
-import { TRunActionParams } from './ipc.types';
-
-export async function runAction({
-  request,
-  engine,
-  panel,
-  mainWindow,
-  getContext,
-}: TRunActionParams): Promise<unknown> {
-  const { action, text } = request;
-
-  // INFO: (serhat) never re-capture here - the engine captured this before any window appeared.
-  const context = getContext();
-
-  if (action === 'quick_note') {
-    const result = await engine.request<TSaveResult>('save_note', { context, text });
-    panel.hide();
-    return result;
-  }
-
-  panel.hide();
-
-  switch (action) {
-    case 'quick_highlight':
-      return engine.request<TSaveResult>('save_highlight', { context });
-
-    case 'sync_source':
-      return engine.request('sync_source', { context });
-
-    case 'open_notes':
-      mainWindow.show();
-      return null;
-
-    default:
-      return null;
-  }
-}
 
 export function sendApiRequest({
   method,

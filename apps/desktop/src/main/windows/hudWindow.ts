@@ -12,14 +12,6 @@ import {
 } from './hudWindow.constants';
 import { loadRenderer } from './loadRenderer';
 
-/**
- * The "Highlight saved" confirmation.
- *
- * Every toast needs this, not just the ones raised while the panel happens to
- * be open: `quick_highlight` and `sync_source` finish inside the engine without
- * ever showing a panel, and with nothing on screen a working save is
- * indistinguishable from a broken shortcut.
- */
 export class HudWindow {
   private window: BrowserWindow | null = null;
 
@@ -39,8 +31,6 @@ export class HudWindow {
 
       type: 'panel',
       alwaysOnTop: true,
-      // Never focusable: a confirmation must not take the keyboard even for the
-      // instant it is on screen.
       focusable: false,
 
       vibrancy: 'hud',
@@ -56,7 +46,6 @@ export class HudWindow {
       },
     });
 
-    // Above the panel, and clicks pass straight through to whatever is behind.
     this.window.setAlwaysOnTop(true, 'status');
     this.window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     this.window.setIgnoreMouseEvents(true);
@@ -79,12 +68,10 @@ export class HudWindow {
 
     this.hideTimer = setTimeout(() => {
       this.window?.webContents.send(IPC_CHANNELS.toastHide);
-      // Hide only once the fade has finished, or it vanishes instead.
       this.fadeTimer = setTimeout(() => this.window?.hide(), HUD_FADE_MS);
     }, HUD_DURATION_MS);
   }
 
-  /** Top-centre of whichever display the cursor is on - where the user looks. */
   private position(): void {
     if (!this.window) {
       return;

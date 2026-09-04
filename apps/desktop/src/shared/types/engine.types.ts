@@ -16,10 +16,10 @@ export type TReadyFrame = {
   version: string;
   pid: number;
   python: string;
-  data_dir: string;
   accessibility: boolean;
   tap: boolean;
-  tap_error?: string;
+  tap_error: string | null;
+  pdf: boolean;
   heartbeat: number;
   triggers: TTriggerBinding[];
 };
@@ -37,20 +37,6 @@ export type TTriggerFrame = {
   action: TEngineAction;
   context: TRawCaptureContext;
   can_sync: boolean;
-  summary: string;
-};
-
-export type TToastFrame = {
-  type: 'toast';
-  message: string;
-  detail: string;
-  note_id?: number;
-};
-
-export type TDataFrame = {
-  type: 'data';
-  event: string;
-  note_id: number | null;
 };
 
 export type TResultFrame = {
@@ -68,37 +54,65 @@ export type TErrorFrame = {
 };
 
 export type TEngineFrame =
-  | TReadyFrame
-  | THeartbeatFrame
-  | TTriggerFrame
-  | TToastFrame
-  | TDataFrame
-  | TResultFrame
-  | TErrorFrame;
+  TReadyFrame | THeartbeatFrame | TTriggerFrame | TResultFrame | TErrorFrame;
 
 export type TEngineCommand =
-  | 'ping'
-  | 'capture'
-  | 'save_highlight'
-  | 'save_note'
-  | 'sync_source'
-  | 'list_notes'
-  | 'list_sources'
-  | 'stats'
-  | 'settings'
-  | 'shutdown';
+  'ping' | 'capture' | 'configure' | 'pdf_info' | 'pdf_locate' | 'pdf_annotations' | 'shutdown';
+
+export type TEngineSettings = {
+  triggers: Record<string, TEngineAction>;
+  suppress_fn: boolean;
+  fn_double_interval: number;
+  max_selection_chars: number;
+  max_context_chars: number;
+  deep_search_selection: boolean;
+};
 
 export type TCaptureResult = {
   context: TRawCaptureContext;
   can_sync: boolean;
 };
 
-export type TSaveResult = {
-  saved: boolean;
-  created?: boolean;
-  note_id?: number;
-  summary?: string;
-  detail?: string;
-  enrichment_queued?: boolean;
-  reason?: string;
+export type TConfigureResult = {
+  triggers: TTriggerBinding[];
+};
+
+export type TPdfTocEntry = {
+  level: number;
+  title: string;
+  page: number;
+};
+
+export type TPdfInfoResult = {
+  pdf_title?: string;
+  pdf_author?: string;
+  page_count?: number;
+  toc?: TPdfTocEntry[];
+  file_size?: number;
+};
+
+export type TPdfLocateResult = {
+  located: boolean;
+  total_pages?: number;
+  page_number?: number;
+  context_before?: string;
+  context_after?: string;
+  section?: string;
+  error?: string;
+};
+
+export type TPdfAnnotation = {
+  page_number: number;
+  subtype: string;
+  text: string;
+  comment: string;
+  author: string;
+  modified: string;
+  rect: number[];
+  section: string;
+  external_id: string;
+};
+
+export type TPdfAnnotationsResult = {
+  annotations: TPdfAnnotation[];
 };

@@ -1,6 +1,6 @@
 import { TCaptureContext } from './capture.types';
 import { TErrorResponse } from './common';
-import { TEngineAction, TToastFrame } from './engine.types';
+import { TEngineAction } from './engine.types';
 
 export type TPanelMode = 'panel' | 'note';
 
@@ -9,7 +9,6 @@ export type TPanelPayload = {
   action: TEngineAction;
   context: TCaptureContext;
   canSync: boolean;
-  summary: string;
 };
 
 export type TActionRequest = {
@@ -17,7 +16,10 @@ export type TActionRequest = {
   text?: string;
 };
 
-export type TToastPayload = Pick<TToastFrame, 'message' | 'detail'>;
+export type TToastPayload = {
+  message: string;
+  detail: string;
+};
 
 export type TWispBridge = {
   onPanelRender: (handler: (payload: TPanelPayload) => void) => () => void;

@@ -1,26 +1,19 @@
+import { ENGINE_PROTOCOL_VERSION } from 'shared/constants/engineProtocol';
 import {
-  TDataFrame,
+  TConfigureResult,
   TErrorFrame,
   THeartbeatFrame,
   TReadyFrame,
-  TToastFrame,
-  TTriggerFrame,
 } from 'shared/types/engine.types';
 
-import { describeCapture, log, previewSelection, toCaptureContext } from '../helpers';
+import { log } from '../helpers';
 import { ENGINE_HEARTBEAT_SECONDS, PYTHON_APP, VERBOSE } from '../main.constants';
 
 import { Engine } from './Engine';
-import { TCreateEngineProps } from './createEngine.types';
+import { DEFAULT_ENGINE_SETTINGS } from './createEngine.constants';
+import { TCreateEngineParams } from './createEngine.types';
 
-/**
- * The running engine, wired to this app.
- *
- * `Engine` is the mechanism - spawn, restart, speak the bridge protocol. This
- * is the policy: what gets logged, where a toast is drawn, what a trigger does.
- * Swapping either one out leaves the other alone.
- */
-export const createEngine = ({ app, hud, onTrigger }: TCreateEngineProps): Engine => {
+export function createEngine({ app }: TCreateEngineParams): Engine {
   const args = ['main.py', 'serve', '--heartbeat', ENGINE_HEARTBEAT_SECONDS];
   if (process.env.WISPNOTE_NO_TAP) {
     args.push('--no-tap');
@@ -33,17 +26,31 @@ export const createEngine = ({ app, hud, onTrigger }: TCreateEngineProps): Engin
     env: { ...process.env, PYTHONUNBUFFERED: '1' },
   });
 
+  async function configure(): Promise<void> {
+    try {
+      const result = await engine.request<TConfigureResult>('configure', {
+        settings: DEFAULT_ENGINE_SETTINGS,
+      });
+      if (VERBOSE) {
+        result.triggers.forEach(({ trigger, action }) => {
+          log('shortcut', `${trigger.padEnd(9)} → ${action}`);
+        });
+      }
+    } catch (error) {
+      log('error', `configure failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
   engine.on('log', (line: string) => log('python', line.replace(/^\[wispnote\]\s*/, '')));
 
   engine.on('status', (status: string) => {
-    // `starting` and `running` are already implied by the `ready` line.
     if (status === 'unhealthy' || status === 'failed') {
       log('engine', `status: ${status}`);
     }
   });
 
   engine.on('ready', (frame: TReadyFrame) => {
-    log('engine', `ready · pid ${frame.pid} · ${frame.data_dir}`);
+    log('engine', `ready · pid ${frame.pid} · engine ${frame.version} · python ${frame.python}`);
 
     if (!frame.accessibility) {
       log('engine', 'accessibility DENIED — every capture will come back empty');
@@ -51,30 +58,20 @@ export const createEngine = ({ app, hud, onTrigger }: TCreateEngineProps): Engin
     if (!frame.tap && !process.env.WISPNOTE_NO_TAP) {
       log('engine', `event tap OFF — ${frame.tap_error}`);
     }
-    if (VERBOSE) {
-      frame.triggers.forEach(({ trigger, action }) => {
-        log('shortcut', `${trigger.padEnd(9)} → ${action}`);
-      });
+    if (!frame.pdf) {
+      log('engine', 'PyMuPDF missing — PDF notes save without page or section');
     }
+
+    // INFO: (serhat) sent on every ready, so a restart and a first launch are the same path.
+    configure();
   });
 
-  engine.on('trigger', (frame: TTriggerFrame) => {
-    log('trigger', `${frame.trigger} → ${frame.action}`);
-    if (VERBOSE) {
-      const context = toCaptureContext(frame.context);
-      log('capture', describeCapture(context));
-      log('capture', previewSelection(context));
-    }
-    onTrigger(frame);
-  });
-
-  engine.on('toast', (frame: TToastFrame) => {
-    log('result', [frame.message, frame.detail].filter(Boolean).join('  ·  '));
-    hud.show({ message: frame.message, detail: frame.detail });
-  });
-
-  engine.on('data', (frame: TDataFrame) => {
-    log('db', `${frame.event}${frame.note_id ? ` · note ${frame.note_id}` : ''}`);
+  engine.on('incompatible', (frame: TReadyFrame) => {
+    log(
+      'error',
+      `engine speaks protocol ${frame.protocol}, this build needs ${ENGINE_PROTOCOL_VERSION} — quitting`
+    );
+    app.quit();
   });
 
   engine.on('error', (frame: TErrorFrame) => log('error', frame.message));
@@ -92,4 +89,4 @@ export const createEngine = ({ app, hud, onTrigger }: TCreateEngineProps): Engin
 
   engine.start();
   return engine;
-};
+}

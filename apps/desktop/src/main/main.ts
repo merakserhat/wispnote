@@ -3,6 +3,7 @@ import path from 'path';
 
 import { TCaptureResult } from 'shared/types/engine.types';
 
+import { createActions } from './actions';
 import { createEngine } from './engine';
 import { log } from './helpers';
 import { registerIpcHandlers } from './ipc';
@@ -10,12 +11,6 @@ import { registerShutdown } from './lifecycle';
 import { createTray } from './tray';
 import { createPanelController, HudWindow, MainWindow, PanelWindow } from './windows';
 
-/**
- * Wiring only.
- *
- * Nothing is stored at module scope: each piece owns its own state behind a
- * factory, so this file stays a readable list of what gets connected to what.
- */
 app.whenReady().then(() => {
   app.dock?.hide();
 
@@ -33,23 +28,19 @@ app.whenReady().then(() => {
   const controller = createPanelController(panel);
 
   log('host', 'starting — Ctrl+C or the menu bar to quit');
-  const engine = createEngine({ app, hud, onTrigger: controller.show });
+  const engine = createEngine({ app });
+  const actions = createActions({ engine, hud, panel, controller, mainWindow });
 
-  const showPanelFromMenu = async (): Promise<void> => {
+  async function showPanelFromMenu(): Promise<void> {
     try {
       const result = await engine.request<TCaptureResult>('capture');
-      controller.show({
-        action: 'show_panel',
-        context: result.context,
-        can_sync: result.can_sync,
-        summary: '',
-      });
+      controller.show({ action: 'show_panel', context: result.context, can_sync: result.can_sync });
     } catch (error) {
       log('error', `capture failed: ${error instanceof Error ? error.message : String(error)}`);
     }
-  };
+  }
 
-  registerIpcHandlers({ engine, panel, mainWindow, getContext: controller.getContext });
+  registerIpcHandlers({ actions, panel });
   createTray({
     engine,
     onShowPanel: showPanelFromMenu,

@@ -1,16 +1,7 @@
-import { TActionRequest } from 'shared/types/ipc.types';
-
-import { Engine } from '../engine';
-import { MainWindow } from '../windows/mainWindow';
+import { TActions } from '../actions';
 import { PanelWindow } from '../windows/panelWindow';
 
 export type TIpcContext = {
-  engine: Engine;
+  actions: TActions;
   panel: PanelWindow;
-  mainWindow: MainWindow;
-  getContext: () => unknown;
-};
-
-export type TRunActionParams = TIpcContext & {
-  request: TActionRequest;
 };

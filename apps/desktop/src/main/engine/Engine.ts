@@ -2,6 +2,7 @@ import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { EventEmitter } from 'events';
 import readline from 'readline';
 
+import { ENGINE_PROTOCOL_VERSION } from 'shared/constants/engineProtocol';
 import {
   TEngineCommand,
   TEngineFrame,
@@ -20,23 +21,11 @@ import {
 } from './Engine.constants';
 import { TEngineOptions, TOutboundMessage, TPendingRequest, TRequestPayload } from './Engine.types';
 
-/**
- * The Python side, as a supervised child process.
- *
- * Owns three things the host cannot do itself: spawning `main.py serve`,
- * deciding when that process is unhealthy, and restarting it without letting a
- * crash loop spin forever.
- *
- * Liveness is not the pid. The engine's heartbeat carries `tap`, so a process
- * that is running with a dead event tap - the failure the user actually feels,
- * because no shortcut works - counts as unhealthy and gets restarted.
- */
 export class Engine extends EventEmitter {
   private readonly options: TEngineOptions;
 
   private child: ChildProcessWithoutNullStreams | null = null;
 
-  /** The `ready` frame, once it arrives. */
   ready: TReadyFrame | null = null;
 
   status: TEngineStatus = 'stopped';
@@ -64,7 +53,6 @@ export class Engine extends EventEmitter {
     this.options = options;
   }
 
-  // ------------------------------------------------------------------
   start(): void {
     if (this.child || this.stopping) {
       return;
@@ -92,7 +80,6 @@ export class Engine extends EventEmitter {
     this.watchdog = setInterval(() => this.checkHealth(), 1000);
   }
 
-  /** Graceful stop: the engine tears down its event tap before exiting. */
   async stop(): Promise<void> {
     this.stopping = true;
     if (this.restartTimer) {
@@ -109,13 +96,12 @@ export class Engine extends EventEmitter {
     this.send({ cmd: 'shutdown' });
 
     await new Promise<void>((resolve) => {
-      // SIGKILL rather than SIGTERM: a wedged run loop ignores the polite one,
-      // and leaving an orphan behind means a stale event tap on the Fn key.
+      // INFO: (serhat) SIGKILL, not SIGTERM - a wedged run loop ignores SIGTERM and an orphan keeps the Fn tap.
       const timer = setTimeout(() => {
         try {
           child.kill('SIGKILL');
         } catch {
-          // Already gone - that is the outcome we wanted anyway.
+          // ignore
         }
         resolve();
       }, SHUTDOWN_TIMEOUT_MS);
@@ -127,9 +113,6 @@ export class Engine extends EventEmitter {
     });
   }
 
-  // ------------------------------------------------------------------
-  // Frames in
-  // ------------------------------------------------------------------
   private onFrame(line: string): void {
     if (!line.trim()) {
       return;
@@ -144,6 +127,12 @@ export class Engine extends EventEmitter {
     }
 
     if (frame.type === 'ready') {
+      if (frame.protocol !== ENGINE_PROTOCOL_VERSION) {
+        this.stopping = true;
+        this.emit('incompatible', frame);
+        this.kill();
+        return;
+      }
       this.ready = frame;
       this.beatInterval = (frame.heartbeat || 2) * 1000;
       this.lastBeatAt = Date.now();
@@ -154,8 +143,7 @@ export class Engine extends EventEmitter {
 
     if (frame.type === 'heartbeat') {
       this.lastBeatAt = Date.now();
-      // A live process with a dead tap is worse than a dead process: it looks
-      // fine and does nothing. Only meaningful once the tap was ever up.
+      // INFO: (serhat) a live process with a dead tap looks fine and does nothing, so it is restarted.
       if (this.ready?.tap && !frame.tap) {
         this.log('event tap died - restarting');
         this.setStatus('unhealthy');
@@ -186,9 +174,6 @@ export class Engine extends EventEmitter {
     this.emit(frame.type, frame);
   }
 
-  // ------------------------------------------------------------------
-  // Commands out
-  // ------------------------------------------------------------------
   private send(message: TOutboundMessage): boolean {
     if (!this.child || this.child.killed) {
       return false;
@@ -201,7 +186,6 @@ export class Engine extends EventEmitter {
     }
   }
 
-  /** Send a command and await its reply. */
   request<TResult = unknown>(
     cmd: TEngineCommand,
     payload: TRequestPayload = {},
@@ -235,9 +219,6 @@ export class Engine extends EventEmitter {
     });
   }
 
-  // ------------------------------------------------------------------
-  // Health
-  // ------------------------------------------------------------------
   private checkHealth(): void {
     if (!this.child || this.stopping) {
       return;
@@ -263,7 +244,7 @@ export class Engine extends EventEmitter {
     try {
       this.child.kill('SIGKILL');
     } catch {
-      // Already gone - that is the outcome we wanted anyway.
+      // ignore
     }
   }
 
@@ -285,8 +266,7 @@ export class Engine extends EventEmitter {
       return;
     }
 
-    // A run that stayed up long enough was not a crash loop, whatever the exit
-    // code - reset the counter so a nightly blip never exhausts it.
+    // INFO: (serhat) a long run was not a crash loop whatever the exit code - reset so a blip never exhausts retries.
     if (lived > HEALTHY_UPTIME_MS) {
       this.failures = 0;
     }

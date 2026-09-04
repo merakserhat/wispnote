@@ -6,19 +6,17 @@ import { TActionRequest, TIpcRequest, TIpcResponse } from 'shared/types/ipc.type
 import { onSessionExpired } from '../configs/requestConfig';
 import { log } from '../helpers';
 import storage from '../helpers/storage';
-import { runAction, sendApiRequest, toErrorResponse, toIpcData } from './ipc.helpers';
+import { sendApiRequest, toErrorResponse, toIpcData } from './ipc.helpers';
 import { TIpcContext } from './ipc.types';
 
-export function registerIpcHandlers(context: TIpcContext): void {
-  const { panel } = context;
-
+export function registerIpcHandlers({ actions, panel }: TIpcContext): void {
   ipcMain.handle(IPC_CHANNELS.action, async (_event, request: TActionRequest) => {
     try {
-      return await runAction({ ...context, request });
+      return await actions.runAction(request);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       log('error', `action ${request.action} failed: ${message}`);
-      return { error: message };
+      return { accepted: false, reason: message };
     }
   });
 

@@ -1,7 +1,9 @@
+import { app } from 'electron';
 import path from 'path';
 
-// TODO: Take this from the environment variable
-export const PYTHON_APP = path.resolve(__dirname, '../../../wispnote-app');
+export const PYTHON_APP = app.isPackaged
+  ? path.join(process.resourcesPath, 'engine')
+  : path.resolve(__dirname, '../../engine');
 
 export const ENGINE_HEARTBEAT_SECONDS = '2';
 

@@ -1,9 +1,3 @@
-import { TTriggerFrame } from 'shared/types/engine.types';
-
-import { HudWindow } from '../windows';
-
-export type TCreateEngineProps = {
+export type TCreateEngineParams = {
   app: Electron.App;
-  hud: HudWindow;
-  onTrigger: (frame: TTriggerFrame) => void;
 };
