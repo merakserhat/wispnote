@@ -1,4 +1,4 @@
-package com.wispnote.backend.application.note.exception;
+package com.wispnote.backend.application.source.exception;
 
 import com.wispnote.backend.application.common.exception.ValidationException;
 

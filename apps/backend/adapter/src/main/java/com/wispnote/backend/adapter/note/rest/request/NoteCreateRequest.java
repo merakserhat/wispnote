@@ -1,5 +1,6 @@
 package com.wispnote.backend.adapter.note.rest.request;
 
+import com.wispnote.backend.adapter.source.rest.request.SourceCaptureRequest;
 import com.wispnote.backend.application.note.enums.NoteKind;
 import com.wispnote.backend.application.note.model.NoteCapture;
 import jakarta.validation.Valid;

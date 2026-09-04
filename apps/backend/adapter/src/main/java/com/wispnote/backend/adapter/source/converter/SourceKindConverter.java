@@ -1,7 +1,7 @@
-package com.wispnote.backend.adapter.note.converter;
+package com.wispnote.backend.adapter.source.converter;
 
 import com.wispnote.backend.adapter.common.converter.BaseEnumConverter;
-import com.wispnote.backend.application.note.enums.SourceKind;
+import com.wispnote.backend.application.source.enums.SourceKind;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;

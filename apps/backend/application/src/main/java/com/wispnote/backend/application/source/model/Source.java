@@ -1,6 +1,6 @@
-package com.wispnote.backend.application.note.model;
+package com.wispnote.backend.application.source.model;
 
-import com.wispnote.backend.application.note.enums.SourceKind;
+import com.wispnote.backend.application.source.enums.SourceKind;
 
 import java.util.Map;
 import java.util.UUID;
@@ -14,5 +14,7 @@ public record Source(UUID id,
                      String filePath,
                      String appName,
                      String bundleId,
+                     String externalId,
+                     Integer pageCount,
                      Map<String, Object> metadata) {
 }

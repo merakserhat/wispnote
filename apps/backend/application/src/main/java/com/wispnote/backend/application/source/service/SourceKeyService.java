@@ -1,7 +1,7 @@
-package com.wispnote.backend.application.note.service;
+package com.wispnote.backend.application.source.service;
 
-import com.wispnote.backend.application.note.exception.SourceKeyNotResolvableValidationException;
-import com.wispnote.backend.application.note.model.SourceCapture;
+import com.wispnote.backend.application.source.exception.SourceKeyNotResolvableValidationException;
+import com.wispnote.backend.application.source.model.SourceCapture;
 import lombok.NoArgsConstructor;
 
 import java.net.URI;

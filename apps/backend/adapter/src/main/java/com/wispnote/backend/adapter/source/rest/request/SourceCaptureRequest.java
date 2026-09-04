@@ -1,8 +1,9 @@
-package com.wispnote.backend.adapter.note.rest.request;
+package com.wispnote.backend.adapter.source.rest.request;
 
-import com.wispnote.backend.application.note.enums.SourceKind;
-import com.wispnote.backend.application.note.model.SourceCapture;
+import com.wispnote.backend.application.source.enums.SourceKind;
+import com.wispnote.backend.application.source.model.SourceCapture;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,9 +22,13 @@ public class SourceCaptureRequest {
     private String appName;
     private String bundleId;
     private String documentId;
+
+    @Positive(message = "{validations.source.pageCount.positive}")
+    private Integer pageCount;
+
     private Map<String, Object> metadata;
 
     public SourceCapture toModel() {
-        return new SourceCapture(kind, title, url, filePath, appName, bundleId, documentId, metadata);
+        return new SourceCapture(kind, title, url, filePath, appName, bundleId, documentId, pageCount, metadata);
     }
 }

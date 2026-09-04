@@ -1,4 +1,4 @@
-package com.wispnote.backend.application.note.enums;
+package com.wispnote.backend.application.source.enums;
 
 public enum SourceKind {
     WEB,

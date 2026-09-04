@@ -2,6 +2,7 @@ package com.wispnote.backend.application.note.model;
 
 import com.wispnote.backend.application.note.enums.EnrichmentStatus;
 import com.wispnote.backend.application.note.enums.NoteKind;
+import com.wispnote.backend.application.source.model.SourceCapture;
 
 import java.util.HashMap;
 import java.util.Map;

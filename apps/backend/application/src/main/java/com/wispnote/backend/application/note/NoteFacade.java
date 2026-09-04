@@ -7,8 +7,8 @@ import com.wispnote.backend.application.note.model.Note;
 import com.wispnote.backend.application.note.model.NoteCapture;
 import com.wispnote.backend.application.note.model.NoteFilter;
 import com.wispnote.backend.application.note.port.NotePort;
-import com.wispnote.backend.application.note.port.SourcePort;
-import com.wispnote.backend.application.note.service.SourceKeyService;
+import com.wispnote.backend.application.source.port.SourcePort;
+import com.wispnote.backend.application.source.service.SourceKeyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,8 @@ public class NoteFacade {
         var key = SourceKeyService.resolve(capture.source());
         var source = sourcePort.upsertByMemberIdAndKey(memberId, key, capture.source());
 
-        return notePort.create(capture.toNote(memberId, source.id()));    }
+        return notePort.create(capture.toNote(memberId, source.id()));
+    }
 
     public Paginated<Note> list(UUID memberId, NoteFilter filter, PaginationInfo paginationInfo) {
         return notePort.findAllByMemberId(memberId, filter, paginationInfo);

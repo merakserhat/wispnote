@@ -1,8 +1,8 @@
-package com.wispnote.backend.adapter.note.jpa.entity;
+package com.wispnote.backend.adapter.source.jpa.entity;
 
 import com.wispnote.backend.adapter.common.jpa.entity.BaseEntity;
-import com.wispnote.backend.adapter.note.converter.SourceKindConverter;
-import com.wispnote.backend.application.note.model.Source;
+import com.wispnote.backend.adapter.source.converter.SourceKindConverter;
+import com.wispnote.backend.application.source.model.Source;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -41,6 +41,10 @@ public class SourceEntity extends BaseEntity {
 
     private String bundleId;
 
+    private String externalId;
+
+    private Integer pageCount;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false)
     private Map<String, Object> metadata = new HashMap<>();
@@ -55,6 +59,8 @@ public class SourceEntity extends BaseEntity {
                 filePath,
                 appName,
                 bundleId,
+                externalId,
+                pageCount,
                 metadata);
     }
 }
