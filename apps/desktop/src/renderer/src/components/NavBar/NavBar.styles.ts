@@ -13,26 +13,6 @@ export const StyledNavBar = styled.nav`
   -webkit-app-region: drag;
 `;
 
-export const StyledBrand = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.space.s}px;
-  padding: 0 ${({ theme }) => theme.space.sm}px ${({ theme }) => theme.space.ml}px;
-`;
-
-export const StyledNavBarFooter = styled.div`
-  display: flex;
-  margin-top: auto;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.space.xxs}px;
-`;
-
-export const StyledAccount = styled.div`
-  padding: ${({ theme }) => theme.space.s}px ${({ theme }) => theme.space.sm}px
-    ${({ theme }) => theme.space.xs}px;
-  overflow: hidden;
-`;
-
 export const StyledNavBarItem = styled.button<{ $isActive: boolean; $paddingY: number }>`
   -webkit-app-region: no-drag;
   display: flex;

@@ -37,3 +37,7 @@ type Story = StoryObj<typeof Card>;
 export const Flat: Story = {};
 export const Outlined: Story = { args: { variant: 'outlined' } };
 export const Elevated: Story = { args: { variant: 'elevated' } };
+export const Interactive: Story = { args: { variant: 'outlined', onPress: () => undefined } };
+export const InteractiveElevated: Story = {
+  args: { variant: 'elevated', onPress: () => undefined },
+};

@@ -17,7 +17,6 @@ export type TBoxStyleProps = SpaceProps<TTheme> &
   };
 
 export type TBoxProps = TBoxStyleProps & {
-  as?: 'div' | 'section' | 'header' | 'main' | 'nav' | 'aside' | 'article' | 'span';
   children?: ReactNode;
   className?: string;
   id?: string;

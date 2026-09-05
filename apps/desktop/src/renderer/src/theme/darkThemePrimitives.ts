@@ -13,6 +13,8 @@ const darkThemePrimitives: TThemePrimitives = {
   backgroundSecondary: '#2b2826',
   backgroundSecondaryActive: '#373532',
   backgroundTertiary: '#3a3632',
+  backgroundElevated: '#46413c',
+  backgroundElevatedHover: '#514b45',
 
   borderDivider: '#353230',
   borderOutline: '#4e4c49',
@@ -28,6 +30,12 @@ const darkThemePrimitives: TThemePrimitives = {
   statusWarningGhost: '#3f3220',
   statusErrorPrimary: '#ef7a70',
   statusErrorGhost: '#422a27',
+
+  sourceWeb: '#8fa9cc',
+  sourcePdf: '#f0885a',
+  sourceMail: '#6fc797',
+  sourceApp: '#b3a0f2',
+  sourceFile: '#9fb3cc',
 
   transparent: 'transparent',
 };

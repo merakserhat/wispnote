@@ -1,25 +1,15 @@
-import Text from 'components/core/Text';
-
 import { useNavigation } from 'context/NavigationProvider';
-import { getLabelByNavItem } from 'enums/NavItem';
 
-import { ContentContainer, ContentHeader } from '../Home.styles';
-import { THomeContentProps } from '../Home.types';
+import { HOME_SCREEN_MAP } from '../Home.constants';
+import { ContentContainer } from '../Home.styles';
 
-function HomeContent({ member }: THomeContentProps) {
+function HomeContent() {
   const { activeItem } = useNavigation();
+  const Screen = HOME_SCREEN_MAP[activeItem];
 
   return (
     <ContentContainer>
-      <ContentHeader>
-        <Text variant="heading">{getLabelByNavItem(activeItem)}</Text>
-        <Text variant="body" color="textSecondary">
-          {member.email}
-        </Text>
-      </ContentHeader>
-      <Text variant="body" color="textSecondary">
-        Nothing here yet - this screen is next.
-      </Text>
+      <Screen />
     </ContentContainer>
   );
 }

@@ -11,6 +11,8 @@ const lightThemePrimitives = {
   backgroundSecondary: '#e4e4df',
   backgroundSecondaryActive: '#d9d8d4',
   backgroundTertiary: '#f7f7f5',
+  backgroundElevated: '#ffffff',
+  backgroundElevatedHover: '#f3f2ef',
 
   borderDivider: '#dbdad6',
   borderOutline: '#c5c3bf',
@@ -26,6 +28,12 @@ const lightThemePrimitives = {
   statusWarningGhost: '#e3daca',
   statusErrorPrimary: '#b3413a',
   statusErrorGhost: '#e4d1cd',
+
+  sourceWeb: '#415a77',
+  sourcePdf: '#c0603a',
+  sourceMail: '#4d8a6a',
+  sourceApp: '#6f5fa8',
+  sourceFile: '#778da9',
 
   transparent: 'transparent',
 } as const;

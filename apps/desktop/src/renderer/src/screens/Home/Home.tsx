@@ -11,7 +11,7 @@ function Home({ member }: THomeProps) {
     <NavigationProvider>
       <HomeContainer>
         <NavBar email={member.email} />
-        <HomeContent member={member} />
+        <HomeContent />
       </HomeContainer>
     </NavigationProvider>
   );

@@ -4,6 +4,7 @@ import Box from 'components/core/Box';
 import Text from 'components/core/Text';
 
 import {
+  ArrowLeftIcon,
   ArrowRightIcon,
   CheckIcon,
   File05Icon,
@@ -19,6 +20,7 @@ import {
 import { TIconComponent, TIconProps } from './Icon.types';
 
 const ICONS: Array<[string, TIconComponent]> = [
+  ['ArrowLeftIcon', ArrowLeftIcon],
   ['ArrowRightIcon', ArrowRightIcon],
   ['CheckIcon', CheckIcon],
   ['File05Icon', File05Icon],

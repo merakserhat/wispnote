@@ -23,7 +23,6 @@ function NavBarItem({ label, icon, isActive = false, size = 'medium', onPress }:
         iconColor: isActive ? 'textPrimary' : 'textSecondary',
       })}
       <Text
-        as="span"
         variant={textVariant}
         color={isActive ? 'textPrimary' : 'textSecondary'}
         numberOfLines={1}>

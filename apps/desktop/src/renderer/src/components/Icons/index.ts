@@ -1,3 +1,4 @@
+export { default as ArrowLeftIcon } from './views/ArrowLeftIcon';
 export { default as ArrowRightIcon } from './views/ArrowRightIcon';
 export { default as CheckIcon } from './views/CheckIcon';
 export { default as File05Icon } from './views/File05Icon';
