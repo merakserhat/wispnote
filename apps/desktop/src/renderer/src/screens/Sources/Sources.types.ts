@@ -1,11 +1,8 @@
 import SourceKind from 'shared/enums/SourceKind';
 import { TSource } from 'shared/types/source.types';
 
-import { TThemePrimitives } from 'theme/theme.types';
-
 export type TSourceKindProperty = {
   label: string;
-  color: keyof TThemePrimitives;
 };
 
 export type TSourceKindMap = Record<SourceKind, TSourceKindProperty>;
@@ -25,8 +22,4 @@ export type TSourceCardProps = {
 export type TSourceDetailProps = {
   source: TSource;
   onBack: () => void;
-};
-
-export type TKindDotStyleProps = {
-  $color: keyof TThemePrimitives;
 };

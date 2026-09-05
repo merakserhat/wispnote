@@ -7,10 +7,6 @@ export function getLabelBySourceKind(kind: SourceKind) {
   return SOURCE_KIND_MAP[kind].label;
 }
 
-export function getColorBySourceKind(kind: SourceKind) {
-  return SOURCE_KIND_MAP[kind].color;
-}
-
 export function formatSourceOrigin({ url, filePath, appName }: TSource): string {
   if (url) {
     return url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];

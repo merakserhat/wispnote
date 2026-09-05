@@ -2,10 +2,11 @@ import Box from 'components/core/Box';
 import Button from 'components/core/Button';
 import Text from 'components/core/Text';
 import { ArrowLeftIcon } from 'components/Icons';
+import NotesFeed from 'components/NotesFeed';
 import PageHeader from 'components/PageHeader';
+import SourceKindDot from 'components/SourceKindDot';
 
-import { formatSourceLocation, formatSourceMeta, getColorBySourceKind } from '../Sources.helpers';
-import { KindDot } from '../Sources.styles';
+import { formatSourceLocation, formatSourceMeta } from '../Sources.helpers';
 import { TSourceDetailProps } from '../Sources.types';
 
 function SourceDetail({ source, onBack }: TSourceDetailProps) {
@@ -22,14 +23,12 @@ function SourceDetail({ source, onBack }: TSourceDetailProps) {
       </Box>
       <PageHeader title={source.title} description={formatSourceLocation(source)} />
       <Box flexDirection="row" alignItems="center" gap="s">
-        <KindDot $color={getColorBySourceKind(source.kind)} />
+        <SourceKindDot kind={source.kind} />
         <Text variant="bodySub" color="textSecondary">
           {formatSourceMeta(source)}
         </Text>
       </Box>
-      <Text variant="body" color="textSecondary">
-        The highlights from this source will list here once the Notes screen lands.
-      </Text>
+      <NotesFeed source={source} />
     </Box>
   );
 }

@@ -1,12 +1,12 @@
 import Box from 'components/core/Box';
 import Card from 'components/core/Card';
 import Text from 'components/core/Text';
+import SourceKindDot from 'components/SourceKindDot';
 
 import { formatRelativeTime } from 'helpers/date';
 
 import { SOURCE_CARD_MIN_HEIGHT } from '../Sources.constants';
-import { formatSourceMeta, formatSourceOrigin, getColorBySourceKind } from '../Sources.helpers';
-import { KindDot } from '../Sources.styles';
+import { formatSourceMeta, formatSourceOrigin } from '../Sources.helpers';
 import { TSourceCardProps } from '../Sources.types';
 
 function SourceCard({ source, onPress }: TSourceCardProps) {
@@ -17,7 +17,7 @@ function SourceCard({ source, onPress }: TSourceCardProps) {
   return (
     <Card variant="outlined" p="m" gap="s" minHeight={SOURCE_CARD_MIN_HEIGHT} onPress={handlePress}>
       <Box flexDirection="row" alignItems="center" gap="s">
-        <KindDot $color={getColorBySourceKind(source.kind)} />
+        <SourceKindDot kind={source.kind} />
         <Text variant="mono" color="textTertiary" numberOfLines={1}>
           {formatSourceOrigin(source)}
         </Text>

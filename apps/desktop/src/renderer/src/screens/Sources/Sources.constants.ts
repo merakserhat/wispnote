@@ -12,11 +12,11 @@ export const SOURCE_KIND_ORDER: SourceKind[] = [
 ];
 
 export const SOURCE_KIND_MAP: TSourceKindMap = {
-  [SourceKind.WEB]: { label: 'Web', color: 'sourceWeb' },
-  [SourceKind.PDF]: { label: 'PDF', color: 'sourcePdf' },
-  [SourceKind.MAIL]: { label: 'Mail', color: 'sourceMail' },
-  [SourceKind.APP]: { label: 'Apps', color: 'sourceApp' },
-  [SourceKind.FILE]: { label: 'Files', color: 'sourceFile' },
+  [SourceKind.WEB]: { label: 'Web' },
+  [SourceKind.PDF]: { label: 'PDF' },
+  [SourceKind.MAIL]: { label: 'Mail' },
+  [SourceKind.APP]: { label: 'Apps' },
+  [SourceKind.FILE]: { label: 'Files' },
 };
 
 export const SOURCE_GROUP_FIRST_PAGE = 0;
