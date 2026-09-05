@@ -8,12 +8,14 @@ import { createEngine } from './engine';
 import { log } from './helpers';
 import { registerIpcHandlers } from './ipc';
 import { registerShutdown } from './lifecycle';
+import { createSettingsStore } from './settings';
 import { createTray } from './tray';
 import { createPanelController, HudWindow, MainWindow, PanelWindow } from './windows';
 
 app.whenReady().then(() => {
   app.dock?.hide();
 
+  const settings = createSettingsStore();
   const preloadPath = path.join(__dirname, '../preload/preload.js');
 
   const panel = new PanelWindow();
@@ -40,7 +42,7 @@ app.whenReady().then(() => {
     }
   }
 
-  registerIpcHandlers({ actions, panel });
+  registerIpcHandlers({ actions, panel, settings });
   createTray({
     engine,
     onShowPanel: showPanelFromMenu,

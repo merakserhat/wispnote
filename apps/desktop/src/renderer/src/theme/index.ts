@@ -1,6 +1,5 @@
 export { theme } from './theme';
-export { default as lightThemePrimitives } from './lightThemePrimitives';
-export { default as darkThemePrimitives } from './darkThemePrimitives';
+export * from './palettes';
 export { default as space } from './space';
 export { default as fonts } from './fonts';
 export { default as textVariants } from './textVariants';

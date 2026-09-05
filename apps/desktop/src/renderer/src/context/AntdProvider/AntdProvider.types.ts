@@ -1,9 +1,7 @@
-import { TColorScheme, TThemePrimitives } from 'theme/theme.types';
+import { TThemePrimitives } from 'theme/theme.types';
 import { TChildrenOnly } from 'types/common';
 
-export type TAntdProviderProps = TChildrenOnly & {
-  colorScheme?: TColorScheme;
-};
+export type TAntdProviderProps = TChildrenOnly;
 
 export type TBuildAntdThemeParams = {
   colors: TThemePrimitives;

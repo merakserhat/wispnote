@@ -9,6 +9,7 @@ import {
   TToastPayload,
   TWispBridge,
 } from 'shared/types/ipc.types';
+import { TAppearanceSettings } from 'shared/types/settings.types';
 
 import { subscribe } from './preload.helpers';
 
@@ -39,6 +40,15 @@ const bridge: TWispBridge = {
   },
   dismiss() {
     ipcRenderer.send(IPC_CHANNELS.dismiss);
+  },
+  getSettings() {
+    return ipcRenderer.invoke(IPC_CHANNELS.settingsGet);
+  },
+  setSettings(patch: Partial<TAppearanceSettings>) {
+    return ipcRenderer.invoke(IPC_CHANNELS.settingsSet, patch);
+  },
+  onSettingsChanged(handler) {
+    return subscribe<TAppearanceSettings>(IPC_CHANNELS.settingsChanged, handler);
   },
 };
 

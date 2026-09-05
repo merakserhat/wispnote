@@ -3,4 +3,5 @@ import { TChildrenOnly } from 'types/common';
 
 export type TAllContextProviderProps = TChildrenOnly & {
   colorScheme?: TColorScheme;
+  paletteId?: string;
 };

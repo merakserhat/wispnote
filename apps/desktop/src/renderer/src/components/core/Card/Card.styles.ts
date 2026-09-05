@@ -20,6 +20,7 @@ export const StyledCard = styled(StyledBox)<TStyledCardProps>`
     $interactive &&
     css`
       -webkit-app-region: no-drag;
+      align-items: stretch;
       cursor: pointer;
       font: inherit;
       color: inherit;

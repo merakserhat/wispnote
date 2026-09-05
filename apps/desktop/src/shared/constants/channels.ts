@@ -8,6 +8,9 @@ export const IPC_CHANNELS = {
   apiRequest: 'api:request',
   sessionExpired: 'auth:session-expired',
   signOut: 'auth:sign-out',
+  settingsGet: 'settings:get',
+  settingsSet: 'settings:set',
+  settingsChanged: 'settings:changed',
 } as const;
 
 export type TIpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

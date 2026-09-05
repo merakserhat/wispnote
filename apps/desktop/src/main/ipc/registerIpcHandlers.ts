@@ -2,6 +2,7 @@ import { ipcMain, webContents } from 'electron';
 
 import { IPC_CHANNELS } from 'shared/constants/channels';
 import { TActionRequest, TIpcRequest, TIpcResponse } from 'shared/types/ipc.types';
+import { TAppearanceSettings } from 'shared/types/settings.types';
 
 import { onSessionExpired } from '../configs/requestConfig';
 import { log } from '../helpers';
@@ -9,7 +10,7 @@ import storage from '../helpers/storage';
 import { sendApiRequest, toErrorResponse, toIpcData } from './ipc.helpers';
 import { TIpcContext } from './ipc.types';
 
-export function registerIpcHandlers({ actions, panel }: TIpcContext): void {
+export function registerIpcHandlers({ actions, panel, settings }: TIpcContext): void {
   ipcMain.handle(IPC_CHANNELS.action, async (_event, request: TActionRequest) => {
     try {
       return await actions.runAction(request);
@@ -42,6 +43,12 @@ export function registerIpcHandlers({ actions, panel }: TIpcContext): void {
     storage.removeTokens();
     log('auth', 'signed out');
   });
+
+  ipcMain.handle(IPC_CHANNELS.settingsGet, () => settings.get());
+
+  ipcMain.handle(IPC_CHANNELS.settingsSet, (_event, patch: Partial<TAppearanceSettings>) =>
+    settings.update(patch)
+  );
 
   onSessionExpired(() => {
     webContents.getAllWebContents().forEach((contents) => {

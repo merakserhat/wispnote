@@ -23,6 +23,7 @@ export type TLogChannel =
   | 'python'
   | 'api'
   | 'auth'
+  | 'settings'
   | 'error'
   | 'beat';
 

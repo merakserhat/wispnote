@@ -165,10 +165,12 @@ Mirrors `~/Documents/Wamo/wamo-business-web-app-new`. Follow these in all new co
   (`useGetNotes`, `useSaveHighlight`).
 - **Styling:** styled-components + styled-system, light/dark theme. Colors are
   **theme primitives** (`textPrimary`, `backgroundTertiary`, `buttonPrimary`…) from
-  `theme/lightThemePrimitives.ts` / `darkThemePrimitives.ts`; components never see a hex.
+  `theme/palettes.json` (one `light` + `dark` set per palette, typed by `TThemePrimitives`);
+  components never see a hex. The user picks palette and scheme in Settings; main persists
+  them and sets `nativeTheme.themeSource`, `AppearanceProvider` feeds them to styled + antd.
   Spacing is the named `theme.space` scale (`xs` `s` `sm` `m` `ml` `l` `xl`…), text
   `theme.textVariants`. Border radius is a plain even pixel number (4 6 8 10 12 16 20), no
-  scale. The palette is **Linen** (`theme/palette.ts`).
+  scale. The default palette is **Linen**, the first entry in `palettes.json`.
 - **Core components** (`components/core/`): antd underneath, our props on top. Variant
   and size maps (`Button.constants.ts`) translate our props into **antd's own props**
   (`color`, `variant`, `size`); colors and metrics go through ConfigProvider tokens in

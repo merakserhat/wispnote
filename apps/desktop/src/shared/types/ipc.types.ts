@@ -1,6 +1,7 @@
 import { TCaptureContext } from './capture.types';
 import { TErrorResponse } from './common';
 import { TEngineAction } from './engine.types';
+import { TAppearanceSettings } from './settings.types';
 
 export type TPanelMode = 'panel' | 'note';
 
@@ -31,6 +32,9 @@ export type TWispBridge = {
   signOut: () => Promise<void>;
   focusInput: () => void;
   dismiss: () => void;
+  getSettings: () => Promise<TAppearanceSettings>;
+  setSettings: (patch: Partial<TAppearanceSettings>) => Promise<TAppearanceSettings>;
+  onSettingsChanged: (handler: (settings: TAppearanceSettings) => void) => () => void;
 };
 
 export type TIpcRequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

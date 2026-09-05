@@ -1,10 +1,10 @@
 import fonts from './fonts';
-import lightThemePrimitives from './lightThemePrimitives';
+import { DEFAULT_PALETTE } from './palettes';
 import space from './space';
 import textVariants from './textVariants';
 
 export const theme = {
-  colors: lightThemePrimitives,
+  colors: DEFAULT_PALETTE.light,
   space,
   fonts,
   textVariants,
