@@ -6,6 +6,8 @@ const API_ENDPOINT = {
   NOTES: '/v1/notes',
   NOTE_DETAIL: '/v1/notes/{noteId}',
   SOURCES: '/v1/sources',
+  AUTOMATIONS: '/v1/automations',
+  AUTOMATION_DETAIL: '/v1/automations/{automationId}',
 } as const;
 
 export default API_ENDPOINT;
