@@ -5,6 +5,7 @@ import {
   TAutomationDetailRequestParams,
   TAutomationListRequestParams,
   TAutomationListResponse,
+  TAutomationSuggestion,
   TCreateAutomationRequestParams,
   TToggleAutomationRequestParams,
   TUpdateAutomationRequestParams,
@@ -22,6 +23,15 @@ export async function requestAutomations({
     normalizeUrl(API_ENDPOINT.AUTOMATIONS, {
       queryParams: { page, size, ...filterParams },
     })
+  );
+  return response.data;
+}
+
+export async function requestAutomationSuggestions(): Promise<
+  TCommonResponse<TAutomationSuggestion[]>
+> {
+  const response = await Ipc.get<TCommonResponse<TAutomationSuggestion[]>>(
+    API_ENDPOINT.AUTOMATION_SUGGESTIONS
   );
   return response.data;
 }

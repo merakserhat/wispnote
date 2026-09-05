@@ -8,6 +8,11 @@ export type TAutomation = {
   updatedAt?: string;
 };
 
+export type TAutomationSuggestion = {
+  id: string;
+  ruleText: string;
+};
+
 export type TAutomationsFilterParams = {
   sortBy?: 'createdAt' | 'updatedAt';
   isAscending?: boolean;

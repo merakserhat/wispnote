@@ -3,6 +3,7 @@ import { QueryKey } from '@tanstack/react-query';
 import {
   TAutomation,
   TAutomationListResponse,
+  TAutomationSuggestion,
   TToggleAutomationRequestParams,
 } from 'shared/types/automation.types';
 
@@ -24,4 +25,15 @@ export type TAutomationListSnapshot = Array<[QueryKey, TAutomationListResponse |
 
 export type TApplyToggleToAutomationsParams = TToggleAutomationRequestParams & {
   response?: TAutomationListResponse;
+};
+
+export type TSelectSuggestionHandler = (suggestion: TAutomationSuggestion) => void;
+
+export type TSuggestionChipsProps = {
+  onSelect: TSelectSuggestionHandler;
+};
+
+export type TSuggestionChipProps = {
+  suggestion: TAutomationSuggestion;
+  onSelect: TSelectSuggestionHandler;
 };

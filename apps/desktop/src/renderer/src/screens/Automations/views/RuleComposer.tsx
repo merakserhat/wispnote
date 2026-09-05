@@ -8,11 +8,14 @@ import Text from 'components/core/Text';
 
 import { useCreateAutomation } from 'api/automations';
 
+import { TAutomationSuggestion } from 'shared/types/automation.types';
+
 import { RULE_DEFAULT_VALUES, RULE_PLACEHOLDER, ruleSchema } from '../Automations.constants';
 import { TRuleFormValues } from '../Automations.types';
+import SuggestionChips from './SuggestionChips';
 
 function RuleComposer() {
-  const { control, handleSubmit, reset, watch } = useForm<TRuleFormValues>({
+  const { control, handleSubmit, reset, watch, setValue } = useForm<TRuleFormValues>({
     resolver: yupResolver(ruleSchema),
     defaultValues: RULE_DEFAULT_VALUES,
   });
@@ -22,7 +25,12 @@ function RuleComposer() {
   });
 
   const submit = handleSubmit((values) => createAutomation(values));
-  const canSubmit = watch('ruleText').trim().length > 0;
+  const draft = watch('ruleText');
+  const canSubmit = draft.trim().length > 0;
+
+  function handleSelectSuggestion({ ruleText }: TAutomationSuggestion) {
+    setValue('ruleText', ruleText, { shouldDirty: true, shouldValidate: true });
+  }
 
   return (
     <form onSubmit={submit}>
@@ -51,6 +59,7 @@ function RuleComposer() {
             {error.errorMessage}
           </Text>
         )}
+        {!draft && <SuggestionChips onSelect={handleSelectSuggestion} />}
       </Box>
     </form>
   );

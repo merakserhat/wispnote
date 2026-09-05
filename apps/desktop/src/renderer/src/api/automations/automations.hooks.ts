@@ -5,6 +5,7 @@ import {
   TAutomationDetailRequestParams,
   TAutomationListRequestParams,
   TAutomationListResponse,
+  TAutomationSuggestion,
   TCreateAutomationRequestParams,
   TToggleAutomationRequestParams,
 } from 'shared/types/automation.types';
@@ -14,6 +15,7 @@ import { TMutationHookParams, TQueryHookParams } from 'types/common';
 
 import {
   requestAutomations,
+  requestAutomationSuggestions,
   requestCreateAutomation,
   requestDeleteAutomation,
   requestToggleAutomation,
@@ -36,6 +38,23 @@ export function useGetAutomations({
     isPending,
     isError,
     refetch,
+  };
+}
+
+export function useGetAutomationSuggestions({ queryParams }: TQueryHookParams = {}) {
+  const { data, isLoading, isPending, isError } = useQuery<
+    TCommonResponse<TAutomationSuggestion[]>
+  >({
+    queryKey: automationsQueryKeys.suggestions(),
+    queryFn: requestAutomationSuggestions,
+    ...queryParams,
+  });
+
+  return {
+    data: data?.result,
+    isLoading,
+    isPending,
+    isError,
   };
 }
 

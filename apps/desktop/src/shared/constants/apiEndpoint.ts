@@ -8,6 +8,7 @@ const API_ENDPOINT = {
   SOURCES: '/v1/sources',
   AUTOMATIONS: '/v1/automations',
   AUTOMATION_DETAIL: '/v1/automations/{automationId}',
+  AUTOMATION_SUGGESTIONS: '/v1/automations/suggestions',
 } as const;
 
 export default API_ENDPOINT;
