@@ -53,6 +53,11 @@ public class AutomationJpaAdapter implements AutomationPort {
     }
 
     @Override
+    public boolean existsByMemberId(UUID memberId) {
+        return automationRepository.existsByMemberIdAndDeletedFalse(memberId);
+    }
+
+    @Override
     public Automation update(Automation automation) {
         var entity = automationRepository.findByIdAndMemberIdAndDeletedFalse(automation.id(), automation.memberId())
                 .orElseThrow(EntityNotFoundException::new);

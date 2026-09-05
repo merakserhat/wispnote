@@ -5,13 +5,16 @@ import com.wispnote.backend.application.automation.model.Automation;
 import com.wispnote.backend.application.automation.model.AutomationCreate;
 import com.wispnote.backend.application.automation.model.AutomationFilter;
 import com.wispnote.backend.application.automation.model.AutomationPage;
+import com.wispnote.backend.application.automation.model.AutomationSuggestion;
 import com.wispnote.backend.application.automation.model.AutomationUpdate;
 import com.wispnote.backend.application.automation.port.AutomationPort;
+import com.wispnote.backend.application.automation.port.AutomationSuggestionPort;
 import com.wispnote.backend.application.common.model.PaginationInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -21,7 +24,10 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @RequiredArgsConstructor
 public class AutomationFacade {
 
+    private static final int MAX_SUGGESTIONS = 3;
+
     private final AutomationPort automationPort;
+    private final AutomationSuggestionPort automationSuggestionPort;
 
     public Automation create(UUID memberId, AutomationCreate create) {
         return automationPort.create(create.toAutomation(memberId));
@@ -31,6 +37,14 @@ public class AutomationFacade {
         var page = automationPort.findAllByMemberId(memberId, filter, paginationInfo);
 
         return new AutomationPage(page, automationPort.countEnabledByMemberId(memberId));
+    }
+
+    public List<AutomationSuggestion> suggestions(UUID memberId) {
+        if (automationPort.existsByMemberId(memberId)) {
+            return List.of();
+        }
+
+        return automationSuggestionPort.findAll(MAX_SUGGESTIONS);
     }
 
     public Automation retrieve(UUID memberId, UUID automationId) {

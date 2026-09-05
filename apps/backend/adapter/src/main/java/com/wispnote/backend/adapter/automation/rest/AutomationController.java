@@ -7,6 +7,7 @@ import com.wispnote.backend.adapter.automation.rest.request.AutomationToggleRequ
 import com.wispnote.backend.adapter.automation.rest.request.AutomationUpdateRequest;
 import com.wispnote.backend.adapter.automation.rest.response.AutomationPageResponse;
 import com.wispnote.backend.adapter.automation.rest.response.AutomationResponse;
+import com.wispnote.backend.adapter.automation.rest.response.AutomationSuggestionResponse;
 import com.wispnote.backend.application.automation.AutomationFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -45,6 +47,13 @@ public class AutomationController {
                                        @AuthenticationPrincipal CustomUserDetails userDetail) {
         var automationPage = automationFacade.list(userDetail.getId(), request.toFilter(), request.toPaginationInfo());
         return AutomationPageResponse.from(automationPage);
+    }
+
+    @GetMapping("/suggestions")
+    public List<AutomationSuggestionResponse> suggestions(@AuthenticationPrincipal CustomUserDetails userDetail) {
+        return automationFacade.suggestions(userDetail.getId()).stream()
+                .map(AutomationSuggestionResponse::from)
+                .toList();
     }
 
     @GetMapping("/{automationId}")

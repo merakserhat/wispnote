@@ -13,4 +13,6 @@ public interface AutomationRepository extends JpaRepository<AutomationEntity, UU
     Optional<AutomationEntity> findByIdAndMemberIdAndDeletedFalse(UUID id, UUID memberId);
 
     long countByMemberIdAndEnabledTrueAndDeletedFalse(UUID memberId);
+
+    boolean existsByMemberIdAndDeletedFalse(UUID memberId);
 }

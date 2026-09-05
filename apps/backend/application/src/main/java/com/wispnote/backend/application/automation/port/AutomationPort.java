@@ -17,6 +17,8 @@ public interface AutomationPort {
 
     long countEnabledByMemberId(UUID memberId);
 
+    boolean existsByMemberId(UUID memberId);
+
     Automation update(Automation automation);
 
     void deleteByIdAndMemberId(UUID id, UUID memberId);
