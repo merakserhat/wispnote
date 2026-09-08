@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.wispnote.analyzer</groupId>
-        <artifactId>analyzer</artifactId>
+        <artifactId>wispnote-analyzer</artifactId>
         <version>0.0.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -45,7 +45,7 @@
     </dependencies>
 
     <build>
-        <finalName>analyzer</finalName>
+        <finalName>wispnote-analyzer</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
