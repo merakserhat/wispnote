@@ -189,4 +189,4 @@ styled-components with theme tokens only. See `CLAUDE.md` for the full set of co
 
 ## License
 
-TBD
+[MIT](LICENSE)
