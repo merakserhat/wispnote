@@ -54,11 +54,6 @@ public class NoteJpaAdapter implements NotePort {
     }
 
     @Override
-    public boolean existsByIdAndMemberId(UUID id, UUID memberId) {
-        return noteRepository.existsByIdAndMemberId(id, memberId);
-    }
-
-    @Override
     public Paginated<Note> findAllByMemberId(UUID memberId, NoteFilter filter, PaginationInfo paginationInfo) {
         var page = noteRepository.findAll(
                 NoteSpecification.of(memberId, filter),
