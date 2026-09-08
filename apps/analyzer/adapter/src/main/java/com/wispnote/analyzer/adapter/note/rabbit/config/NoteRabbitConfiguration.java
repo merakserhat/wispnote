@@ -2,9 +2,8 @@ package com.wispnote.analyzer.adapter.note.rabbit.config;
 
 import com.wispnote.analyzer.adapter.common.event.config.rabbit.RabbitMqProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,43 +15,17 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
 public class NoteRabbitConfiguration {
 
+    public static final String NOTE_CREATED = "note.created";
+    public static final String NOTE_DELETED = "note.deleted";
+
     private final RabbitMqProperties rabbitMqProperties;
 
     @Bean
-    TopicExchange noteCreatedExchange() {
-        return new TopicExchange(rabbitMqProperties.getNoteCreatedExchange());
-    }
-
-    @Bean
-    TopicExchange noteEnrichedExchange() {
-        return new TopicExchange(rabbitMqProperties.getNoteEnrichedExchange());
-    }
-
-    @Bean
-    Queue noteCreatedQueue() {
-        return QueueBuilder.durable(rabbitMqProperties.getNoteCreatedQueue())
-                .classic()
-                .build();
-    }
-
-    @Bean
-    Queue noteEnrichedQueue() {
-        return QueueBuilder.durable(rabbitMqProperties.getNoteEnrichedQueue())
-                .classic()
-                .build();
-    }
-
-    @Bean
-    Binding noteCreatedBinding(TopicExchange noteCreatedExchange, Queue noteCreatedQueue) {
-        return BindingBuilder.bind(noteCreatedQueue)
-                .to(noteCreatedExchange)
-                .with(rabbitMqProperties.getNoteCreatedRoutingKey());
-    }
-
-    @Bean
-    Binding noteEnrichedBinding(TopicExchange noteEnrichedExchange, Queue noteEnrichedQueue) {
-        return BindingBuilder.bind(noteEnrichedQueue)
-                .to(noteEnrichedExchange)
-                .with(rabbitMqProperties.getNoteEnrichedRoutingKey());
+    Declarables noteTopology() {
+        var exchange = new TopicExchange(rabbitMqProperties.getNotesExchange(), true, false);
+        var queue = QueueBuilder.durable(rabbitMqProperties.getNotesQueue()).build();
+        return new Declarables(exchange, queue,
+                BindingBuilder.bind(queue).to(exchange).with(NOTE_CREATED),
+                BindingBuilder.bind(queue).to(exchange).with(NOTE_DELETED));
     }
 }

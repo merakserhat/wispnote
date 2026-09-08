@@ -1,11 +1,9 @@
 package com.wispnote.analyzer.application.note;
 
-import com.wispnote.analyzer.application.note.model.NoteEvent;
+import com.wispnote.analyzer.application.note.model.NoteChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -14,20 +12,11 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @RequiredArgsConstructor
 public class NoteAnalyzerFacade {
 
-    private static final Duration AGGREGATION_WINDOW = Duration.ofSeconds(5);
-
-    private final NoteAggregationWindowPort noteAggregationWindowPort;
-
-    public void analyzeNote(NoteEvent noteEvent) {
-        noteAggregationWindowPort.collectIntoWindow(
-                noteEvent.note().id(),
-                AGGREGATION_WINDOW,
-                noteEvent,
-                this::runAnalysisPipeline
-        );
+    public void analyzeNote(NoteChangedEvent noteChangedEvent) {
+        log.info("Analyzing note {} {}", kv("noteId", noteChangedEvent.noteId()), kv("memberId", noteChangedEvent.memberId()));
     }
 
-    private void runAnalysisPipeline(NoteEvent noteEvent) {
-        log.info("Analyzing note {} {}", kv("noteId", noteEvent.note().id()), kv("eventKind", noteEvent.kind()));
+    public void forgetNote(NoteChangedEvent noteChangedEvent) {
+        log.info("Forgetting note {} {}", kv("noteId", noteChangedEvent.noteId()), kv("memberId", noteChangedEvent.memberId()));
     }
 }
