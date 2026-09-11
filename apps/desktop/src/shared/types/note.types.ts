@@ -48,6 +48,7 @@ export type TNotesFilterParams = {
   sortBy?: 'createdAt' | 'updatedAt' | 'pageNumber';
   isAscending?: boolean;
   sourceId?: string;
+  noteGroupId?: string;
   kind?: NoteKind;
   search?: string;
 };

@@ -4,7 +4,12 @@ import { TNavBarItemSizeMap } from './NavBar.types';
 
 export const NAV_BAR_WIDTH = 236;
 
-export const NAV_BAR_ITEMS: NavItem[] = [NavItem.NOTES, NavItem.SOURCES, NavItem.AUTOMATIONS];
+export const NAV_BAR_ITEMS: NavItem[] = [
+  NavItem.NOTES,
+  NavItem.GROUPS,
+  NavItem.SOURCES,
+  NavItem.AUTOMATIONS,
+];
 
 export const NAV_BAR_FOOTER_ITEMS: NavItem[] = [NavItem.SETTINGS];
 

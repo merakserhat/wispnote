@@ -20,7 +20,7 @@ import {
 import { TNoteKindFilter, TNotesFeedProps, TSourceMap } from './NotesFeed.types';
 import NotesTimeline from './views/NotesTimeline';
 
-function NotesFeed({ source }: TNotesFeedProps) {
+function NotesFeed({ source, noteGroup }: TNotesFeedProps) {
   const [kindFilter, setKindFilter] = useState<TNoteKindFilter>(NOTE_KIND_FILTER_ALL);
   const [search, setSearch] = useState('');
   const [openNoteId, setOpenNoteId] = useState<string | null>(null);
@@ -32,6 +32,7 @@ function NotesFeed({ source }: TNotesFeedProps) {
       size: NOTES_PAGE_SIZE,
       ...NOTES_SORT,
       sourceId: source?.id,
+      noteGroupId: noteGroup?.id,
       kind: kindFilter === NOTE_KIND_FILTER_ALL ? undefined : kindFilter,
       search: debouncedSearch || undefined,
     },
@@ -74,6 +75,7 @@ function NotesFeed({ source }: TNotesFeedProps) {
       <NotesTimeline
         notes={data?.content ?? []}
         sourceMap={sourceMap}
+        noteGroup={noteGroup}
         openNoteId={openNoteId}
         isPending={isPending}
         isError={isError}

@@ -1,13 +1,15 @@
 import SourceKind from 'shared/enums/SourceKind';
 import { TNote } from 'shared/types/note.types';
+import { TNoteGroup } from 'shared/types/noteGroup.types';
 import { TSource } from 'shared/types/source.types';
 
 import { formatDayLabel } from 'helpers/date';
 
-import { TNoteDetailEntry, TNoteGroup } from './NotesFeed.types';
+import { NOTE_GROUP_EMPTY_STATE, NOTES_EMPTY_STATE } from './NotesFeed.constants';
+import { TNoteDayGroup, TNoteDetailEntry, TNotesEmptyState } from './NotesFeed.types';
 
-export function groupNotesByDay(notes: TNote[]): TNoteGroup[] {
-  return notes.reduce<TNoteGroup[]>((groups, note) => {
+export function groupNotesByDay(notes: TNote[]): TNoteDayGroup[] {
+  return notes.reduce<TNoteDayGroup[]>((groups, note) => {
     const label = formatDayLabel(note.createdAt);
     const lastGroup = groups[groups.length - 1];
 
@@ -72,4 +74,8 @@ export function getNoteDetailEntries(note: TNote, source?: TSource): TNoteDetail
   entries.push({ label: 'Captured', value: new Date(note.createdAt).toLocaleString() });
 
   return entries;
+}
+
+export function getNotesEmptyState(noteGroup?: TNoteGroup): TNotesEmptyState {
+  return noteGroup ? NOTE_GROUP_EMPTY_STATE : NOTES_EMPTY_STATE;
 }

@@ -1,13 +1,14 @@
 import Box from 'components/core/Box';
 import Text from 'components/core/Text';
 
-import { groupNotesByDay } from '../NotesFeed.helpers';
+import { getNotesEmptyState, groupNotesByDay } from '../NotesFeed.helpers';
 import { TNotesTimelineProps } from '../NotesFeed.types';
-import NoteGroup from './NoteGroup';
+import NoteDayGroup from './NoteDayGroup';
 
 function NotesTimeline({
   notes,
   sourceMap,
+  noteGroup,
   openNoteId,
   isPending,
   isError,
@@ -28,13 +29,15 @@ function NotesTimeline({
   }
 
   if (!notes.length) {
+    const emptyState = getNotesEmptyState(noteGroup);
+
     return (
       <Box py="xxl" alignItems="center" gap="s">
         <Text variant="body" color="textSecondary">
-          Nothing here yet.
+          {emptyState.title}
         </Text>
         <Text variant="bodySub" color="textTertiary">
-          Select text anywhere and press Fn Fn.
+          {emptyState.hint}
         </Text>
       </Box>
     );
@@ -43,10 +46,11 @@ function NotesTimeline({
   return (
     <>
       {groupNotesByDay(notes).map((group) => (
-        <NoteGroup
+        <NoteDayGroup
           key={group.label}
           group={group}
           sourceMap={sourceMap}
+          noteGroup={noteGroup}
           openNoteId={openNoteId}
           onToggleNote={onToggleNote}
         />

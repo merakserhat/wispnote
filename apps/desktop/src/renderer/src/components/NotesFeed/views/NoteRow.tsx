@@ -1,9 +1,11 @@
 import Box from 'components/core/Box';
 import IconButton from 'components/core/IconButton';
 import Text from 'components/core/Text';
-import { Trash01Icon } from 'components/Icons';
+import { Trash01Icon, XCloseIcon } from 'components/Icons';
+import NoteGroupPicker from 'components/NoteGroupPicker';
 import SourceKindDot from 'components/SourceKindDot';
 
+import { useRemoveNoteFromGroup } from 'api/noteGroups';
 import { useDeleteNote } from 'api/notes';
 import NoteKind from 'shared/enums/NoteKind';
 
@@ -15,8 +17,9 @@ import { NoteToggle } from '../NotesFeed.styles';
 import { TNoteRowProps } from '../NotesFeed.types';
 import NoteDetails from './NoteDetails';
 
-function NoteRow({ note, source, isOpen, onToggle }: TNoteRowProps) {
+function NoteRow({ note, source, noteGroup, isOpen, onToggle }: TNoteRowProps) {
   const { deleteNote, isPending: isDeleting } = useDeleteNote();
+  const { removeNoteFromGroup, isPending: isRemoving } = useRemoveNoteFromGroup();
   const isNote = note.kind === NoteKind.NOTE;
   const location = formatNoteLocation(note);
 
@@ -26,6 +29,12 @@ function NoteRow({ note, source, isOpen, onToggle }: TNoteRowProps) {
 
   function handleDelete() {
     deleteNote({ noteId: note.id });
+  }
+
+  function handleRemoveFromGroup() {
+    if (noteGroup) {
+      removeNoteFromGroup({ noteGroupId: noteGroup.id, noteId: note.id });
+    }
   }
 
   return (
@@ -73,13 +82,25 @@ function NoteRow({ note, source, isOpen, onToggle }: TNoteRowProps) {
         </NoteToggle>
         {isOpen && <NoteDetails note={note} source={source} />}
       </Box>
-      <IconButton
-        icon={Trash01Icon}
-        variant="secondary"
-        size="small"
-        loading={isDeleting}
-        onPress={handleDelete}
-      />
+      <Box flexDirection="row" alignItems="center" gap="xxs">
+        <NoteGroupPicker noteId={note.id} />
+        {noteGroup && (
+          <IconButton
+            icon={XCloseIcon}
+            variant="secondary"
+            size="small"
+            loading={isRemoving}
+            onPress={handleRemoveFromGroup}
+          />
+        )}
+        <IconButton
+          icon={Trash01Icon}
+          variant="secondary"
+          size="small"
+          loading={isDeleting}
+          onPress={handleDelete}
+        />
+      </Box>
     </Box>
   );
 }

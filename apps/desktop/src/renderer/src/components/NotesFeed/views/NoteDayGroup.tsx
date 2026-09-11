@@ -1,10 +1,16 @@
 import Box from 'components/core/Box';
 import Text from 'components/core/Text';
 
-import { TNoteGroupProps } from '../NotesFeed.types';
+import { TNoteDayGroupProps } from '../NotesFeed.types';
 import NoteRow from './NoteRow';
 
-function NoteGroup({ group, sourceMap, openNoteId, onToggleNote }: TNoteGroupProps) {
+function NoteDayGroup({
+  group,
+  sourceMap,
+  noteGroup,
+  openNoteId,
+  onToggleNote,
+}: TNoteDayGroupProps) {
   return (
     <Box gap="sm">
       <Text variant="label" color="textTertiary">
@@ -16,6 +22,7 @@ function NoteGroup({ group, sourceMap, openNoteId, onToggleNote }: TNoteGroupPro
             key={note.id}
             note={note}
             source={sourceMap[note.sourceId]}
+            noteGroup={noteGroup}
             isOpen={openNoteId === note.id}
             onToggle={onToggleNote}
           />
@@ -25,4 +32,4 @@ function NoteGroup({ group, sourceMap, openNoteId, onToggleNote }: TNoteGroupPro
   );
 }
 
-export default NoteGroup;
+export default NoteDayGroup;
