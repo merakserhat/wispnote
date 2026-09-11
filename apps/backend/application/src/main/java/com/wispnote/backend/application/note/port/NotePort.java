@@ -13,6 +13,8 @@ public interface NotePort {
 
     Optional<Note> findByIdAndMemberId(UUID id, UUID memberId);
 
+    boolean existsByIdAndMemberId(UUID id, UUID memberId);
+
     Paginated<Note> findAllByMemberId(UUID memberId, NoteFilter filter, PaginationInfo paginationInfo);
 
     void deleteByIdAndMemberId(UUID id, UUID memberId);

@@ -22,8 +22,8 @@ import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class NoteFacade {
 

@@ -4,5 +4,5 @@ import com.wispnote.backend.application.note.enums.NoteKind;
 
 import java.util.UUID;
 
-public record NoteFilter(UUID sourceId, NoteKind kind, String search) {
+public record NoteFilter(UUID sourceId, UUID noteGroupId, NoteKind kind, String search) {
 }

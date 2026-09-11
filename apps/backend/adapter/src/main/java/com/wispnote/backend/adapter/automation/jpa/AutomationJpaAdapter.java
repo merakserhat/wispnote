@@ -2,7 +2,6 @@ package com.wispnote.backend.adapter.automation.jpa;
 
 import com.wispnote.backend.adapter.automation.jpa.entity.AutomationEntity;
 import com.wispnote.backend.adapter.automation.jpa.repository.AutomationRepository;
-import com.wispnote.backend.adapter.automation.jpa.specification.AutomationSpecification;
 import com.wispnote.backend.adapter.common.exception.EntityNotFoundException;
 import com.wispnote.backend.adapter.common.util.PaginationUtil;
 import com.wispnote.backend.application.automation.model.Automation;
@@ -15,6 +14,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.wispnote.backend.adapter.automation.jpa.specification.AutomationSpecification.belongsToMember;
+import static com.wispnote.backend.adapter.automation.jpa.specification.AutomationSpecification.enabled;
+import static com.wispnote.backend.adapter.common.jpa.specification.CommonSpecification.isNotDeleted;
 
 @Component
 @RequiredArgsConstructor
@@ -40,8 +43,12 @@ public class AutomationJpaAdapter implements AutomationPort {
 
     @Override
     public Paginated<Automation> findAllByMemberId(UUID memberId, AutomationFilter filter, PaginationInfo paginationInfo) {
+        var specification = belongsToMember(memberId)
+                .and(enabled(filter.enabled()))
+                .and(isNotDeleted());
+
         var page = automationRepository.findAll(
-                AutomationSpecification.of(memberId, filter),
+                specification,
                 PaginationUtil.fromPaginationInfo(paginationInfo));
 
         return PaginationUtil.fromPage(page.map(AutomationEntity::toModel));

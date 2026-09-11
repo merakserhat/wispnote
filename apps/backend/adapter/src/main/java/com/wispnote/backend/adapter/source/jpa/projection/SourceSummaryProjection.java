@@ -13,6 +13,6 @@ public interface SourceSummaryProjection {
     Instant getLastActivityAt();
 
     default SourceSummary toModel() {
-        return new SourceSummary(getSource().toModel(), getNoteCount().intValue(), getLastActivityAt());
+        return new SourceSummary(getSource().toModel(), getNoteCount(), getLastActivityAt());
     }
 }

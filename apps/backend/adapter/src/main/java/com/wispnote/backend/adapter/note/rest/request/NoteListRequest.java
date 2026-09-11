@@ -32,6 +32,7 @@ public class NoteListRequest {
     private Boolean isAscending;
 
     private UUID sourceId;
+    private UUID noteGroupId;
     private NoteKind kind;
     private String search;
 
@@ -42,6 +43,6 @@ public class NoteListRequest {
     }
 
     public NoteFilter toFilter() {
-        return new NoteFilter(sourceId, kind, search);
+        return new NoteFilter(sourceId, noteGroupId, kind, search);
     }
 }

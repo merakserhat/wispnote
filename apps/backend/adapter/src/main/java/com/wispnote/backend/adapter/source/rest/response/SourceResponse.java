@@ -15,7 +15,7 @@ public record SourceResponse(UUID id,
                              String bundleId,
                              String externalId,
                              Integer pageCount,
-                             Integer noteCount,
+                             Long noteCount,
                              Instant lastActivityAt) {
 
     public static SourceResponse from(SourceSummary summary) {

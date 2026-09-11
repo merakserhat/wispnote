@@ -5,7 +5,6 @@ import com.wispnote.backend.adapter.note.converter.EnrichmentStatusConverter;
 import com.wispnote.backend.adapter.note.converter.NoteKindConverter;
 import com.wispnote.backend.adapter.note.jpa.entity.NoteEntity;
 import com.wispnote.backend.adapter.note.jpa.repository.NoteRepository;
-import com.wispnote.backend.adapter.note.jpa.specification.NoteSpecification;
 import com.wispnote.backend.adapter.common.util.PaginationUtil;
 import com.wispnote.backend.application.common.model.Paginated;
 import com.wispnote.backend.application.common.model.PaginationInfo;
@@ -18,6 +17,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.wispnote.backend.adapter.common.jpa.specification.CommonSpecification.isNotDeleted;
+import static com.wispnote.backend.adapter.note.jpa.specification.NoteSpecification.belongsToMember;
+import static com.wispnote.backend.adapter.note.jpa.specification.NoteSpecification.belongsToNoteGroup;
+import static com.wispnote.backend.adapter.note.jpa.specification.NoteSpecification.kind;
+import static com.wispnote.backend.adapter.note.jpa.specification.NoteSpecification.selectedTextLike;
+import static com.wispnote.backend.adapter.note.jpa.specification.NoteSpecification.sourceId;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Slf4j
@@ -54,9 +60,21 @@ public class NoteJpaAdapter implements NotePort {
     }
 
     @Override
+    public boolean existsByIdAndMemberId(UUID id, UUID memberId) {
+        return noteRepository.existsByIdAndMemberIdAndDeletedFalse(id, memberId);
+    }
+
+    @Override
     public Paginated<Note> findAllByMemberId(UUID memberId, NoteFilter filter, PaginationInfo paginationInfo) {
+        var specification = belongsToMember(memberId)
+                .and(sourceId(filter.sourceId()))
+                .and(kind(NoteKindConverter.jpa.fromEnum(filter.kind())))
+                .and(selectedTextLike(filter.search()))
+                .and(belongsToNoteGroup(memberId, filter.noteGroupId()))
+                .and(isNotDeleted());
+
         var page = noteRepository.findAll(
-                NoteSpecification.of(memberId, filter),
+                specification,
                 PaginationUtil.fromPaginationInfo(paginationInfo));
 
         return PaginationUtil.fromPage(page.map(NoteEntity::toModel));
