@@ -21,14 +21,14 @@ export function useOptimisticToggle() {
   });
 
   async function toggle(params: TToggleAutomationRequestParams) {
-    await queryClient.cancelQueries({ queryKey: automationsQueryKeys.all });
+    await queryClient.cancelQueries({ queryKey: automationsQueryKeys.lists() });
 
     snapshotRef.current = queryClient.getQueriesData<TAutomationListResponse>({
-      queryKey: automationsQueryKeys.all,
+      queryKey: automationsQueryKeys.lists(),
     });
 
     queryClient.setQueriesData<TAutomationListResponse>(
-      { queryKey: automationsQueryKeys.all },
+      { queryKey: automationsQueryKeys.lists() },
       (current) => applyToggleToAutomations({ response: current, ...params })
     );
 
