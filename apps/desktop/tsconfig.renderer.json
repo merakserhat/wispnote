@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "skipLibCheck": true,
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.renderer.tsbuildinfo",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    /* Bundler mode - Vite transpiles, so nothing is emitted here. */
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Must mirror the aliases in electron.vite.config.ts. */
+    "paths": {
+      "shared/*": ["./src/shared/*"],
+      "api/*": ["./src/renderer/src/api/*"],
+      "components/*": ["./src/renderer/src/components/*"],
+      "configs/*": ["./src/renderer/src/configs/*"],
+      "screens/*": ["./src/renderer/src/screens/*"],
+      "hooks/*": ["./src/renderer/src/hooks/*"],
+      "context/*": ["./src/renderer/src/context/*"],
+      "enums/*": ["./src/renderer/src/enums/*"],
+      "helpers/*": ["./src/renderer/src/helpers/*"],
+      "theme/*": ["./src/renderer/src/theme/*"],
+      "theme": ["./src/renderer/src/theme"],
+      "types/*": ["./src/renderer/src/types/*"]
+    },
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/renderer", "src/shared", ".storybook/preview.tsx"]
+}
