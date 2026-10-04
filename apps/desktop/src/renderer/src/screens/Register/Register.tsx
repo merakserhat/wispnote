@@ -3,11 +3,11 @@ import Button from 'components/core/Button';
 import FormInput from 'components/core/FormInput';
 import Text from 'components/core/Text';
 
-import { useSignInForm } from './SignIn.hooks';
-import { TSignInFormValues, TSignInProps } from './SignIn.types';
+import { useRegisterForm } from './Register.hooks';
+import { TRegisterFormValues, TRegisterProps } from './Register.types';
 
-function SignIn({ onRegister }: TSignInProps) {
-  const { control, submit, isPending, error } = useSignInForm();
+function Register({ onSignIn }: TRegisterProps) {
+  const { control, submit, isPending, error } = useRegisterForm();
 
   return (
     <Box
@@ -18,12 +18,12 @@ function SignIn({ onRegister }: TSignInProps) {
       <form onSubmit={submit}>
         <Box width={340} gap="m">
           <Box gap="xs" mb="xs">
-            <Text variant="heading">Sign in to WispNote</Text>
+            <Text variant="heading">Create your WispNote account</Text>
             <Text variant="body" color="textSecondary">
-              Your highlights sync to your account.
+              Your highlights will sync to this account.
             </Text>
           </Box>
-          <FormInput<TSignInFormValues>
+          <FormInput<TRegisterFormValues>
             control={control}
             name="email"
             label="Email"
@@ -31,10 +31,18 @@ function SignIn({ onRegister }: TSignInProps) {
             size="large"
             autoFocus
           />
-          <FormInput<TSignInFormValues>
+          <FormInput<TRegisterFormValues>
             control={control}
             name="password"
             label="Password"
+            placeholder="••••••••"
+            size="large"
+            secure
+          />
+          <FormInput<TRegisterFormValues>
+            control={control}
+            name="passwordConfirm"
+            label="Confirm password"
             placeholder="••••••••"
             size="large"
             secure
@@ -45,7 +53,7 @@ function SignIn({ onRegister }: TSignInProps) {
             </Text>
           )}
           <Button
-            label="Sign in"
+            label="Create account"
             variant="primary"
             size="large"
             htmlType="submit"
@@ -54,9 +62,9 @@ function SignIn({ onRegister }: TSignInProps) {
           />
           <Box flexDirection="row" alignItems="center" justifyContent="center" gap="xs">
             <Text variant="caption" color="textSecondary">
-              New to WispNote?
+              Already have an account?
             </Text>
-            <Button label="Create account" variant="ghost" size="small" onPress={onRegister} />
+            <Button label="Sign in" variant="ghost" size="small" onPress={onSignIn} />
           </Box>
         </Box>
       </form>
@@ -64,4 +72,4 @@ function SignIn({ onRegister }: TSignInProps) {
   );
 }
 
-export default SignIn;
+export default Register;

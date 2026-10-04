@@ -1,7 +1,7 @@
 import Text from 'components/core/Text';
 
+import Auth from 'screens/Auth';
 import Home from 'screens/Home';
-import SignIn from 'screens/SignIn';
 
 import { useGetMember } from 'api/auth';
 
@@ -23,7 +23,7 @@ function Main() {
     );
   }
 
-  return <MainContainer>{member ? <Home member={member} /> : <SignIn />}</MainContainer>;
+  return <MainContainer>{member ? <Home member={member} /> : <Auth />}</MainContainer>;
 }
 
 export default Main;
