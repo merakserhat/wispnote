@@ -1,5 +1,7 @@
 package com.wispnote.backend.application.automation;
 
+import com.wispnote.backend.application.automation.event.AutomationCreatedEvent;
+import com.wispnote.backend.application.automation.event.AutomationUpdatedEvent;
 import com.wispnote.backend.application.automation.exception.AutomationNotFoundBusinessException;
 import com.wispnote.backend.application.automation.model.Automation;
 import com.wispnote.backend.application.automation.model.AutomationCreate;
@@ -10,9 +12,12 @@ import com.wispnote.backend.application.automation.model.AutomationUpdate;
 import com.wispnote.backend.application.automation.port.AutomationPort;
 import com.wispnote.backend.application.automation.port.AutomationSuggestionPort;
 import com.wispnote.backend.application.common.model.PaginationInfo;
+import com.wispnote.backend.application.messagepublisher.model.AutomationChangedMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,9 +33,14 @@ public class AutomationFacade {
 
     private final AutomationPort automationPort;
     private final AutomationSuggestionPort automationSuggestionPort;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
+    @Transactional
     public Automation create(UUID memberId, AutomationCreate create) {
-        return automationPort.create(create.toAutomation(memberId));
+        var automation = automationPort.create(create.toAutomation(memberId));
+        applicationEventPublisher.publishEvent(new AutomationCreatedEvent(AutomationChangedMessage.created(automation)));
+
+        return automation;
     }
 
     public AutomationPage list(UUID memberId, AutomationFilter filter, PaginationInfo paginationInfo) {
@@ -52,6 +62,7 @@ public class AutomationFacade {
                 .orElseThrow(AutomationNotFoundBusinessException::new);
     }
 
+    @Transactional
     public Automation update(UUID memberId, UUID automationId, AutomationUpdate update) {
         var current = retrieve(memberId, automationId);
 
@@ -59,12 +70,16 @@ public class AutomationFacade {
         var enabled = update.enabled() != null ? update.enabled() : current.enabled();
 
         log.info("Automation is being updated {} {}", kv("memberId", memberId), kv("automationId", automationId));
-        return automationPort.update(new Automation(current.id(),
+        var updated = automationPort.update(new Automation(current.id(),
                 current.memberId(),
                 ruleText,
                 enabled,
                 current.createdAt(),
                 current.updatedAt()));
+
+        applicationEventPublisher.publishEvent(new AutomationUpdatedEvent(AutomationChangedMessage.updated(updated)));
+
+        return updated;
     }
 
     public void delete(UUID memberId, UUID automationId) {

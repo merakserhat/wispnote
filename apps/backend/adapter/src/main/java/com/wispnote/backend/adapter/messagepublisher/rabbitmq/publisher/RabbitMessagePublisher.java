@@ -1,6 +1,7 @@
 package com.wispnote.backend.adapter.messagepublisher.rabbitmq.publisher;
 
 import com.wispnote.backend.adapter.messagepublisher.rabbitmq.config.MessagePublisherProperties;
+import com.wispnote.backend.application.messagepublisher.model.AutomationChangedMessage;
 import com.wispnote.backend.application.messagepublisher.model.NoteChangedMessage;
 import com.wispnote.backend.application.messagepublisher.port.MessagePublisherPort;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -27,30 +29,41 @@ public class RabbitMessagePublisher implements MessagePublisherPort {
 
     @Override
     public void publishNoteCreated(NoteChangedMessage message) {
-        publish(message);
+        log.info("Publishing note message {} {}", kv("eventType", message.eventType()), kv("noteId", message.noteId()));
+        publish(properties.getNotesExchange(), message.eventType(), message.eventId(), message);
     }
 
     @Override
     public void publishNoteDeleted(NoteChangedMessage message) {
-        publish(message);
+        log.info("Publishing note message {} {}", kv("eventType", message.eventType()), kv("noteId", message.noteId()));
+        publish(properties.getNotesExchange(), message.eventType(), message.eventId(), message);
     }
 
-    private void publish(NoteChangedMessage message) {
-        log.info("Publishing note message {} {}",
-                kv("eventType", message.eventType()),
-                kv("noteId", message.noteId()));
-        var correlation = new CorrelationData(message.eventId().toString());
+    @Override
+    public void publishAutomationCreated(AutomationChangedMessage message) {
+        log.info("Publishing automation message {} {}", kv("eventType", message.eventType()), kv("automationId", message.automationId()));
+        publish(properties.getAutomationsExchange(), message.eventType(), message.eventId(), message);
+    }
+
+    @Override
+    public void publishAutomationUpdated(AutomationChangedMessage message) {
+        log.info("Publishing automation message {} {}", kv("eventType", message.eventType()), kv("automationId", message.automationId()));
+        publish(properties.getAutomationsExchange(), message.eventType(), message.eventId(), message);
+    }
+
+    private void publish(String exchange, String eventType, UUID eventId, Object message) {
+        var correlation = new CorrelationData(eventId.toString());
 
         try {
-            rabbitTemplate.convertAndSend(properties.getNotesExchange(), message.eventType(), message, amqpMessage -> {
+            rabbitTemplate.convertAndSend(exchange, eventType, message, amqpMessage -> {
                 var props = amqpMessage.getMessageProperties();
-                props.setMessageId(message.eventId().toString());
-                props.setType(message.eventType());
+                props.setMessageId(eventId.toString());
+                props.setType(eventType);
                 props.setDeliveryMode(MessageDeliveryMode.PERSISTENT);
                 return amqpMessage;
             }, correlation);
         } catch (AmqpException e) {
-            log.error("Note message publish failed, note is already committed {}", kv("eventId", message.eventId()), e);
+            log.error("Message publish failed, change is already committed {} {}", kv("eventType", eventType), kv("eventId", eventId), e);
             return;
         }
 
@@ -58,12 +71,12 @@ public class RabbitMessagePublisher implements MessagePublisherPort {
             var returned = correlation.getReturned();
 
             if (failure != null) {
-                log.error("Note message not confirmed {}", kv("eventId", message.eventId()), failure);
+                log.error("Message not confirmed {} {}", kv("eventType", eventType), kv("eventId", eventId), failure);
             } else if (returned != null) {
-                log.error("Note message unroutable {} {}", kv("eventId", message.eventId()),
+                log.error("Message unroutable {} {} {}", kv("eventType", eventType), kv("eventId", eventId),
                         kv("replyText", returned.getReplyText()));
             } else if (!confirm.ack()) {
-                log.error("Note message rejected {} {}", kv("eventId", message.eventId()), kv("reason", confirm.reason()));
+                log.error("Message rejected {} {} {}", kv("eventType", eventType), kv("eventId", eventId), kv("reason", confirm.reason()));
             }
         });
     }

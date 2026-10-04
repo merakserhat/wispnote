@@ -9,6 +9,6 @@ import java.util.UUID;
 
 public interface BackendRestClient {
 
-    @GetExchange("/internal/v1/notes/{noteId}")
-    InternalResponse<NoteResponse> retrieveNote(@PathVariable UUID noteId);
+    @GetExchange("/internal/v1/members/{memberId}/notes/{noteId}")
+    InternalResponse<NoteResponse> retrieveNote(@PathVariable UUID memberId, @PathVariable UUID noteId);
 }

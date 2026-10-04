@@ -17,7 +17,7 @@ public class NoteBackendAdapter implements NotePort {
     private final BackendRestClient backendRestClient;
 
     @Override
-    public Note retrieveById(UUID noteId) {
-        return backendRestClient.retrieveNote(noteId).result().toModel();
+    public Note retrieveById(UUID memberId, UUID noteId) {
+        return backendRestClient.retrieveNote(memberId, noteId).result().toModel();
     }
 }

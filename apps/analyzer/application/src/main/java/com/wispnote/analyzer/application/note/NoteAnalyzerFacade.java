@@ -18,7 +18,7 @@ public class NoteAnalyzerFacade {
     public void analyzeNote(NoteChangedEvent noteChangedEvent) {
         log.info("Analyzing note {} {}", kv("noteId", noteChangedEvent.noteId()), kv("memberId", noteChangedEvent.memberId()));
 
-        var note = notePort.retrieveById(noteChangedEvent.noteId());
+        var note = notePort.retrieveById(noteChangedEvent.memberId(), noteChangedEvent.noteId());
         log.info("Note retrieved {} {} {}",
                 kv("noteId", note.id()),
                 kv("sourceId", note.sourceId()),

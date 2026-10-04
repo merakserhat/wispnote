@@ -29,6 +29,15 @@ public class RabbitConfiguration {
     }
 
     @Bean
+    Declarables automationTopology() {
+        var exchange = new TopicExchange(properties.getAutomationsExchange(), true, false);
+        var queue = QueueBuilder.durable(properties.getAutomationsAnalyzerQueue()).build();
+        return new Declarables(exchange, queue,
+                BindingBuilder.bind(queue).to(exchange).with("automation.created"),
+                BindingBuilder.bind(queue).to(exchange).with("automation.updated"));
+    }
+
+    @Bean
     MessageConverter rabbitMessageConverter(JsonMapper jsonMapper) {
         return new JacksonJsonMessageConverter(jsonMapper);
     }

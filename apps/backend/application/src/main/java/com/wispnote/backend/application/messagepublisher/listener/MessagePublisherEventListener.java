@@ -1,5 +1,7 @@
 package com.wispnote.backend.application.messagepublisher.listener;
 
+import com.wispnote.backend.application.automation.event.AutomationCreatedEvent;
+import com.wispnote.backend.application.automation.event.AutomationUpdatedEvent;
 import com.wispnote.backend.application.messagepublisher.port.MessagePublisherPort;
 import com.wispnote.backend.application.note.event.NoteCreatedEvent;
 import com.wispnote.backend.application.note.event.NoteDeletedEvent;
@@ -22,6 +24,16 @@ public class MessagePublisherEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void publishMessage(NoteDeletedEvent noteDeletedEvent) {
         messagePublisherPort.publishNoteDeleted(noteDeletedEvent.message());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void publishMessage(AutomationCreatedEvent automationCreatedEvent) {
+        messagePublisherPort.publishAutomationCreated(automationCreatedEvent.message());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void publishMessage(AutomationUpdatedEvent automationUpdatedEvent) {
+        messagePublisherPort.publishAutomationUpdated(automationUpdatedEvent.message());
     }
 
 }

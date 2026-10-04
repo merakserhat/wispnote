@@ -1,5 +1,6 @@
 package com.wispnote.backend.adapter.messagepublisher.mock;
 
+import com.wispnote.backend.application.messagepublisher.model.AutomationChangedMessage;
 import com.wispnote.backend.application.messagepublisher.model.NoteChangedMessage;
 import com.wispnote.backend.application.messagepublisher.port.MessagePublisherPort;
 import lombok.extern.slf4j.Slf4j;
@@ -21,5 +22,15 @@ public class MockMessagePublisher implements MessagePublisherPort {
     @Override
     public void publishNoteDeleted(NoteChangedMessage message) {
         log.info("Mock note.deleted {} {}", kv("eventId", message.eventId()), kv("noteId", message.noteId()));
+    }
+
+    @Override
+    public void publishAutomationCreated(AutomationChangedMessage message) {
+        log.info("Mock automation.created {} {}", kv("eventId", message.eventId()), kv("automationId", message.automationId()));
+    }
+
+    @Override
+    public void publishAutomationUpdated(AutomationChangedMessage message) {
+        log.info("Mock automation.updated {} {}", kv("eventId", message.eventId()), kv("automationId", message.automationId()));
     }
 }

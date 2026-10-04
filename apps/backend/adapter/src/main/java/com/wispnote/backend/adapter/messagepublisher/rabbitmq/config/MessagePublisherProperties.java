@@ -13,4 +13,6 @@ public class MessagePublisherProperties {
     private String provider;
     private String notesExchange;
     private String analyzerQueue;
+    private String automationsExchange;
+    private String automationsAnalyzerQueue;
 }

@@ -13,9 +13,9 @@ import java.util.UUID;
 public class MockNoteAdapter implements NotePort {
 
     @Override
-    public Note retrieveById(UUID noteId) {
+    public Note retrieveById(UUID memberId, UUID noteId) {
         return new Note(noteId,
-                UUID.randomUUID(),
+                memberId,
                 UUID.randomUUID(),
                 "mock selected text",
                 "",

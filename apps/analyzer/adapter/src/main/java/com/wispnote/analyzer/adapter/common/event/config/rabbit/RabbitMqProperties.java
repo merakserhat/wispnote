@@ -14,4 +14,6 @@ public class RabbitMqProperties {
     private String deadLetterExchange;
     private String notesExchange;
     private String notesQueue;
+    private String automationsExchange;
+    private String automationsQueue;
 }
