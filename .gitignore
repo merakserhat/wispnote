@@ -4,3 +4,6 @@
 .claude/
 .env
 .env.*
+
+### AI assistants ###
+.ai/docs/

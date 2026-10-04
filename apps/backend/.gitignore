@@ -39,3 +39,6 @@ build/
 
 ### macOS ###
 .DS_Store
+
+### AI assistants ###
+.ai/docs/

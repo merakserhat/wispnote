@@ -12,3 +12,6 @@ __pycache__/
 venv/
 .ruff_cache/
 storybook-static
+
+### AI assistants ###
+.ai/docs/
