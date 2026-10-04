@@ -58,6 +58,7 @@ services:
       - m2:/root/.m2
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
+      BACKEND_BASE_URL: http://backend:8090
     ports:
       - "127.0.0.1:8096:8096"
     depends_on:
