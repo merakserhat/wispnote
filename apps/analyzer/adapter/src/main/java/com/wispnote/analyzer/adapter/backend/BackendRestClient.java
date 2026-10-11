@@ -1,5 +1,6 @@
 package com.wispnote.analyzer.adapter.backend;
 
+import com.wispnote.analyzer.adapter.backend.response.AutomationResponse;
 import com.wispnote.analyzer.adapter.backend.response.InternalResponse;
 import com.wispnote.analyzer.adapter.backend.response.NoteResponse;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,4 +12,7 @@ public interface BackendRestClient {
 
     @GetExchange("/internal/v1/members/{memberId}/notes/{noteId}")
     InternalResponse<NoteResponse> retrieveNote(@PathVariable UUID memberId, @PathVariable UUID noteId);
+
+    @GetExchange("/internal/v1/members/{memberId}/automations/{automationId}")
+    InternalResponse<AutomationResponse> retrieveAutomation(@PathVariable UUID memberId, @PathVariable UUID automationId);
 }

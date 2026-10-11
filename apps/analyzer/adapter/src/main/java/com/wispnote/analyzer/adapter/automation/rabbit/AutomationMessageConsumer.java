@@ -1,7 +1,7 @@
 package com.wispnote.analyzer.adapter.automation.rabbit;
 
 import com.wispnote.analyzer.adapter.automation.rabbit.message.AutomationChangedMessage;
-import com.wispnote.analyzer.application.automation.AutomationValidationFacade;
+import com.wispnote.analyzer.application.automationcheckrun.AutomationValidationFacade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
