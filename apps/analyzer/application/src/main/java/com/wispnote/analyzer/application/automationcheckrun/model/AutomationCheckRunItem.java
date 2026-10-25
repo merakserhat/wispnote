@@ -5,6 +5,9 @@ import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationChec
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemStatus;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunRejectionReason;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunStage;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -30,4 +33,8 @@ public record AutomationCheckRunItem(UUID id,
                                      AutomationActionType decidedActionType,
                                      String condition,
                                      String requiredGroupTitle) {
+
+    public AutomationCheckRunItem withStatus(AutomationCheckRunItemStatus status) {
+        return new AutomationCheckRunItem(id, stage, status, outcome, rejectionReason, details, confidence, decidedActionType, condition, requiredGroupTitle);
+    }
 }

@@ -22,4 +22,13 @@ public record AutomationCheckRun(UUID id,
     public AutomationCheckRunStatus status() {
         return items.status();
     }
+
+    public boolean isIdentical(AutomationFingerprint otherFingerprint) {
+        return fingerprint.equals(otherFingerprint);
+    }
+
+    public AutomationCheckRun updateFingerprint(AutomationFingerprint fingerprint) {
+        var invalidatedItems = items.invalidated();
+        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, confidence, invalidatedItems);
+    }
 }

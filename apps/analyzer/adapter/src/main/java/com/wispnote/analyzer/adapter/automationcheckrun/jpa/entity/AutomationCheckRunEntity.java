@@ -43,6 +43,7 @@ public class AutomationCheckRunEntity extends BaseEntity {
     private Integer fingerprint;
 
     private Integer confidence;
+
     public AutomationCheckRun toModel(Set<AutomationCheckRunItemEntity> items) {
         return new AutomationCheckRun(
                 getId(),

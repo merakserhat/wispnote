@@ -1,5 +1,6 @@
 package com.wispnote.analyzer.application.automationcheckrun.model;
 
+import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemStatus;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunStatus;
 
 import java.util.List;
@@ -13,10 +14,15 @@ public record AutomationCheckRunItems(List<AutomationCheckRunItem> values) {
         values = List.copyOf(values);
     }
 
+    public AutomationCheckRunItems invalidated() {
+        return new AutomationCheckRunItems(values.stream().map(item -> item.withStatus(AutomationCheckRunItemStatus.INVALIDATED)).toList());
+    }
+
     public AutomationCheckRunStatus status() {
         if (values.isEmpty()) {
             return AutomationCheckRunStatus.FINISHED;
         }
+
         var allDone = values.stream()
                 .allMatch(item -> item.status() == FINISHED || item.status() == FAILED);
         return allDone ? AutomationCheckRunStatus.FINISHED : AutomationCheckRunStatus.IN_PROGRESS;

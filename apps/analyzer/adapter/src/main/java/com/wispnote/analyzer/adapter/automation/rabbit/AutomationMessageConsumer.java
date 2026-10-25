@@ -2,6 +2,7 @@ package com.wispnote.analyzer.adapter.automation.rabbit;
 
 import com.wispnote.analyzer.adapter.automation.rabbit.message.AutomationChangedMessage;
 import com.wispnote.analyzer.application.automationcheckrun.AutomationValidationFacade;
+import com.wispnote.analyzer.application.automationcheckrun.service.AutomationCheckRunTriggerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -17,7 +18,7 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
 public class AutomationMessageConsumer {
 
-    private final AutomationValidationFacade automationValidationFacade;
+    private final AutomationCheckRunTriggerService automationCheckRunTriggerService;
 
     @RabbitListener(queues = "${rabbitmq.automations-queue}")
     public void consumeAutomationChangedMessage(@Payload AutomationChangedMessage message) {
@@ -27,6 +28,6 @@ public class AutomationMessageConsumer {
                 kv("automationId", message.automationId()));
 
         var event = message.toModel();
-        automationValidationFacade.validateAutomation(event);
+        automationCheckRunTriggerService.trigger(event);
     }
 }

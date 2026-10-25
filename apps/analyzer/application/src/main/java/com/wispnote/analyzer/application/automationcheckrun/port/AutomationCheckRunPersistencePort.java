@@ -4,12 +4,15 @@ import com.wispnote.analyzer.application.automationcheckrun.exception.Automation
 import com.wispnote.analyzer.application.automationcheckrun.exception.AutomationCheckRunConflictException;
 import com.wispnote.analyzer.application.automationcheckrun.exception.AutomationCheckRunNotFoundException;
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationCheckRun;
+import com.wispnote.analyzer.application.automationcheckrun.model.AutomationFingerprint;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public interface AutomationCheckRunPersistencePort {
-    AutomationCheckRun create(UUID automationId, UUID memberId, int fingerprintValue);
+    AutomationCheckRun create(UUID automationId, UUID memberId, AutomationFingerprint automationFingerprint);
+
+    AutomationCheckRun update(AutomationCheckRun automationCheckRun);
 
     Optional<AutomationCheckRun> findByAutomationId(UUID automationId);
 }
