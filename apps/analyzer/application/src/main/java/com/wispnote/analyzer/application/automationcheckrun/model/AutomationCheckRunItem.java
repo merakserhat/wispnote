@@ -3,38 +3,100 @@ package com.wispnote.analyzer.application.automationcheckrun.model;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationActionType;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemOutcome;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemStatus;
-import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunRejectionReason;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunStage;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.UUID;
 
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemOutcome.PASSED;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemOutcome.REJECTED;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemStatus.FAILED;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemStatus.FINISHED;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemStatus.INVALIDATED;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemStatus.PENDING;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunRejectionReason.LOW_CONFIDENCE;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunRejectionReason.MISSING_PARAMETER;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunRejectionReason.NO_ACTION;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunRejectionReason.UNSUPPORTED_ACTION;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunStage.ACTION_DETECTION;
-import static com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunStage.ACTION_ENRICHMENT;
 public record AutomationCheckRunItem(UUID id,
+                                     Long version,
                                      AutomationCheckRunStage stage,
                                      AutomationCheckRunItemStatus status,
-                                     AutomationCheckRunItemOutcome outcome,
-                                     AutomationCheckRunRejectionReason rejectionReason,
-                                     String details,
-                                     Integer confidence,
+                                     AutomationCheckRunItemResult result,
                                      AutomationActionType decidedActionType,
                                      String condition,
                                      String requiredGroupTitle) {
 
+    public static AutomationCheckRunItem pending(AutomationCheckRunStage stage) {
+        return new AutomationCheckRunItem(
+                null,
+                null,
+                stage,
+                AutomationCheckRunItemStatus.PENDING,
+                AutomationCheckRunItemResult.empty(),
+                null,
+                null,
+                null
+        );
+    }
+
+    public AutomationCheckRunItem finish(AutomationCheckRunStageExecutionResult executionResult) {
+        return switch (executionResult) {
+            case AutomationActionDetectionExecutionResult r -> new AutomationCheckRunItem(
+                    id,
+                    version,
+                    stage,
+                    AutomationCheckRunItemStatus.FINISHED,
+                    r.toItemResult(),
+                    r.actionType(),
+                    null,
+                    null
+            );
+            case AutomationActionEnrichmentExecutionResult r -> new AutomationCheckRunItem(
+                    id,
+                    version,
+                    stage,
+                    AutomationCheckRunItemStatus.FINISHED,
+                    r.toItemResult(),
+                    null,
+                    r.condition(),
+                    r.requiredGroupTitle()
+            );
+        };
+    }
+
+    public AutomationCheckRunItem fail(String reason) {
+        return new AutomationCheckRunItem(
+                id,
+                version,
+                stage,
+                AutomationCheckRunItemStatus.FAILED,
+                new AutomationCheckRunItemResult(null, null, reason),
+                null,
+                null,
+                null
+        );
+    }
+
     public AutomationCheckRunItem withStatus(AutomationCheckRunItemStatus status) {
-        return new AutomationCheckRunItem(id, stage, status, outcome, rejectionReason, details, confidence, decidedActionType, condition, requiredGroupTitle);
+        return new AutomationCheckRunItem(
+                id,
+                version,
+                stage,
+                status,
+                result,
+                decidedActionType,
+                condition,
+                requiredGroupTitle
+        );
+    }
+
+    public boolean isPending() {
+        return status == AutomationCheckRunItemStatus.PENDING;
+    }
+
+    public boolean isFinished() {
+        return status == AutomationCheckRunItemStatus.FINISHED;
+    }
+
+    public boolean isFailed() {
+        return status == AutomationCheckRunItemStatus.FAILED;
+    }
+
+    public boolean isRejected() {
+        return isFinished() && result.outcome() == AutomationCheckRunItemOutcome.REJECTED;
+    }
+
+    public boolean isInvalidated() {
+        return status == AutomationCheckRunItemStatus.INVALIDATED;
     }
 }

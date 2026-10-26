@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.SequencedMap;
-import java.util.Set;
 import java.util.function.Function;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;

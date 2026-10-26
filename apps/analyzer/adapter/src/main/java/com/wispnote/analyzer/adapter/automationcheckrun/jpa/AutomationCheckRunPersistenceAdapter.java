@@ -3,12 +3,12 @@ package com.wispnote.analyzer.adapter.automationcheckrun.jpa;
 import com.wispnote.analyzer.adapter.automationcheckrun.converter.AutomationActionTypeConverter;
 import com.wispnote.analyzer.adapter.automationcheckrun.converter.AutomationCheckRunItemOutcomeConverter;
 import com.wispnote.analyzer.adapter.automationcheckrun.converter.AutomationCheckRunItemStatusConverter;
-import com.wispnote.analyzer.adapter.automationcheckrun.converter.AutomationCheckRunRejectionReasonConverter;
 import com.wispnote.analyzer.adapter.automationcheckrun.converter.AutomationCheckRunStageConverter;
 import com.wispnote.analyzer.adapter.automationcheckrun.jpa.entity.AutomationCheckRunEntity;
 import com.wispnote.analyzer.adapter.automationcheckrun.jpa.entity.AutomationCheckRunItemEntity;
 import com.wispnote.analyzer.adapter.automationcheckrun.jpa.repository.AutomationCheckRunItemRepository;
 import com.wispnote.analyzer.adapter.automationcheckrun.jpa.repository.AutomationCheckRunRepository;
+import com.wispnote.analyzer.application.automationcheckrun.exception.AutomationCheckRunConflictException;
 import com.wispnote.analyzer.application.automationcheckrun.exception.AutomationCheckRunNotFoundException;
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationCheckRun;
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationFingerprint;
@@ -60,7 +60,7 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
         var checkRunEntity = automationCheckRunRepository.findById(automationCheckRun.id())
                 .orElseThrow(AutomationCheckRunNotFoundException::new);
 
-        var updatedItemEntities = updateItems(automationCheckRun);
+        var updatedItemEntities = updateItems(checkRunEntity, automationCheckRun);
         checkRunEntity.setFingerprint(automationCheckRun.fingerprint().value());
         checkRunEntity.setConfidence(automationCheckRun.confidence());
 
@@ -82,28 +82,43 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
         return Optional.of(checkRun.toModel(checkRunItems));
     }
 
-    private Set<AutomationCheckRunItemEntity> updateItems(AutomationCheckRun automationCheckRun) {
+    private Set<AutomationCheckRunItemEntity> updateItems(AutomationCheckRunEntity checkRunEntity,
+                                                          AutomationCheckRun automationCheckRun) {
         var itemEntitiesById = automationCheckRunItemRepository
-                .findAllByAutomationCheckRunIdAndDeletedFalse(automationCheckRun.id())
+                .findAllByAutomationCheckRunIdAndDeletedFalse(checkRunEntity.getId())
                 .stream()
                 .collect(Collectors.toMap(AutomationCheckRunItemEntity::getId, Function.identity()));
 
         var itemEntities = new ArrayList<AutomationCheckRunItemEntity>();
 
         for (var item : automationCheckRun.items().values()) {
-            var itemEntity = itemEntitiesById.get(item.id());
+            AutomationCheckRunItemEntity itemEntity;
 
-            if (itemEntity == null) {
-                log.error("Automation check run item not found {}", kv("automationCheckRunItemId", item.id()));
-                throw new AutomationCheckRunNotFoundException();
+            if (item.id() == null) {
+                itemEntity = new AutomationCheckRunItemEntity();
+                itemEntity.setRun(checkRunEntity);
+            } else {
+                itemEntity = itemEntitiesById.get(item.id());
+
+                if (itemEntity == null) {
+                    log.error("Automation check run item not found {}", kv("automationCheckRunItemId", item.id()));
+                    throw new AutomationCheckRunNotFoundException();
+                }
+
+                if (!itemEntity.getVersion().equals(item.version())) {
+                    log.warn("Automation check run item was modified concurrently {} {} {}",
+                            kv("automationCheckRunItemId", item.id()),
+                            kv("expectedVersion", item.version()),
+                            kv("actualVersion", itemEntity.getVersion()));
+                    throw new AutomationCheckRunConflictException();
+                }
             }
 
             itemEntity.setStage(AutomationCheckRunStageConverter.entity.fromEnum(item.stage()));
             itemEntity.setStatus(AutomationCheckRunItemStatusConverter.entity.fromEnum(item.status()));
-            itemEntity.setOutcome(AutomationCheckRunItemOutcomeConverter.entity.fromEnum(item.outcome()));
-            itemEntity.setRejectionReason(AutomationCheckRunRejectionReasonConverter.entity.fromEnum(item.rejectionReason()));
-            itemEntity.setDetails(item.details());
-            itemEntity.setConfidence(item.confidence());
+            itemEntity.setOutcome(AutomationCheckRunItemOutcomeConverter.entity.fromEnum(item.result().outcome()));
+            itemEntity.setConfidence(item.result().confidence());
+            itemEntity.setDetails(item.result().details());
             itemEntity.setDecidedActionType(AutomationActionTypeConverter.entity.fromEnum(item.decidedActionType()));
             itemEntity.setCondition(item.condition());
             itemEntity.setRequiredGroupTitle(item.requiredGroupTitle());
