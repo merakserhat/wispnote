@@ -1,14 +1,15 @@
 package com.wispnote.analyzer.adapter.llm;
 
-import lombok.experimental.UtilityClass;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
-@UtilityClass
-public class SystemPrompts {
+public final class SystemPrompts {
+
+    private SystemPrompts() {
+    }
 
     public static String load(String name) {
         var location = "prompts/" + name + ".txt";
