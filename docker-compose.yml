@@ -60,6 +60,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/wispnote_analyzer
       SPRING_RABBITMQ_HOST: rabbitmq
       BACKEND_BASE_URL: http://backend:8090
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
       - "127.0.0.1:8096:8096"
     depends_on:

@@ -1,5 +1,6 @@
 package com.wispnote.analyzer.application.automationcheckrun.service;
 
+import com.wispnote.analyzer.application.automation.model.Automation;
 import com.wispnote.analyzer.application.automationcheckrun.exception.AutomationCheckRunConflictException;
 import com.wispnote.analyzer.application.automationcheckrun.executor.AutomationCheckRunStageExecutorFactory;
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationCheckRun;
@@ -18,7 +19,7 @@ public class AutomationCheckRunHandlerService {
     private final AutomationCheckRunStageExecutorFactory stageExecutorFactory;
     private final AutomationCheckRunPersistencePort automationCheckRunPersistencePort;
 
-    public void handle(AutomationCheckRun checkRun) {
+    public void handle(AutomationCheckRun checkRun, Automation automation) {
         if (checkRun.isCompleted()) {
             log.info("Automation check run already completed {}", kv("automationCheckRunId", checkRun.id()));
             return;
@@ -35,8 +36,11 @@ public class AutomationCheckRunHandlerService {
             currentCheckRun = automationCheckRunPersistencePort.update(currentCheckRun.start(stage));
 
             try {
-                var executionResult = stageExecutorFactory.getExecutor(stage).execute(currentCheckRun);
-                currentCheckRun = automationCheckRunPersistencePort.update(currentCheckRun.apply(executionResult));
+                var executor = stageExecutorFactory.getExecutor(stage);
+                var executionResult = executor.execute(currentCheckRun, automation);
+
+                var appliedCheckRun = currentCheckRun.apply(executionResult);
+                currentCheckRun = automationCheckRunPersistencePort.update(appliedCheckRun);
             } catch (AutomationCheckRunConflictException exception) {
                 throw exception;
             } catch (Exception exception) {

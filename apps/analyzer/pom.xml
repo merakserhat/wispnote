@@ -31,6 +31,7 @@
         <logback-encoder.version>8.0</logback-encoder.version>
         <lombok.version>1.18.46</lombok.version>
         <archunit-junit5.version>1.4.2</archunit-junit5.version>
+        <openai-java.version>4.92.0</openai-java.version>
     </properties>
 
     <dependencies>
@@ -63,6 +64,11 @@
                 <groupId>com.tngtech.archunit</groupId>
                 <artifactId>archunit-junit5</artifactId>
                 <version>${archunit-junit5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.openai</groupId>
+                <artifactId>openai-java</artifactId>
+                <version>${openai-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

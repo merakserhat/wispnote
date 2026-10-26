@@ -33,7 +33,7 @@ public class AutomationCheckRunTriggerService {
 
         if (event.kind() == AutomationEventKind.CREATED) {
            var checkRun = createCheckRun(automation);
-           automationCheckRunHandlerService.handle(checkRun);
+           automationCheckRunHandlerService.handle(checkRun, automation);
            return;
         }
 
@@ -41,7 +41,7 @@ public class AutomationCheckRunTriggerService {
 
         if (checkRunOptional.isEmpty()) {
             var checkRun = createCheckRun(automation);
-            automationCheckRunHandlerService.handle(checkRun);
+            automationCheckRunHandlerService.handle(checkRun, automation);
             return;
         }
 
@@ -53,10 +53,9 @@ public class AutomationCheckRunTriggerService {
             return;
         }
 
-        var updatedCheckRun = checkRun.updateFingerprint(automationFingerprint);
-        automationCheckRunPersistencePort.update(updatedCheckRun);
+        var updatedCheckRun = automationCheckRunPersistencePort.update(checkRun.updateFingerprint(automationFingerprint));
 
-        automationCheckRunHandlerService.handle(updatedCheckRun);
+        automationCheckRunHandlerService.handle(updatedCheckRun, automation);
     }
 
     private AutomationCheckRun createCheckRun(Automation automation) {

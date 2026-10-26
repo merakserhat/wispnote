@@ -16,6 +16,8 @@ public record AutomationCheckRunItem(UUID id,
                                      String condition,
                                      String requiredGroupTitle) {
 
+    public static final int MIN_CONFIDENCE = 50;
+
     public static AutomationCheckRunItem pending(AutomationCheckRunStage stage) {
         return new AutomationCheckRunItem(
                 null,
