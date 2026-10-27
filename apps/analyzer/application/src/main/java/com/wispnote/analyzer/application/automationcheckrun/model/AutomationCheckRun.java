@@ -1,5 +1,6 @@
 package com.wispnote.analyzer.application.automationcheckrun.model;
 
+import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationActionType;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunItemOutcome;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunStage;
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunStatus;
@@ -79,6 +80,12 @@ public record AutomationCheckRun(UUID id,
 
         var item = pendingItem.get();
         return withItems(items.replace(item, item.fail(reason)));
+    }
+
+    public Optional<AutomationActionType> getDecidedActionType() {
+        return items().findLive(AutomationCheckRunStage.ACTION_DETECTION)
+                .filter(AutomationCheckRunItem::isFinished)
+                .map(AutomationCheckRunItem::decidedActionType);
     }
 
     private AutomationCheckRun withItems(AutomationCheckRunItems items) {

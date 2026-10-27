@@ -31,6 +31,13 @@ public class AutomationCheckRunTriggerService {
 
         var automation = automationPort.retrieveById(event.memberId(), event.automationId());
 
+        if (automation.hasNoRuleText()) {
+            log.warn("Automation has no rule text, skipping check run {} {}",
+                    kv("automationId", automation.id()),
+                    kv("memberId", automation.memberId()));
+            return;
+        }
+
         if (event.kind() == AutomationEventKind.CREATED) {
            var checkRun = createCheckRun(automation);
            automationCheckRunHandlerService.handle(checkRun, automation);
