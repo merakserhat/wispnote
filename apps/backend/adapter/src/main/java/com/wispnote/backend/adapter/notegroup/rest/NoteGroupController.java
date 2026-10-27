@@ -40,7 +40,7 @@ public class NoteGroupController {
     @GetMapping
     public List<NoteGroupResponse> list(@ModelAttribute NoteGroupListRequest request,
                                        @AuthenticationPrincipal CustomUserDetails userDetail) {
-        return noteGroupFacade.list(userDetail.getId(), request.toFilter()).stream()
+        return noteGroupFacade.listWithSummary(userDetail.getId(), request.toFilter()).stream()
                 .map(NoteGroupResponse::from)
                 .toList();
     }

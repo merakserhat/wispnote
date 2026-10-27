@@ -2,6 +2,7 @@ package com.wispnote.backend.application.notegroup;
 
 import com.wispnote.backend.application.notegroup.exception.NoteGroupNotFoundBusinessException;
 import com.wispnote.backend.application.notegroup.model.CreateNoteGroupCommand;
+import com.wispnote.backend.application.notegroup.model.NoteGroup;
 import com.wispnote.backend.application.notegroup.model.NoteGroupFilter;
 import com.wispnote.backend.application.notegroup.model.NoteGroupSummary;
 import com.wispnote.backend.application.notegroup.port.NoteGroupPort;
@@ -33,12 +34,17 @@ public class NoteGroupFacade {
         return NoteGroupSummary.empty(noteGroup);
     }
 
-    public List<NoteGroupSummary> list(UUID memberId, NoteGroupFilter filter) {
+    public List<NoteGroup> listAll(UUID memberId) {
+        log.info("Retrieving all note groups for {}", kv("memberId", memberId));
+        return noteGroupPort.findAllByMemberId(memberId);
+    }
+
+    public List<NoteGroupSummary> listWithSummary(UUID memberId, NoteGroupFilter filter) {
         log.info("Retrieving note group for {} with {}",
                 kv("memberId", memberId),
                 kv("search", filter.search()));
 
-        return noteGroupPort.findAllByMemberId(memberId, filter);
+        return noteGroupPort.findAllWithSummaryByMemberId(memberId, filter);
     }
 
     public NoteGroupSummary retrieve(UUID memberId, UUID noteGroupId) {

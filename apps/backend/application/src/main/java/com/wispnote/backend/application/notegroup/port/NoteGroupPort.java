@@ -15,7 +15,9 @@ public interface NoteGroupPort {
 
     boolean existsByIdAndMemberId(UUID id, UUID memberId);
 
-    List<NoteGroupSummary> findAllByMemberId(UUID memberId, NoteGroupFilter filter);
+    List<NoteGroup> findAllByMemberId(UUID memberId);
+
+    List<NoteGroupSummary> findAllWithSummaryByMemberId(UUID memberId, NoteGroupFilter filter);
 
     void deleteByIdAndMemberId(UUID id, UUID memberId);
 

@@ -56,7 +56,14 @@ public class NoteGroupJpaAdapter implements NoteGroupPort {
     }
 
     @Override
-    public List<NoteGroupSummary> findAllByMemberId(UUID memberId, NoteGroupFilter filter) {
+    public List<NoteGroup> findAllByMemberId(UUID memberId) {
+        return findNoteGroupEntities(memberId, NoteGroupFilter.empty()).stream()
+                .map(NoteGroupEntity::toModel)
+                .toList();
+    }
+
+    @Override
+    public List<NoteGroupSummary> findAllWithSummaryByMemberId(UUID memberId, NoteGroupFilter filter) {
         var noteGroupEntities = findNoteGroupEntities(memberId, filter);
         var noteCounts = findNoteCounts(noteGroupEntities);
 
