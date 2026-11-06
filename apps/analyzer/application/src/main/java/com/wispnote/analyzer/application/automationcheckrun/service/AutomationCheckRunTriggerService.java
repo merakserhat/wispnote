@@ -1,6 +1,5 @@
 package com.wispnote.analyzer.application.automationcheckrun.service;
 
-import com.wispnote.analyzer.application.automation.enums.AutomationEventKind;
 import com.wispnote.analyzer.application.automation.model.Automation;
 import com.wispnote.analyzer.application.automation.model.AutomationChangedEvent;
 import com.wispnote.analyzer.application.automation.port.AutomationPort;
@@ -10,7 +9,6 @@ import com.wispnote.analyzer.application.automationcheckrun.port.AutomationCheck
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -38,31 +36,19 @@ public class AutomationCheckRunTriggerService {
             return;
         }
 
-        if (event.kind() == AutomationEventKind.CREATED) {
-           var checkRun = createCheckRun(automation);
-           automationCheckRunHandlerService.handle(checkRun, automation);
-           return;
-        }
-
-        var checkRunOptional = automationCheckRunPersistencePort.findByAutomationId(event.automationId());
-
-        if (checkRunOptional.isEmpty()) {
-            var checkRun = createCheckRun(automation);
-            automationCheckRunHandlerService.handle(checkRun, automation);
-            return;
-        }
-
-        var checkRun = checkRunOptional.get();
+        var checkRun = automationCheckRunPersistencePort.findByAutomationId(event.automationId())
+                .orElseGet(() -> createCheckRun(automation));
         var automationFingerprint = AutomationFingerprint.of(automation);
 
-        if (checkRun.isIdentical(automationFingerprint)) {
-            log.info("Automation fingerprints are the same, skipping check run creation");
+        if (!checkRun.isIdentical(automationFingerprint)) {
+            checkRun = automationCheckRunPersistencePort.update(checkRun.updateFingerprint(automationFingerprint));
+        } else if (checkRun.isCompleted()) {
+            log.info("Automation fingerprints are the same and check run is completed, skipping {}",
+                    kv("automationCheckRunId", checkRun.id()));
             return;
         }
 
-        var updatedCheckRun = automationCheckRunPersistencePort.update(checkRun.updateFingerprint(automationFingerprint));
-
-        automationCheckRunHandlerService.handle(updatedCheckRun, automation);
+        automationCheckRunHandlerService.handle(checkRun, automation);
     }
 
     private AutomationCheckRun createCheckRun(Automation automation) {

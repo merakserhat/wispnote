@@ -64,7 +64,7 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
         checkRunEntity.setFingerprint(automationCheckRun.fingerprint().value());
         checkRunEntity.setConfidence(automationCheckRun.confidence());
 
-        return automationCheckRunRepository.save(checkRunEntity).toModel(updatedItemEntities);
+        return automationCheckRunRepository.saveAndFlush(checkRunEntity).toModel(updatedItemEntities);
     }
 
     @Override
@@ -125,6 +125,6 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
             itemEntities.add(itemEntity);
         }
 
-        return new LinkedHashSet<>(automationCheckRunItemRepository.saveAll(itemEntities));
+        return new LinkedHashSet<>(automationCheckRunItemRepository.saveAllAndFlush(itemEntities));
     }
 }

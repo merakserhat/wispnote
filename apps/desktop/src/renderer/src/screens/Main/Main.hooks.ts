@@ -7,7 +7,7 @@ export function useSessionExpiry() {
   useEffect(
     () =>
       window.wisp.onSessionExpired(() => {
-        queryClient.clear();
+        queryClient.resetQueries();
       }),
     [queryClient]
   );
