@@ -10,9 +10,12 @@ function FormInput<TFormValues extends FieldValues>({
   label,
   placeholder,
   secure,
+  multiline,
+  maxRows,
   autoFocus,
   disabled,
   size,
+  onPressEnter,
 }: TFormInputProps<TFormValues>) {
   return (
     <Controller
@@ -25,11 +28,14 @@ function FormInput<TFormValues extends FieldValues>({
           label={label}
           placeholder={placeholder}
           secure={secure}
+          multiline={multiline}
+          maxRows={maxRows}
           autoFocus={autoFocus}
           disabled={disabled}
           size={size}
           error={fieldState.error?.message}
           onChangeText={field.onChange}
+          onPressEnter={onPressEnter}
           onBlur={field.onBlur}
         />
       )}

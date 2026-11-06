@@ -3,6 +3,9 @@ package com.wispnote.analyzer.adapter.notegroupselection.openai;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.wispnote.analyzer.application.automationcheckrun.model.NoteGroupSelectionResult;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.UUID;
 
 @JsonClassDescription("Result of reading an automation rule that adds notes to a note group and extracting its condition and target group.")
 public class NoteGroupSelectionOutput {
@@ -10,6 +13,10 @@ public class NoteGroupSelectionOutput {
     @JsonPropertyDescription("The condition that a new note must meet for the rule to apply, as one standalone sentence in "
             + "the member's own words, without the action part. Empty string when the rule states no condition.")
     public String condition;
+
+    @JsonPropertyDescription("The id of the existing note group the rule refers to, copied exactly from the input. "
+            + "Empty string when the rule does not refer to an existing group.")
+    public String existingGroupId;
 
     @JsonPropertyDescription("The title of the note group the rule adds notes to. An existing group title copied exactly "
             + "when the rule clearly refers to it, otherwise a short new title taken from the rule. Empty string when "
@@ -25,6 +32,18 @@ public class NoteGroupSelectionOutput {
     public String details;
 
     public NoteGroupSelectionResult toModel() {
-        return new NoteGroupSelectionResult(condition, groupTitle, confidence, details);
+        return new NoteGroupSelectionResult(condition, parseGroupId(), groupTitle, confidence, details);
+    }
+
+    private UUID parseGroupId() {
+        if (StringUtils.isBlank(existingGroupId)) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(existingGroupId.strip());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

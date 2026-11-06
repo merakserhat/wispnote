@@ -42,8 +42,6 @@ public class AutomationCheckRunEntity extends BaseEntity {
     @Column(nullable = false)
     private Integer fingerprint;
 
-    private Integer confidence;
-
     public AutomationCheckRun toModel(Set<AutomationCheckRunItemEntity> items) {
         return new AutomationCheckRun(
                 getId(),
@@ -51,7 +49,6 @@ public class AutomationCheckRunEntity extends BaseEntity {
                 automationId,
                 memberId,
                 new AutomationFingerprint(fingerprint),
-                confidence,
                 new AutomationCheckRunItems(items.stream().map(AutomationCheckRunItemEntity::toModel).toList())
         );
     }

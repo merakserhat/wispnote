@@ -6,11 +6,16 @@ import com.wispnote.analyzer.application.automationcheckrun.model.AutomationActi
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationCheckRun;
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationCheckRunItem;
 import com.wispnote.analyzer.application.automationcheckrun.model.NoteGroupSelectionRequest;
+import com.wispnote.analyzer.application.automationcheckrun.model.NoteGroupSelectionResult;
 import com.wispnote.analyzer.application.automationcheckrun.port.NoteGroupSelectionPort;
+import com.wispnote.analyzer.application.notegroup.model.NoteGroup;
 import com.wispnote.analyzer.application.notegroup.port.NoteGroupPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 
@@ -38,8 +43,28 @@ public class AddNoteToGroupEnrichmentStrategy implements AutomationActionEnrichm
             return AutomationActionEnrichmentExecutionResult.rejected(result.confidence(), result.details());
         }
 
+        var existingGroup = resolveExistingGroup(groups, result);
+
         return AutomationActionEnrichmentExecutionResult.passed(
-                result.confidence(), result.details(), result.condition(), result.groupTitle());
+                result.confidence(),
+                result.details(),
+                result.condition(),
+                existingGroup.map(NoteGroup::id).orElse(null),
+                existingGroup.map(NoteGroup::title).orElse(result.groupTitle()));
+    }
+
+    private Optional<NoteGroup> resolveExistingGroup(List<NoteGroup> groups, NoteGroupSelectionResult result) {
+        var byId = groups.stream()
+                .filter(group -> group.id().equals(result.groupId()))
+                .findFirst();
+
+        if (byId.isPresent()) {
+            return byId;
+        }
+
+        return groups.stream()
+                .filter(group -> group.title().equalsIgnoreCase(result.groupTitle()))
+                .findFirst();
     }
 
     @Override

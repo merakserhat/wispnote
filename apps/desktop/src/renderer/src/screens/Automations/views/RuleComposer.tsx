@@ -43,6 +43,8 @@ function RuleComposer() {
               placeholder={RULE_PLACEHOLDER}
               size="large"
               autoFocus
+              multiline
+              onPressEnter={submit}
             />
           </Box>
           <Button

@@ -7,10 +7,10 @@ import java.util.List;
 
 public record NoteGroupSelectionInput(String ruleText, List<Group> groups) {
 
-    public record Group(String title, String description) {
+    public record Group(String id, String title, String description) {
 
         static Group from(NoteGroup noteGroup) {
-            return new Group(noteGroup.title(), noteGroup.description());
+            return new Group(noteGroup.id().toString(), noteGroup.title(), noteGroup.description());
         }
     }
 

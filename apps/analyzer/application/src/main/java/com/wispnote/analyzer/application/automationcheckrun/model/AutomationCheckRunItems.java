@@ -7,6 +7,7 @@ import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationChec
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +69,28 @@ public record AutomationCheckRunItems(List<AutomationCheckRunItem> values) {
                 .filter(item -> !item.isInvalidated())
                 .filter(item -> item.stage() == stage)
                 .findFirst();
+    }
+
+    public Optional<AutomationCheckRunItem> findOutcomeItem() {
+        var validItems = getValidItems();
+
+        var failed = validItems.stream().filter(AutomationCheckRunItem::isFailed).findFirst();
+        if (failed.isPresent()) {
+            return failed;
+        }
+
+        var rejected = validItems.stream().filter(AutomationCheckRunItem::isRejected).findFirst();
+        if (rejected.isPresent()) {
+            return rejected;
+        }
+
+        if (!allStagesFinished(validItems)) {
+            return Optional.empty();
+        }
+
+        return validItems.stream()
+                .filter(AutomationCheckRunItem::isFinished)
+                .max(Comparator.comparing(item -> item.stage().getOrder()));
     }
 
     public AutomationCheckRunStage getCurrentStage() {

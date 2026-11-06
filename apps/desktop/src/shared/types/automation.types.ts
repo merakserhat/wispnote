@@ -1,4 +1,19 @@
+import AutomationActionType from 'shared/enums/AutomationActionType';
+import AutomationCheckRunOutcome from 'shared/enums/AutomationCheckRunOutcome';
+import AutomationCheckRunStatus from 'shared/enums/AutomationCheckRunStatus';
+
 import { TPaginatedResponse, TPaginationRequestParams } from './common';
+
+export type TAutomationCheckRun = {
+  status: AutomationCheckRunStatus;
+  outcome?: AutomationCheckRunOutcome;
+  actionType?: AutomationActionType;
+  condition?: string;
+  requiredGroupId?: string;
+  requiredGroupTitle?: string;
+  confidence?: number;
+  details?: string;
+};
 
 export type TAutomation = {
   id: string;
@@ -6,6 +21,7 @@ export type TAutomation = {
   enabled: boolean;
   createdAt: string;
   updatedAt?: string;
+  checkRun?: TAutomationCheckRun;
 };
 
 export type TAutomationSuggestion = {

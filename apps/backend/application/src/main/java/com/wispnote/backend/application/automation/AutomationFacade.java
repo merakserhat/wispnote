@@ -11,6 +11,7 @@ import com.wispnote.backend.application.automation.model.AutomationSuggestion;
 import com.wispnote.backend.application.automation.model.AutomationUpdate;
 import com.wispnote.backend.application.automation.port.AutomationPort;
 import com.wispnote.backend.application.automation.port.AutomationSuggestionPort;
+import com.wispnote.backend.application.automationcheckrun.port.AutomationCheckRunPort;
 import com.wispnote.backend.application.common.model.PaginationInfo;
 import com.wispnote.backend.application.messagepublisher.model.AutomationChangedMessage;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class AutomationFacade {
 
     private final AutomationPort automationPort;
     private final AutomationSuggestionPort automationSuggestionPort;
+    private final AutomationCheckRunPort automationCheckRunPort;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
@@ -45,8 +47,11 @@ public class AutomationFacade {
 
     public AutomationPage list(UUID memberId, AutomationFilter filter, PaginationInfo paginationInfo) {
         var page = automationPort.findAllByMemberId(memberId, filter, paginationInfo);
+        var automationIds = page.getContent().stream().map(Automation::id).toList();
 
-        return new AutomationPage(page, automationPort.countEnabledByMemberId(memberId));
+        var checkRuns = automationCheckRunPort.findAllByMemberIdAndAutomationIds(memberId, automationIds);
+
+        return new AutomationPage(page, automationPort.countEnabledByMemberId(memberId), checkRuns);
     }
 
     public List<AutomationSuggestion> suggestions(UUID memberId) {

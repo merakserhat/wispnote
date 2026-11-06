@@ -17,7 +17,6 @@ public record AutomationCheckRun(UUID id,
                                  UUID automationId,
                                  UUID memberId,
                                  AutomationFingerprint fingerprint,
-                                 Integer confidence,
                                  AutomationCheckRunItems items) {
 
     public AutomationCheckRunStatus status() {
@@ -82,6 +81,14 @@ public record AutomationCheckRun(UUID id,
         return withItems(items.replace(item, item.fail(reason)));
     }
 
+    public Optional<AutomationCheckRunItem> findLiveItem(AutomationCheckRunStage stage) {
+        return items.findLive(stage);
+    }
+
+    public Optional<AutomationCheckRunItem> findOutcomeItem() {
+        return items.findOutcomeItem();
+    }
+
     public Optional<AutomationActionType> getDecidedActionType() {
         return items().findLive(AutomationCheckRunStage.ACTION_DETECTION)
                 .filter(AutomationCheckRunItem::isFinished)
@@ -89,10 +96,10 @@ public record AutomationCheckRun(UUID id,
     }
 
     private AutomationCheckRun withItems(AutomationCheckRunItems items) {
-        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, confidence, items);
+        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, items);
     }
 
     public AutomationCheckRun updateFingerprint(AutomationFingerprint fingerprint) {
-        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, confidence, items.invalidated());
+        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, items.invalidated());
     }
 }

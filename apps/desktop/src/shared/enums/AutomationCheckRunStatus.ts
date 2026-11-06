@@ -1,0 +1,7 @@
+enum AutomationCheckRunStatus {
+  IN_PROGRESS = 'IN_PROGRESS',
+  FINISHED = 'FINISHED',
+  FAILED = 'FAILED',
+}
+
+export default AutomationCheckRunStatus;

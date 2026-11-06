@@ -23,12 +23,11 @@ public class MockNoteGroupSelectionAdapter implements NoteGroupSelectionPort {
                 kv("ruleText", request.ruleText()),
                 kv("existingGroupCount", request.groups().size()));
 
-        var groupTitle = request.groups().stream()
-                .findFirst()
-                .map(NoteGroup::title)
-                .orElse(PROPOSED_GROUP_TITLE);
+        var group = request.groups().stream().findFirst();
+        var groupId = group.map(NoteGroup::id).orElse(null);
+        var groupTitle = group.map(NoteGroup::title).orElse(PROPOSED_GROUP_TITLE);
 
         return new NoteGroupSelectionResult(
-                "Mock: the note matches the rule.", groupTitle, 100, "Mock: matching notes will be added to " + groupTitle + ".");
+                "Mock: the note matches the rule.", groupId, groupTitle, 100, "Mock: matching notes will be added to " + groupTitle + ".");
     }
 }

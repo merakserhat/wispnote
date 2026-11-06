@@ -6,6 +6,7 @@ import com.wispnote.analyzer.application.automationcheckrun.exception.Automation
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationCheckRun;
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationFingerprint;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,4 +16,6 @@ public interface AutomationCheckRunPersistencePort {
     AutomationCheckRun update(AutomationCheckRun automationCheckRun);
 
     Optional<AutomationCheckRun> findByAutomationId(UUID automationId);
+
+    List<AutomationCheckRun> findAllByMemberIdAndAutomationIds(UUID memberId, List<UUID> automationIds);
 }

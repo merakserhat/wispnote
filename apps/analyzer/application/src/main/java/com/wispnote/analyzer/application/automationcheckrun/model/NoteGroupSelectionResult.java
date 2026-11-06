@@ -2,7 +2,10 @@ package com.wispnote.analyzer.application.automationcheckrun.model;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.UUID;
+
 public record NoteGroupSelectionResult(String condition,
+                                       UUID groupId,
                                        String groupTitle,
                                        Integer confidence,
                                        String details) {

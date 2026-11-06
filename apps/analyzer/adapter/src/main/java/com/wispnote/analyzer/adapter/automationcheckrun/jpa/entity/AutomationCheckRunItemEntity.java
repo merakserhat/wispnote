@@ -18,6 +18,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Entity
@@ -49,6 +51,8 @@ public class AutomationCheckRunItemEntity extends BaseEntity {
 
     private String condition;
 
+    private UUID requiredGroupId;
+
     private String requiredGroupTitle;
 
     public AutomationCheckRunItem toModel() {
@@ -65,6 +69,7 @@ public class AutomationCheckRunItemEntity extends BaseEntity {
                 executionResult,
                 AutomationActionTypeConverter.entity.toEnum(decidedActionType),
                 condition,
+                requiredGroupId,
                 requiredGroupTitle
         );
     }

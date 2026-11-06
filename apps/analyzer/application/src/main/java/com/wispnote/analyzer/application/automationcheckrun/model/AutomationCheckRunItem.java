@@ -14,6 +14,7 @@ public record AutomationCheckRunItem(UUID id,
                                      AutomationCheckRunItemResult result,
                                      AutomationActionType decidedActionType,
                                      String condition,
+                                     UUID requiredGroupId,
                                      String requiredGroupTitle) {
 
     public static final int MIN_CONFIDENCE = 50;
@@ -25,6 +26,7 @@ public record AutomationCheckRunItem(UUID id,
                 stage,
                 AutomationCheckRunItemStatus.PENDING,
                 AutomationCheckRunItemResult.empty(),
+                null,
                 null,
                 null,
                 null
@@ -41,6 +43,7 @@ public record AutomationCheckRunItem(UUID id,
                     r.toItemResult(),
                     r.actionType(),
                     null,
+                    null,
                     null
             );
             case AutomationActionEnrichmentExecutionResult r -> new AutomationCheckRunItem(
@@ -51,6 +54,7 @@ public record AutomationCheckRunItem(UUID id,
                     r.toItemResult(),
                     null,
                     r.condition(),
+                    r.requiredGroupId(),
                     r.requiredGroupTitle()
             );
         };
@@ -63,6 +67,7 @@ public record AutomationCheckRunItem(UUID id,
                 stage,
                 AutomationCheckRunItemStatus.FAILED,
                 new AutomationCheckRunItemResult(null, null, reason),
+                null,
                 null,
                 null,
                 null
@@ -78,6 +83,7 @@ public record AutomationCheckRunItem(UUID id,
                 result,
                 decidedActionType,
                 condition,
+                requiredGroupId,
                 requiredGroupTitle
         );
     }

@@ -19,3 +19,10 @@ export const StyledPasswordInput = styled(Input.Password)`
     -webkit-app-region: no-drag;
   }
 `;
+
+export const StyledTextArea = styled(Input.TextArea)`
+  && {
+    -webkit-app-region: no-drag;
+    resize: none;
+  }
+`;

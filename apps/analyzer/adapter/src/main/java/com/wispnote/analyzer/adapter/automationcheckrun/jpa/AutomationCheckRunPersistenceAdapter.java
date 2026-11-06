@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -62,7 +63,6 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
 
         var updatedItemEntities = updateItems(checkRunEntity, automationCheckRun);
         checkRunEntity.setFingerprint(automationCheckRun.fingerprint().value());
-        checkRunEntity.setConfidence(automationCheckRun.confidence());
 
         return automationCheckRunRepository.saveAndFlush(checkRunEntity).toModel(updatedItemEntities);
     }
@@ -80,6 +80,22 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
         var checkRunItems = automationCheckRunItemRepository.findAllByAutomationCheckRunIdAndDeletedFalse(checkRun.getId());
 
         return Optional.of(checkRun.toModel(checkRunItems));
+    }
+
+    @Override
+    public List<AutomationCheckRun> findAllByMemberIdAndAutomationIds(UUID memberId, List<UUID> automationIds) {
+        log.info("Retrieving automation check runs by {} {}",
+                kv("memberId", memberId),
+                kv("automationCount", automationIds.size()));
+
+        if (automationIds.isEmpty()) {
+            return List.of();
+        }
+
+        return automationCheckRunRepository.findAllByMemberIdAndAutomationIdIn(memberId, automationIds).stream()
+                .map(checkRun -> checkRun.toModel(
+                        automationCheckRunItemRepository.findAllByAutomationCheckRunIdAndDeletedFalse(checkRun.getId())))
+                .toList();
     }
 
     private Set<AutomationCheckRunItemEntity> updateItems(AutomationCheckRunEntity checkRunEntity,
@@ -121,6 +137,7 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
             itemEntity.setDetails(item.result().details());
             itemEntity.setDecidedActionType(AutomationActionTypeConverter.entity.fromEnum(item.decidedActionType()));
             itemEntity.setCondition(item.condition());
+            itemEntity.setRequiredGroupId(item.requiredGroupId());
             itemEntity.setRequiredGroupTitle(item.requiredGroupTitle());
             itemEntities.add(itemEntity);
         }
