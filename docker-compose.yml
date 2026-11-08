@@ -38,6 +38,13 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/wispnote
       RABBITMQ_HOST: rabbitmq
       ANALYZER_BASE_URL: http://analyzer:8096
+      MAIL_PROVIDER: ${MAIL_PROVIDER:-mock}
+      MAIL_FROM: ${MAIL_FROM:-noreply@wispnote.local}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-WispNote}
+      SMTP_HOST: ${SMTP_HOST:-localhost}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
     ports:
       - "127.0.0.1:8090:8090"
     depends_on:
