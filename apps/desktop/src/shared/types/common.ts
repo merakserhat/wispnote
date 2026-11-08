@@ -1,4 +1,5 @@
-export type TApiErrorCode = 'INVALID_REQUEST' | 'NOT_FOUND' | 'GENERIC_ERROR';
+export type TApiErrorCode =
+  'INVALID_REQUEST' | 'NOT_FOUND' | 'GENERIC_ERROR' | 'EMAIL_NOT_VERIFIED';
 
 export type TCommonResponse<TResult> = {
   result: TResult;

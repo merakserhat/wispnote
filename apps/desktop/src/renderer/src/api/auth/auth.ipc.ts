@@ -1,5 +1,13 @@
 import API_ENDPOINT from 'shared/constants/apiEndpoint';
-import { TLoginRequestParams, TMember, TRegisterRequestParams } from 'shared/types/auth.types';
+import {
+  TConfirmEmailRequestParams,
+  TLoginRequestParams,
+  TMember,
+  TRegisterRequestParams,
+  TRegisterResponse,
+  TResendVerificationRequestParams,
+  TResendVerificationResponse,
+} from 'shared/types/auth.types';
 import { TCommonResponse } from 'shared/types/common';
 
 import Ipc from 'helpers/ipc';
@@ -10,8 +18,31 @@ export async function requestLogin(params: TLoginRequestParams): Promise<void> {
 
 export async function requestRegister(
   params: TRegisterRequestParams
-): Promise<TCommonResponse<TMember>> {
-  const response = await Ipc.post<TCommonResponse<TMember>>(API_ENDPOINT.REGISTER, params);
+): Promise<TCommonResponse<TRegisterResponse>> {
+  const response = await Ipc.post<TCommonResponse<TRegisterResponse>>(
+    API_ENDPOINT.REGISTER,
+    params
+  );
+  return response.data;
+}
+
+export async function requestConfirmEmail({
+  verificationToken,
+  ...params
+}: TConfirmEmailRequestParams): Promise<void> {
+  await Ipc.post<null>(API_ENDPOINT.EMAIL_VERIFICATION_CONFIRM, params, {
+    headers: { Authorization: `Bearer ${verificationToken}` },
+  });
+}
+
+export async function requestResendVerification({
+  verificationToken,
+}: TResendVerificationRequestParams): Promise<TCommonResponse<TResendVerificationResponse>> {
+  const response = await Ipc.post<TCommonResponse<TResendVerificationResponse>>(
+    API_ENDPOINT.EMAIL_VERIFICATION_RESEND,
+    undefined,
+    { headers: { Authorization: `Bearer ${verificationToken}` } }
+  );
   return response.data;
 }
 

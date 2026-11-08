@@ -9,6 +9,7 @@ export type TTextProps = SpaceProps<TTheme> &
     variant?: TTextVariantKeys;
     color?: keyof TThemePrimitives;
     numberOfLines?: number;
+    nowrap?: boolean;
     children?: ReactNode;
     className?: string;
     style?: CSSProperties;
@@ -20,4 +21,5 @@ export type TTextStyleProps = SpaceProps<TTheme> &
     $variant: TTextVariantKeys;
     $color: keyof TThemePrimitives;
     $numberOfLines?: number;
+    $nowrap?: boolean;
   };

@@ -22,5 +22,11 @@ export const StyledText = styled.p.withConfig({
       overflow: hidden;
     `}
 
+  ${({ $nowrap }) =>
+    $nowrap &&
+    css`
+      white-space: nowrap;
+    `}
+
   ${compose(space, textAlign)}
 `;

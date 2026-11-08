@@ -1,3 +1,5 @@
+import { TEmailNotVerifiedError } from 'shared/types/auth.types';
+
 export type TSignInFormValues = {
   email: string;
   password: string;
@@ -5,4 +7,5 @@ export type TSignInFormValues = {
 
 export type TSignInProps = {
   onRegister: () => void;
+  onEmailNotVerified: (email: string, error: TEmailNotVerifiedError) => void;
 };

@@ -1,11 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { TLoginRequestParams, TMember, TRegisterRequestParams } from 'shared/types/auth.types';
+import {
+  TConfirmEmailRequestParams,
+  TLoginRequestParams,
+  TMember,
+  TRegisterRequestParams,
+  TRegisterResponse,
+  TResendVerificationRequestParams,
+  TResendVerificationResponse,
+} from 'shared/types/auth.types';
 import { TCommonResponse, TErrorResponse } from 'shared/types/common';
 
 import { TMutationHookParams, TQueryHookParams } from 'types/common';
 
-import { requestLogin, requestMember, requestRegister, requestSignOut } from './auth.ipc';
+import {
+  requestConfirmEmail,
+  requestLogin,
+  requestMember,
+  requestRegister,
+  requestResendVerification,
+  requestSignOut,
+} from './auth.ipc';
 import authQueryKeys from './auth.queries';
 
 export function useGetMember({ queryParams }: TQueryHookParams = {}) {
@@ -50,12 +65,12 @@ export function useLogin({ onSuccess, onError }: TMutationHookParams<void, TErro
 export function useRegister({
   onSuccess,
   onError,
-}: TMutationHookParams<TMember, TErrorResponse> = {}) {
+}: TMutationHookParams<TRegisterResponse, TErrorResponse> = {}) {
   const {
     mutate: register,
     isPending,
     error,
-  } = useMutation<TCommonResponse<TMember>, TErrorResponse, TRegisterRequestParams>({
+  } = useMutation<TCommonResponse<TRegisterResponse>, TErrorResponse, TRegisterRequestParams>({
     mutationFn: requestRegister,
     onSuccess: (response) => onSuccess?.(response.result),
     onError: (requestError) => onError?.(requestError),
@@ -63,6 +78,57 @@ export function useRegister({
 
   return {
     register,
+    isPending,
+    error,
+  };
+}
+
+export function useConfirmEmail({
+  onSuccess,
+  onError,
+}: TMutationHookParams<void, TErrorResponse> = {}) {
+  const queryClient = useQueryClient();
+
+  const {
+    mutate: confirmEmail,
+    isPending,
+    error,
+  } = useMutation<void, TErrorResponse, TConfirmEmailRequestParams>({
+    mutationFn: requestConfirmEmail,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.all });
+      onSuccess?.();
+    },
+    onError: (requestError) => onError?.(requestError),
+  });
+
+  return {
+    confirmEmail,
+    isPending,
+    error,
+  };
+}
+
+export function useResendVerification({
+  onSuccess,
+  onError,
+}: TMutationHookParams<TResendVerificationResponse, TErrorResponse> = {}) {
+  const {
+    mutate: resendVerification,
+    isPending,
+    error,
+  } = useMutation<
+    TCommonResponse<TResendVerificationResponse>,
+    TErrorResponse,
+    TResendVerificationRequestParams
+  >({
+    mutationFn: requestResendVerification,
+    onSuccess: (response) => onSuccess?.(response.result),
+    onError: (requestError) => onError?.(requestError),
+  });
+
+  return {
+    resendVerification,
     isPending,
     error,
   };

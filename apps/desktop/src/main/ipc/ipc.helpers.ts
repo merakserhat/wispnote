@@ -10,16 +10,17 @@ export function sendApiRequest({
   method,
   url,
   data,
+  config,
 }: TIpcRequest): Promise<AxiosResponse<unknown>> {
   switch (method) {
     case 'GET':
-      return Api.get<unknown>(url);
+      return Api.get<unknown>(url, config);
 
     case 'POST':
-      return Api.post<unknown>(url, data);
+      return Api.post<unknown>(url, data, config);
 
     case 'PUT':
-      return Api.put<unknown>(url, data);
+      return Api.put<unknown>(url, data, config);
 
     case 'PATCH':
       return Api.patch<unknown>(url, data ?? {});
@@ -32,9 +33,11 @@ export function sendApiRequest({
   }
 }
 
+const TOKEN_PAIR_URLS: string[] = [API_ENDPOINT.LOGIN, API_ENDPOINT.EMAIL_VERIFICATION_CONFIRM];
+
 export function toIpcData({ url }: TIpcRequest, response: AxiosResponse<unknown>): unknown {
-  // INFO: (serhat) the login body carries the token pair - it stays in main.
-  if (url === API_ENDPOINT.LOGIN) {
+  // INFO: (serhat) the login and confirm bodies carry the token pair - it stays in main.
+  if (TOKEN_PAIR_URLS.includes(url)) {
     return null;
   }
 
@@ -46,6 +49,7 @@ export function toErrorResponse(error: unknown): TErrorResponse {
 
   if (response?.status) {
     return {
+      ...response.data,
       status: response.status,
       errorCode: response.data?.errorCode ?? null,
       errorMessage: response.data?.errorMessage ?? 'Something went wrong.',

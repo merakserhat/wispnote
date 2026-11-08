@@ -2,6 +2,8 @@ const API_ENDPOINT = {
   REGISTER: '/v1/register',
   LOGIN: '/v1/login',
   REFRESH_TOKEN: '/v1/refresh',
+  EMAIL_VERIFICATION_CONFIRM: '/v1/email-verification/confirm',
+  EMAIL_VERIFICATION_RESEND: '/v1/email-verification/resend',
   MEMBERS_ME: '/v1/members/me',
   NOTES: '/v1/notes',
   NOTE_DETAIL: '/v1/notes/{noteId}',

@@ -1,3 +1,5 @@
+import type { AxiosRequestConfig } from 'axios';
+
 import { TCaptureContext } from './capture.types';
 import { TErrorResponse } from './common';
 import { TEngineAction } from './engine.types';
@@ -43,6 +45,7 @@ export type TIpcRequest = {
   method: TIpcRequestMethod;
   url: string;
   data?: object;
+  config?: AxiosRequestConfig;
 };
 
 export type TIpcResponse<TResult> =

@@ -57,7 +57,7 @@ ApiClient.interceptors.request.use(
   (request) => {
     const accessToken = storage.readStorage(STORAGE_KEYS.ACCESS_TOKEN);
 
-    if (accessToken) {
+    if (accessToken && !request.headers.Authorization) {
       request.headers.Authorization = `Bearer ${accessToken}`;
     }
 
@@ -90,8 +90,10 @@ async function refreshOnUnauthorized(error: AxiosError) {
   return ApiClient(originalRequest);
 }
 
+const TOKEN_PAIR_URLS: string[] = [API_ENDPOINT.LOGIN, API_ENDPOINT.EMAIL_VERIFICATION_CONFIRM];
+
 function storeTokensOnLogin(response: AxiosResponse): AxiosResponse {
-  if (response.config.url === API_ENDPOINT.LOGIN) {
+  if (response.config.url && TOKEN_PAIR_URLS.includes(response.config.url)) {
     const { accessToken, refreshToken } = (response.data as TCommonResponse<TTokenResponse>).result;
 
     storage.writeStorageFromKeys({

@@ -4,15 +4,22 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useLogin } from 'api/auth';
 
 import { SIGN_IN_DEFAULT_VALUES, signInSchema } from './SignIn.constants';
-import { TSignInFormValues } from './SignIn.types';
+import { isEmailNotVerifiedError } from './SignIn.helpers';
+import { TSignInFormValues, TSignInProps } from './SignIn.types';
 
-export function useSignInForm() {
-  const { control, handleSubmit } = useForm<TSignInFormValues>({
+export function useSignInForm({ onEmailNotVerified }: Pick<TSignInProps, 'onEmailNotVerified'>) {
+  const { control, handleSubmit, getValues } = useForm<TSignInFormValues>({
     resolver: yupResolver(signInSchema),
     defaultValues: SIGN_IN_DEFAULT_VALUES,
   });
 
-  const { login, isPending, error } = useLogin();
+  const { login, isPending, error } = useLogin({
+    onError: (loginError) => {
+      if (isEmailNotVerifiedError(loginError)) {
+        onEmailNotVerified(getValues('email'), loginError);
+      }
+    },
+  });
 
   const submit = handleSubmit((values) => login(values));
 
@@ -20,6 +27,6 @@ export function useSignInForm() {
     control,
     submit,
     isPending,
-    error,
+    error: isEmailNotVerifiedError(error) ? null : error,
   };
 }

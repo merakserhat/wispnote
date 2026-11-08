@@ -15,6 +15,10 @@ function FormInput<TFormValues extends FieldValues>({
   autoFocus,
   disabled,
   size,
+  maxLength,
+  inputMode,
+  autoComplete,
+  className,
   onPressEnter,
 }: TFormInputProps<TFormValues>) {
   return (
@@ -33,6 +37,10 @@ function FormInput<TFormValues extends FieldValues>({
           autoFocus={autoFocus}
           disabled={disabled}
           size={size}
+          maxLength={maxLength}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
+          className={className}
           error={fieldState.error?.message}
           onChangeText={field.onChange}
           onPressEnter={onPressEnter}

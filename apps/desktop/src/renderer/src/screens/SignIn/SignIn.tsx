@@ -6,8 +6,8 @@ import Text from 'components/core/Text';
 import { useSignInForm } from './SignIn.hooks';
 import { TSignInFormValues, TSignInProps } from './SignIn.types';
 
-function SignIn({ onRegister }: TSignInProps) {
-  const { control, submit, isPending, error } = useSignInForm();
+function SignIn({ onRegister, onEmailNotVerified }: TSignInProps) {
+  const { control, submit, isPending, error } = useSignInForm({ onEmailNotVerified });
 
   return (
     <Box

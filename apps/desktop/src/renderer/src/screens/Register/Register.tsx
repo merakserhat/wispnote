@@ -6,8 +6,8 @@ import Text from 'components/core/Text';
 import { useRegisterForm } from './Register.hooks';
 import { TRegisterFormValues, TRegisterProps } from './Register.types';
 
-function Register({ onSignIn }: TRegisterProps) {
-  const { control, submit, isPending, error } = useRegisterForm();
+function Register({ onSignIn, onRegistered }: TRegisterProps) {
+  const { control, submit, isPending, error } = useRegisterForm({ onRegistered });
 
   return (
     <Box

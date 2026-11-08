@@ -22,6 +22,9 @@ function Input({
   onBlur,
   name,
   size,
+  maxLength,
+  inputMode,
+  autoComplete,
   className,
 }: TInputProps) {
   function handleChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -70,6 +73,9 @@ function Input({
           placeholder={placeholder}
           autoFocus={autoFocus}
           disabled={disabled}
+          maxLength={maxLength}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
           status={error ? 'error' : undefined}
           onChange={handleChange}
           onPressEnter={onPressEnter}
