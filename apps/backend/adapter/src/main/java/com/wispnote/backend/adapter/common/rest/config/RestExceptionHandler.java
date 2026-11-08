@@ -1,7 +1,9 @@
 package com.wispnote.backend.adapter.common.rest.config;
 
 import com.wispnote.backend.adapter.common.exception.NotFoundException;
+import com.wispnote.backend.adapter.auth.rest.response.EmailNotVerifiedResponse;
 import com.wispnote.backend.adapter.common.rest.response.ErrorResponse;
+import com.wispnote.backend.application.auth.exception.EmailNotVerifiedValidationException;
 import com.wispnote.backend.application.common.exception.BusinessException;
 import com.wispnote.backend.application.common.exception.ClientException;
 import com.wispnote.backend.application.common.exception.NotFoundBusinessException;
@@ -34,6 +36,7 @@ public class RestExceptionHandler {
     public static final String GENERIC_ERROR_CODE = "GENERIC_ERROR";
     public static final String INVALID_REQUEST_CODE = "INVALID_REQUEST";
     public static final String NOT_FOUND_CODE = "NOT_FOUND";
+    public static final String EMAIL_NOT_VERIFIED_CODE = "EMAIL_NOT_VERIFIED";
 
     private final MessageSource messageSource;
 
@@ -67,9 +70,20 @@ public class RestExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(UNPROCESSABLE_ENTITY)
+    public EmailNotVerifiedResponse handleEmailNotVerified(EmailNotVerifiedValidationException e) {
+        log.info("An EmailNotVerifiedValidationException occurred. Message: {}", e.getMessage());
+        return new EmailNotVerifiedResponse(
+                EMAIL_NOT_VERIFIED_CODE,
+                getMessage(e.getMessage()),
+                e.getVerificationToken().token(),
+                e.getVerificationToken().expiresIn());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
     public ErrorResponse handleValidation(ValidationException e) {
         log.warn("A ValidationException occurred. Message: {}", e.getMessage(), e);
-        return new ErrorResponse(INVALID_REQUEST_CODE, getMessage(e.getMessage()));
+        return new ErrorResponse(INVALID_REQUEST_CODE, getMessage(e.getMessage(), e.getArguments()));
     }
 
     @ExceptionHandler

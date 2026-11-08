@@ -17,6 +17,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Getter
     private String username;
+
+    @Getter
+    private boolean emailVerified;
     private String password;
     private Collection<? extends GrantedAuthority> grantedAuthorities;
 

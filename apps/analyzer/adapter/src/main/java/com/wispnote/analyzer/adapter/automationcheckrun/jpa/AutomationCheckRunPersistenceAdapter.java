@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -92,9 +93,20 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
             return List.of();
         }
 
-        return automationCheckRunRepository.findAllByMemberIdAndAutomationIdIn(memberId, automationIds).stream()
-                .map(checkRun -> checkRun.toModel(
-                        automationCheckRunItemRepository.findAllByAutomationCheckRunIdAndDeletedFalse(checkRun.getId())))
+        var checkRuns = automationCheckRunRepository.findAllByMemberIdAndAutomationIdIn(memberId, automationIds);
+
+        if (checkRuns.isEmpty()) {
+            return List.of();
+        }
+
+        var checkRunIds = checkRuns.stream().map(AutomationCheckRunEntity::getId).toList();
+        Map<UUID, Set<AutomationCheckRunItemEntity>> itemsByCheckRunId = automationCheckRunItemRepository
+                .findAllByAutomationCheckRunIdInAndDeletedFalse(checkRunIds)
+                .stream()
+                .collect(Collectors.groupingBy(item -> item.getRun().getId(), Collectors.toCollection(LinkedHashSet::new)));
+
+        return checkRuns.stream()
+                .map(checkRun -> checkRun.toModel(itemsByCheckRunId.getOrDefault(checkRun.getId(), Set.of())))
                 .toList();
     }
 

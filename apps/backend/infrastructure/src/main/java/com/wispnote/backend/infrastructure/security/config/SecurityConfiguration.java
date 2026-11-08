@@ -27,6 +27,7 @@ public class SecurityConfiguration {
 
     private static final String SCOPE_USER = "SCOPE_USER";
     private static final String SCOPE_SERVICE = "SCOPE_SERVICE";
+    private static final String SCOPE_EMAIL_VERIFICATION = "SCOPE_EMAIL_VERIFICATION";
 
     private final JwtDecoder accessTokenJwtDecoder;
     private final JWKSource<SecurityContext> accessTokenJwkSource;
@@ -55,6 +56,18 @@ public class SecurityConfiguration {
 
     @Bean
     @Order(2)
+    public SecurityFilterChain emailVerificationEndpoints(HttpSecurity http) throws Exception {
+        return hardened(http.securityMatcher("/v1/email-verification/**"))
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().hasAuthority(SCOPE_EMAIL_VERIFICATION))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .decoder(accessTokenJwtDecoder)
+                                .jwtAuthenticationConverter(new WispnoteAccessTokenConverter())))
+                .build();
+    }
+
+    @Bean
+    @Order(3)
     public SecurityFilterChain internalEndpoints(HttpSecurity http) throws Exception {
         return hardened(http.securityMatcher("/internal/**"))
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().hasAuthority(SCOPE_SERVICE))
@@ -66,7 +79,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    @Order(3)
+    @Order(4)
     public SecurityFilterChain protectedEndpoints(HttpSecurity http) throws Exception {
         return hardened(http.securityMatcher("/**"))
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().hasAuthority(SCOPE_USER))

@@ -8,6 +8,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 @Entity
@@ -20,7 +22,9 @@ public class MemberEntity extends BaseEntity {
     @Column(nullable = false)
     private String passwordHash;
 
+    private Instant emailVerifiedAt;
+
     public Member toModel() {
-        return new Member(getId(), email, passwordHash);
+        return new Member(getId(), email, passwordHash, emailVerifiedAt);
     }
 }

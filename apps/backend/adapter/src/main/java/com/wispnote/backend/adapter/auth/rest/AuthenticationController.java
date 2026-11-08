@@ -3,8 +3,8 @@ package com.wispnote.backend.adapter.auth.rest;
 import com.wispnote.backend.adapter.auth.rest.request.LoginRequest;
 import com.wispnote.backend.adapter.auth.rest.request.RefreshTokenRequest;
 import com.wispnote.backend.adapter.auth.rest.request.RegisterRequest;
+import com.wispnote.backend.adapter.auth.rest.response.RegisterResponse;
 import com.wispnote.backend.adapter.auth.rest.response.TokenResponse;
-import com.wispnote.backend.adapter.member.rest.response.MemberResponse;
 import com.wispnote.backend.application.auth.LoginFacade;
 import com.wispnote.backend.application.auth.RefreshTokenFacade;
 import com.wispnote.backend.application.auth.RegisterFacade;
@@ -35,9 +35,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public MemberResponse register(@RequestBody @Valid RegisterRequest request) {
-        var member = registerFacade.register(request.getEmail(), request.getPassword(), request.getPasswordConfirm());
+    public RegisterResponse register(@RequestBody @Valid RegisterRequest request) {
+        var result = registerFacade.register(request.getEmail(), request.getPassword(), request.getPasswordConfirm());
 
-        return new MemberResponse(member.id(), member.email());
+        return RegisterResponse.from(result);
     }
 }

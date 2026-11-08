@@ -23,6 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return CustomUserDetails.builder()
                 .id(member.id())
                 .username(member.email())
+                .emailVerified(member.isEmailVerified())
                 .password(member.passwordHash())
                 .grantedAuthorities(List.of())
                 .build();
