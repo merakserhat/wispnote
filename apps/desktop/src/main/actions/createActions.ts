@@ -33,7 +33,7 @@ import {
   TSaveCaptureParams,
 } from './createActions.types';
 
-// INFO: (serhat) engine triggers and panel IPC both land here, so a double-Fn and a panel button share one path.
+// INFO: (serhat) engine triggers and panel IPC both land here, so a ⌃⇧ gesture and a panel button share one path.
 export function createActions({
   engine,
   hud,

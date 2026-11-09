@@ -10,7 +10,7 @@ export function registerShutdown({ app, engine }: TRegisterShutdownParams): void
     }
 
     isQuitting = true;
-    // INFO: (serhat) a surviving engine keeps the Fn event tap with no UI attached, which breaks the key system-wide.
+    // INFO: (serhat) a surviving engine keeps the event tap with no UI attached, so every gesture fires into nothing.
     await engine.stop();
     app.exit(0);
   }

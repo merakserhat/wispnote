@@ -3,19 +3,14 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from ..config import ACTION_NONE, Settings
-from .fn_detector import FN_TRIGGERS, FnTriggerDetector
+from .gesture_detector import GESTURE_TRIGGERS, GestureDetector
 
 
 class ShortcutManager:
     def __init__(self, settings: Settings, dispatch: Callable[[str, str], None]):
         self.settings = settings
         self.dispatch = dispatch
-        self.detector = FnTriggerDetector(
-            self._on_trigger,
-            double_interval=settings.fn_double_interval,
-            suppress=settings.suppress_fn,
-            watched_key_triggers=self._bound_triggers(),
-        )
+        self.detector = GestureDetector(self._on_trigger)
         self.last_error: str | None = None
 
     def start(self) -> bool:
@@ -41,16 +36,6 @@ class ShortcutManager:
     def reload(self, settings: Settings | None = None) -> None:
         if settings is not None:
             self.settings = settings
-        self.detector.update(
-            double_interval=self.settings.fn_double_interval,
-            suppress=self.settings.suppress_fn,
-            watched_key_triggers=self._bound_triggers(),
-        )
-
-    def _bound_triggers(self) -> set[str]:
-        return {
-            trigger for trigger in FN_TRIGGERS if self.settings.action_for(trigger) != ACTION_NONE
-        }
 
     def _on_trigger(self, trigger: str) -> None:
         action = self.settings.action_for(trigger)
@@ -61,6 +46,6 @@ class ShortcutManager:
     def describe(self) -> list[tuple[str, str]]:
         return [
             (trigger, self.settings.action_for(trigger))
-            for trigger in FN_TRIGGERS
+            for trigger in GESTURE_TRIGGERS
             if self.settings.action_for(trigger) != ACTION_NONE
         ]

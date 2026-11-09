@@ -33,7 +33,7 @@ export function createEngine({ app }: TCreateEngineParams): Engine {
       });
       if (VERBOSE) {
         result.triggers.forEach(({ trigger, action }) => {
-          log('shortcut', `${trigger.padEnd(9)} → ${action}`);
+          log('shortcut', `${trigger.padEnd(16)} → ${action}`);
         });
       }
     } catch (error) {

@@ -11,21 +11,16 @@ ACTION_SYNC_SOURCE = "sync_source"
 ACTION_OPEN_NOTES = "open_notes"
 
 DEFAULT_TRIGGERS: dict[str, str] = {
-    "fn": ACTION_SHOW_PANEL,
-    "double_fn": ACTION_QUICK_HIGHLIGHT,
-    "fn+1": ACTION_QUICK_NOTE,
-    "fn+2": ACTION_SYNC_SOURCE,
-    "fn+3": ACTION_OPEN_NOTES,
-    "fn+4": ACTION_NONE,
+    "ctrl+shift": ACTION_SHOW_PANEL,
+    "ctrl+shift+shift": ACTION_QUICK_HIGHLIGHT,
+    "shift+ctrl": ACTION_QUICK_NOTE,
+    "shift+ctrl+ctrl": ACTION_NONE,
 }
 
 
 @dataclass
 class Settings:
     triggers: dict[str, str] = field(default_factory=lambda: dict(DEFAULT_TRIGGERS))
-
-    suppress_fn: bool = True
-    fn_double_interval: float = 0.35
 
     max_selection_chars: int = 20_000
     max_context_chars: int = 600

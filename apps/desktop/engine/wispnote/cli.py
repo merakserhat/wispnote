@@ -11,7 +11,7 @@ from .capture.ax_client import AX_AVAILABLE, is_trusted
 from .capture.context_capture import ContextCapture
 from .config import Settings
 from .pdf.tools import PDF_AVAILABLE
-from .shortcuts.fn_detector import QUARTZ_AVAILABLE
+from .shortcuts.gesture_detector import QUARTZ_AVAILABLE
 
 ACCESSIBILITY_REMEDY = (
     "System Settings → Privacy & Security → Accessibility: grant it to the app "
@@ -36,7 +36,7 @@ def cmd_doctor(_args: argparse.Namespace) -> int:
     checks = [
         ("PyObjC frameworks", AX_AVAILABLE, "pip install -r requirements.txt", True),
         (
-            "Quartz event taps (Fn shortcut)",
+            "Quartz event taps (shortcut gestures)",
             QUARTZ_AVAILABLE,
             "pip install -r requirements.txt",
             True,
@@ -72,7 +72,7 @@ def _countdown(delay: float) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="wispnote-engine",
-        description="WispNote engine - Fn event tap, Accessibility capture and PDF reading.",
+        description="WispNote engine - shortcut event tap, Accessibility capture and PDF reading.",
     )
     parser.add_argument("--version", action="version", version=f"WispNote engine {__version__}")
     subparsers = parser.add_subparsers(dest="command")
@@ -80,7 +80,9 @@ def build_parser() -> argparse.ArgumentParser:
     serve_parser = subparsers.add_parser("serve", help="run under a host, speaking JSON on stdio")
     serve_parser.add_argument("--heartbeat", type=float, default=2.0, help="seconds between beats")
     serve_parser.add_argument(
-        "--no-tap", action="store_true", help="skip the Fn event tap (no Accessibility needed)"
+        "--no-tap",
+        action="store_true",
+        help="skip the shortcut event tap (no Accessibility needed)",
     )
     serve_parser.set_defaults(func=cmd_serve)
 

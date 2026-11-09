@@ -1,4 +1,4 @@
-from .fn_detector import FN_TRIGGERS, FnTriggerDetector
+from .gesture_detector import GESTURE_TRIGGERS, GestureDetector
 from .manager import ShortcutManager
 
-__all__ = ["FnTriggerDetector", "FN_TRIGGERS", "ShortcutManager"]
+__all__ = ["GestureDetector", "GESTURE_TRIGGERS", "ShortcutManager"]

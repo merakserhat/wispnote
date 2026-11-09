@@ -30,7 +30,7 @@ export const NOTES_SEARCH_WIDTH = 260;
 
 export const NOTES_EMPTY_STATE: TNotesEmptyState = {
   title: 'Nothing here yet.',
-  hint: 'Select text anywhere and press Fn Fn.',
+  hint: 'Select text anywhere, hold ⌃ and tap ⇧ twice.',
 };
 
 export const NOTE_GROUP_EMPTY_STATE: TNotesEmptyState = {

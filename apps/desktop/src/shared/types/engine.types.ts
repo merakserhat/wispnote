@@ -61,8 +61,6 @@ export type TEngineCommand =
 
 export type TEngineSettings = {
   triggers: Record<string, TEngineAction>;
-  suppress_fn: boolean;
-  fn_double_interval: number;
   max_selection_chars: number;
   max_context_chars: number;
   deep_search_selection: boolean;

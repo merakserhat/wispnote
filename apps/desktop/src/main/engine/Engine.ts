@@ -96,7 +96,7 @@ export class Engine extends EventEmitter {
     this.send({ cmd: 'shutdown' });
 
     await new Promise<void>((resolve) => {
-      // INFO: (serhat) SIGKILL, not SIGTERM - a wedged run loop ignores SIGTERM and an orphan keeps the Fn tap.
+      // INFO: (serhat) SIGKILL, not SIGTERM - a wedged run loop ignores SIGTERM and an orphan keeps the event tap.
       const timer = setTimeout(() => {
         try {
           child.kill('SIGKILL');

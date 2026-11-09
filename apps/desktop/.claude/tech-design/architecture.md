@@ -19,13 +19,13 @@ Every file and folder in this project, and why it is there.
 WispNote captures a highlight **and where it came from** — URL, file path, page
 number, chapter, surrounding paragraph — on one keypress, without switching apps.
 
-That needs two things macOS only exposes to a native process: a `CGEventTap` on
-the Fn key, and the Accessibility API to read another app's selection. Neither is
+That needs two things macOS only exposes to a native process: a `CGEventTap` for
+the ⌃⇧ gestures, and the Accessibility API to read another app's selection. Neither is
 reachable from Electron, so they live in Python.
 
 ```
 ┌─ Electron ──────────────────┐        ┌─ Python engine ─────────────┐
-│  all UI                     │ stdin  │  Fn event tap (CGEventTap)  │
+│  all UI                     │ stdin  │  ⌃⇧ event tap (CGEventTap)  │
 │  supervises the engine      │ ──────►│  Accessibility capture      │
 │  panel · HUD · tray · log   │◄────── │  SQLite · enrichment        │
 └─────────────────────────────┘ stdout └─────────────────────────────┘
@@ -166,7 +166,7 @@ Break these and the app fails in ways that are hard to trace.
    with the action rather than re-capturing.
 2. **Neither process outlives the other.** The host kills the engine on quit; the
    engine watches `getppid()` and exits when the host dies. A surviving engine
-   holds the Fn event tap with no UI attached, breaking the key system-wide.
+   holds the event tap with no UI attached, so every gesture fires into nothing.
 3. **`show()` for input, `showInactive()` otherwise.** Electron special-cases
    panels: `show()` skips `activateIgnoringOtherApps:` and calls
    `makeKeyAndOrderFront:`, so the window takes the keyboard while the app

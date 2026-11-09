@@ -11,7 +11,7 @@ Two processes:
 | Process | Owns |
 | --- | --- |
 | **Electron** (this repo) | All UI. Supervises the engine. Eventually: SQLite, messaging, cloud API |
-| **Python engine** (`engine/`) | Only what nothing else can do: the Fn event tap, the Accessibility API, PyMuPDF. Stateless: no disk, no network |
+| **Python engine** (`engine/`) | Only what nothing else can do: the ⌃⇧ event tap, the Accessibility API, PyMuPDF. Stateless: no disk, no network |
 
 The guiding rule: **Python keeps only what is impossible elsewhere.** Everything
 else moves here over time.
@@ -27,7 +27,7 @@ implemented; the notes and settings screens are not.
 - ⬜ Later: move SQLite + messaging here, leaving Python stateless
 
 Run `npm run dev`. It spawns the engine itself — never run `python main.py serve`
-too, or two Fn event taps fight over the same key.
+too, or two event taps fire every gesture twice.
 
 ## Documentation
 
@@ -49,7 +49,7 @@ Break these and the app breaks in ways that are hard to trace.
    back with the action instead of re-capturing.
 2. **Neither process outlives the other.** The host kills the engine on quit; the
    engine watches `getppid()` and exits when the host dies. A surviving engine
-   holds the Fn event tap with no UI attached, breaking the key system-wide.
+   holds the event tap with no UI attached, so every gesture fires into nothing.
 3. **Never block the engine's main thread.** The `CGEventTap` run loop lives
    there, and macOS disables a tap that blocks (`kCGEventTapDisabledByTimeout`).
    Slow work goes on a thread.
@@ -62,7 +62,7 @@ Break these and the app breaks in ways that are hard to trace.
 Line-delimited JSON over stdin/stdout. stdout is taken away from Python's `print`
 so diagnostics (stderr) cannot corrupt it.
 
-Protocol v2. Every Fn gesture is a `trigger`; the engine never decides what an
+Protocol v2. Every ⌃⇧ gesture is a `trigger`; the engine never decides what an
 action means. The host sends `configure` on every `ready`.
 
 **Engine → host:** `ready` `heartbeat` `trigger` `result` `error`
@@ -93,9 +93,9 @@ Do not re-derive these.
   `setAlwaysOnTop(true, 'status')`.
 - **Create windows at startup, not on demand** — on-demand costs 100–300ms and a
   white flash, which ruins a capture HUD.
-- **Fn is not an Electron accelerator.** `globalShortcut` cannot bind it, and
-  double-tap/suppression need a `CGEventTap` anyway. The tap stays in Python
-  permanently.
+- **Modifier-only gestures are not Electron accelerators.** `globalShortcut` cannot
+  bind ⌃⇧ without a letter, let alone tell which key went down first, so the
+  gestures need a `CGEventTap`. The tap stays in Python permanently.
 - **Accessibility permission attaches to the binary.** In dev that is
   `node_modules/electron/dist/Electron.app`; reinstalling `node_modules` or
   bumping Electron voids the grant.
@@ -118,6 +118,11 @@ Do not re-derive these.
 
 ## Decisions already made
 
+- **Shortcuts are left ⌃/⇧ gestures, not Fn.** Fn belongs to Wispr Flow. Hold one
+  key, tap the other: ⌃ then ⇧ shows the panel, ⌃ then ⇧⇧ is a quick highlight, ⇧ then
+  ⌃ is a quick note. The held key must go down first and come up last; any other key,
+  click, non-momentum scroll or modifier cancels; the gesture is decided when the held
+  key is released, so there is no double-tap timer. Events are never swallowed.
 - **Pipelines are a separate cloud service**, event-driven. Nothing local.
 - **The backend is the source of truth.** SQLite and RabbitMQ leave the desktop
   app entirely — the engine extracts, main posts. This reverses the earlier
