@@ -49,6 +49,12 @@ export type TResendVerificationResponse = {
   codeExpiresIn: number;
 };
 
+export type TGoogleLoginRequestParams = {
+  code: string;
+  codeVerifier: string;
+  redirectUri: string;
+};
+
 export type TRefreshTokenRequestParams = {
   token: string;
 };

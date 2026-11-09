@@ -14,7 +14,9 @@ import { TCommonResponse, TErrorResponse } from 'shared/types/common';
 import { TMutationHookParams, TQueryHookParams } from 'types/common';
 
 import {
+  requestCancelGoogleSignIn,
   requestConfirmEmail,
+  requestGoogleSignIn,
   requestLogin,
   requestMember,
   requestRegister,
@@ -148,5 +150,32 @@ export function useLogout({ onSuccess }: TMutationHookParams = {}) {
   return {
     logout,
     isPending,
+  };
+}
+
+export function useGoogleSignIn({
+  onSuccess,
+  onError,
+}: TMutationHookParams<void, TErrorResponse> = {}) {
+  const queryClient = useQueryClient();
+
+  const {
+    mutate: signIn,
+    isPending,
+    error,
+  } = useMutation<void, TErrorResponse, void>({
+    mutationFn: requestGoogleSignIn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.all });
+      onSuccess?.();
+    },
+    onError: (requestError) => onError?.(requestError),
+  });
+
+  return {
+    signIn,
+    cancel: requestCancelGoogleSignIn,
+    isPending,
+    error: error?.errorCode === 'GOOGLE_SIGN_IN_CANCELLED' ? null : error,
   };
 }

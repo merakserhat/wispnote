@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 
-import API_ENDPOINT from 'shared/constants/apiEndpoint';
+import { TOKEN_PAIR_ENDPOINTS } from 'shared/constants/apiEndpoint';
 import { TErrorResponse } from 'shared/types/common';
 import { TIpcRequest } from 'shared/types/ipc.types';
 
@@ -33,11 +33,9 @@ export function sendApiRequest({
   }
 }
 
-const TOKEN_PAIR_URLS: string[] = [API_ENDPOINT.LOGIN, API_ENDPOINT.EMAIL_VERIFICATION_CONFIRM];
-
 export function toIpcData({ url }: TIpcRequest, response: AxiosResponse<unknown>): unknown {
-  // INFO: (serhat) the login and confirm bodies carry the token pair - it stays in main.
-  if (TOKEN_PAIR_URLS.includes(url)) {
+  // INFO: (serhat) the token pair bodies stay in main, see storeTokensOnLogin.
+  if (TOKEN_PAIR_ENDPOINTS.includes(url)) {
     return null;
   }
 

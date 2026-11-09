@@ -40,12 +40,36 @@ public class MemberJpaAdapter implements MemberPort {
     }
 
     @Override
+    public Optional<Member> findByGoogleId(String googleId) {
+        return memberRepository.findByGoogleIdAndDeletedFalse(googleId)
+                .map(MemberEntity::toModel);
+    }
+
+    @Override
     public Member create(String email, String passwordHash) {
         var memberEntity = new MemberEntity();
         memberEntity.setEmail(email);
         memberEntity.setPasswordHash(passwordHash);
 
         return memberRepository.save(memberEntity).toModel();
+    }
+
+    @Override
+    public Member createWithGoogle(String email, String googleId, Instant emailVerifiedAt) {
+        var memberEntity = new MemberEntity();
+        memberEntity.setEmail(email);
+        memberEntity.setGoogleId(googleId);
+        memberEntity.setEmailVerifiedAt(emailVerifiedAt);
+
+        return memberRepository.save(memberEntity).toModel();
+    }
+
+    @Override
+    public void linkGoogle(UUID id, String googleId) {
+        var member = memberRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(EntityNotFoundException::new);
+        member.setGoogleId(googleId);
+        memberRepository.save(member);
     }
 
     @Override

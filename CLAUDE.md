@@ -34,6 +34,9 @@ markdown file anywhere else unless asked, and never create one at all unless ask
 - `apps/analyzer/.ai/docs/automation-validation.md` – async automation validation design
 - `apps/analyzer/.ai/docs/wamo-llm-integration.md` – the LLM port/adapter pattern to follow
 - `apps/backend/.ai/docs/curl.md` – ready-to-paste curls for tokens and internal endpoints
+- `apps/backend/.ai/docs/email-verification.md` – email verification design, done
+- `apps/backend/.ai/docs/google-login.md` – Continue with Google design and task status
+- `apps/backend/.ai/docs/member-name.md` – backlog: store a display name, fill it from Google
 
 ## Architecture rules that bite
 

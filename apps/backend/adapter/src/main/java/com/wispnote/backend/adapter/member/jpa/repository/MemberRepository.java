@@ -9,5 +9,6 @@ import java.util.UUID;
 public interface MemberRepository extends JpaRepository<MemberEntity, UUID> {
     Optional<MemberEntity> findByEmailAndDeletedFalse(String email);
     Optional<MemberEntity> findByIdAndDeletedFalse(UUID id);
+    Optional<MemberEntity> findByGoogleIdAndDeletedFalse(String googleId);
     boolean existsByEmailAndDeletedFalse(String email);
 }

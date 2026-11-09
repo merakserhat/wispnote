@@ -48,7 +48,7 @@ public class SecurityConfiguration {
     @Bean
     @Order(1)
     public SecurityFilterChain publicEndpoints(HttpSecurity http) throws Exception {
-        return hardened(http.securityMatcher("/v1/register", "/v1/login", "/v1/refresh", "/actuator/**", "/error"))
+        return hardened(http.securityMatcher("/v1/register", "/v1/login", "/v1/login/google", "/v1/refresh", "/actuator/**", "/error"))
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .oauth2ResourceServer(AbstractHttpConfigurer::disable)
                 .build();

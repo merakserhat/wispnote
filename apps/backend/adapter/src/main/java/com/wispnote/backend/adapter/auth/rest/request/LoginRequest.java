@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Locale;
+
 @Getter
 @Setter
 public class LoginRequest {
@@ -14,4 +16,8 @@ public class LoginRequest {
 
     @NotBlank(message = "{validations.password.blank}")
     private String password;
+
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.toLowerCase(Locale.ROOT);
+    }
 }

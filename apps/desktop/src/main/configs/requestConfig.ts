@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-import API_ENDPOINT from 'shared/constants/apiEndpoint';
+import API_ENDPOINT, { TOKEN_PAIR_ENDPOINTS } from 'shared/constants/apiEndpoint';
 import { TTokenResponse } from 'shared/types/auth.types';
 import { TCommonResponse } from 'shared/types/common';
 
@@ -90,10 +90,8 @@ async function refreshOnUnauthorized(error: AxiosError) {
   return ApiClient(originalRequest);
 }
 
-const TOKEN_PAIR_URLS: string[] = [API_ENDPOINT.LOGIN, API_ENDPOINT.EMAIL_VERIFICATION_CONFIRM];
-
 function storeTokensOnLogin(response: AxiosResponse): AxiosResponse {
-  if (response.config.url && TOKEN_PAIR_URLS.includes(response.config.url)) {
+  if (response.config.url && TOKEN_PAIR_ENDPOINTS.includes(response.config.url)) {
     const { accessToken, refreshToken } = (response.data as TCommonResponse<TTokenResponse>).result;
 
     storage.writeStorageFromKeys({

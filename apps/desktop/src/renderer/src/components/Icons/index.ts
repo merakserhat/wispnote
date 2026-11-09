@@ -4,6 +4,7 @@ export { default as CheckIcon } from './views/CheckIcon';
 export { default as File05Icon } from './views/File05Icon';
 export { default as FolderIcon } from './views/FolderIcon';
 export { default as FolderPlusIcon } from './views/FolderPlusIcon';
+export { default as GoogleIcon } from './views/GoogleIcon';
 export { default as LayersTwo01Icon } from './views/LayersTwo01Icon';
 export { default as Logout01Icon } from './views/Logout01Icon';
 export { default as PlusIcon } from './views/PlusIcon';

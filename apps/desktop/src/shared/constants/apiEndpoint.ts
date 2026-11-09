@@ -1,6 +1,7 @@
 const API_ENDPOINT = {
   REGISTER: '/v1/register',
   LOGIN: '/v1/login',
+  LOGIN_GOOGLE: '/v1/login/google',
   REFRESH_TOKEN: '/v1/refresh',
   EMAIL_VERIFICATION_CONFIRM: '/v1/email-verification/confirm',
   EMAIL_VERIFICATION_RESEND: '/v1/email-verification/resend',
@@ -16,5 +17,11 @@ const API_ENDPOINT = {
   AUTOMATION_DETAIL: '/v1/automations/{automationId}',
   AUTOMATION_SUGGESTIONS: '/v1/automations/suggestions',
 } as const;
+
+export const TOKEN_PAIR_ENDPOINTS: string[] = [
+  API_ENDPOINT.LOGIN,
+  API_ENDPOINT.LOGIN_GOOGLE,
+  API_ENDPOINT.EMAIL_VERIFICATION_CONFIRM,
+];
 
 export default API_ENDPOINT;

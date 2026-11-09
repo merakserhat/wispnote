@@ -124,6 +124,7 @@ WISPNOTE_API_URL=https://api.example.com npm run dev
 | Variable | Purpose | Default |
 | --- | --- | --- |
 | `WISPNOTE_API_URL` | Backend base URL | `http://localhost:8090` |
+| `WISPNOTE_GOOGLE_CLIENT_ID` | OAuth client id for "Continue with Google"; empty disables the button | empty |
 | `WISPNOTE_PYTHON` | Python interpreter used to run the engine | `python3` |
 | `WISPNOTE_NO_TAP=1` | Skip the `Fn` event tap (no Accessibility permission needed) | off |
 | `WISPNOTE_VERBOSE=1` | Log engine heartbeats | off |

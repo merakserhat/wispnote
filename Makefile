@@ -1,7 +1,7 @@
 .PHONY: dev up down logs restart test clean
 
 dev: up
-	cd apps/desktop && ([ -d node_modules ] || npm install) && npm run dev
+	cd apps/desktop && ([ -d node_modules ] || npm install) && WISPNOTE_GOOGLE_CLIENT_ID=$$(grep -s '^GOOGLE_CLIENT_ID=' ../../.env | cut -d= -f2-) npm run dev
 
 up:
 	docker compose up -d --build --wait

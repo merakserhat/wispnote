@@ -35,6 +35,12 @@ const bridge: TWispBridge = {
   signOut() {
     return ipcRenderer.invoke(IPC_CHANNELS.signOut);
   },
+  signInWithGoogle() {
+    return ipcRenderer.invoke(IPC_CHANNELS.googleSignIn);
+  },
+  cancelGoogleSignIn() {
+    return ipcRenderer.invoke(IPC_CHANNELS.googleSignInCancel);
+  },
   focusInput() {
     ipcRenderer.send(IPC_CHANNELS.focusInput);
   },

@@ -32,6 +32,8 @@ export type TWispBridge = {
   ipcRequest: <TResult>(request: TIpcRequest) => Promise<TIpcResponse<TResult>>;
   onSessionExpired: (handler: () => void) => () => void;
   signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<TIpcResponse<null>>;
+  cancelGoogleSignIn: () => Promise<void>;
   focusInput: () => void;
   dismiss: () => void;
   getSettings: () => Promise<TAppearanceSettings>;

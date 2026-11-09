@@ -3,6 +3,8 @@ import Button from 'components/core/Button';
 import FormInput from 'components/core/FormInput';
 import Text from 'components/core/Text';
 
+import GoogleSignIn from 'screens/Auth/views/GoogleSignIn';
+
 import { useSignInForm } from './SignIn.hooks';
 import { TSignInFormValues, TSignInProps } from './SignIn.types';
 
@@ -52,6 +54,7 @@ function SignIn({ onRegister, onEmailNotVerified }: TSignInProps) {
             loading={isPending}
             block
           />
+          <GoogleSignIn />
           <Box flexDirection="row" alignItems="center" justifyContent="center" gap="xs">
             <Text variant="caption" color="textSecondary">
               New to WispNote?

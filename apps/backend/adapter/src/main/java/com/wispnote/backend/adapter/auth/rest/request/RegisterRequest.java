@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Locale;
+
 @Getter
 @Setter
 public class RegisterRequest {
@@ -19,4 +21,8 @@ public class RegisterRequest {
 
     @NotBlank(message = "{validations.passwordConfirm.blank}")
     private String passwordConfirm;
+
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.toLowerCase(Locale.ROOT);
+    }
 }

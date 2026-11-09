@@ -19,12 +19,13 @@ public class MemberEntity extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String passwordHash;
 
     private Instant emailVerifiedAt;
 
+    private String googleId;
+
     public Member toModel() {
-        return new Member(getId(), email, passwordHash, emailVerifiedAt);
+        return new Member(getId(), email, passwordHash, emailVerifiedAt, googleId);
     }
 }

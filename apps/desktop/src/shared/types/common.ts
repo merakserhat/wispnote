@@ -1,5 +1,10 @@
 export type TApiErrorCode =
-  'INVALID_REQUEST' | 'NOT_FOUND' | 'GENERIC_ERROR' | 'EMAIL_NOT_VERIFIED';
+  | 'INVALID_REQUEST'
+  | 'NOT_FOUND'
+  | 'GENERIC_ERROR'
+  | 'EMAIL_NOT_VERIFIED'
+  | 'GOOGLE_LOGIN_FAILED'
+  | 'GOOGLE_SIGN_IN_CANCELLED';
 
 export type TCommonResponse<TResult> = {
   result: TResult;

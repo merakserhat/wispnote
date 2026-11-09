@@ -3,6 +3,8 @@ import Button from 'components/core/Button';
 import FormInput from 'components/core/FormInput';
 import Text from 'components/core/Text';
 
+import GoogleSignIn from 'screens/Auth/views/GoogleSignIn';
+
 import { useRegisterForm } from './Register.hooks';
 import { TRegisterFormValues, TRegisterProps } from './Register.types';
 
@@ -60,6 +62,7 @@ function Register({ onSignIn, onRegistered }: TRegisterProps) {
             loading={isPending}
             block
           />
+          <GoogleSignIn />
           <Box flexDirection="row" alignItems="center" justifyContent="center" gap="xs">
             <Text variant="caption" color="textSecondary">
               Already have an account?

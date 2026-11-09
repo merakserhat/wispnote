@@ -8,6 +8,8 @@ export const IPC_CHANNELS = {
   apiRequest: 'api:request',
   sessionExpired: 'auth:session-expired',
   signOut: 'auth:sign-out',
+  googleSignIn: 'auth:google-sign-in',
+  googleSignInCancel: 'auth:google-sign-in-cancel',
   settingsGet: 'settings:get',
   settingsSet: 'settings:set',
   settingsChanged: 'settings:changed',

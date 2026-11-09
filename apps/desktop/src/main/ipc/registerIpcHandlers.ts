@@ -4,6 +4,7 @@ import { IPC_CHANNELS } from 'shared/constants/channels';
 import { TActionRequest, TIpcRequest, TIpcResponse } from 'shared/types/ipc.types';
 import { TAppearanceSettings } from 'shared/types/settings.types';
 
+import { cancelGoogleSignIn, startGoogleSignIn } from '../auth';
 import { onSessionExpired } from '../configs/requestConfig';
 import { log } from '../helpers';
 import storage from '../helpers/storage';
@@ -43,6 +44,10 @@ export function registerIpcHandlers({ actions, panel, settings }: TIpcContext): 
     storage.removeTokens();
     log('auth', 'signed out');
   });
+
+  ipcMain.handle(IPC_CHANNELS.googleSignIn, () => startGoogleSignIn());
+
+  ipcMain.handle(IPC_CHANNELS.googleSignInCancel, () => cancelGoogleSignIn());
 
   ipcMain.handle(IPC_CHANNELS.settingsGet, () => settings.get());
 

@@ -54,3 +54,15 @@ export async function requestMember(): Promise<TCommonResponse<TMember>> {
 export async function requestSignOut(): Promise<void> {
   await window.wisp.signOut();
 }
+
+export async function requestGoogleSignIn(): Promise<void> {
+  const response = await window.wisp.signInWithGoogle();
+
+  if (!response.ok) {
+    throw response.error;
+  }
+}
+
+export async function requestCancelGoogleSignIn(): Promise<void> {
+  await window.wisp.cancelGoogleSignIn();
+}
