@@ -20,7 +20,11 @@ import {
   toExpiresAt,
   toSecondsLeft,
 } from './VerifyEmail.helpers';
-import { TVerifyEmailFormValues, TVerifyEmailNotice, TVerifyEmailProps } from './VerifyEmail.types';
+import {
+  TUseVerifyEmailFormParams,
+  TVerifyEmailFormValues,
+  TVerifyEmailNotice,
+} from './VerifyEmail.types';
 
 export function useCountdown(expiresAt?: number) {
   const [secondsLeft, setSecondsLeft] = useState(() => toSecondsLeft(expiresAt));
@@ -47,10 +51,7 @@ export function useVerifyEmailForm({
   codeExpiresIn,
   resendOnMount = false,
   onSessionExpired,
-}: Pick<
-  TVerifyEmailProps,
-  'verificationToken' | 'codeExpiresIn' | 'resendOnMount' | 'onSessionExpired'
->) {
+}: TUseVerifyEmailFormParams) {
   const { control, handleSubmit, setError, clearErrors, reset, watch } =
     useForm<TVerifyEmailFormValues>({
       resolver: yupResolver(verifyEmailSchema),

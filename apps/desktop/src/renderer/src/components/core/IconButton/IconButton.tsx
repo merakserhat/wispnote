@@ -1,3 +1,4 @@
+import ActivityIndicator from 'components/core/ActivityIndicator';
 import Text from 'components/core/Text';
 import { BUTTON_SIZE_MAP } from 'components/core/Button/Button.constants';
 
@@ -31,7 +32,7 @@ function IconButton({
         htmlType="button"
         aria-label={label}
         icon={<Icon width={iconSize} height={iconSize} />}
-        loading={loading}
+        loading={loading && { icon: <ActivityIndicator size={iconSize} /> }}
         disabled={disabled}
         onClick={onPress}
       />

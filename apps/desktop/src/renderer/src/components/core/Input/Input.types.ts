@@ -14,6 +14,7 @@ export type TInputProps = Pick<
   value?: string;
   onChangeText: (value: string) => void;
   onPressEnter?: () => void;
+  onPressEscape?: () => void;
   onBlur?: () => void;
   label?: string;
   error?: string;

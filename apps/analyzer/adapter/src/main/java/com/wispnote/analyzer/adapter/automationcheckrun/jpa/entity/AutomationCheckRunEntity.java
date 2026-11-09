@@ -49,6 +49,7 @@ public class AutomationCheckRunEntity extends BaseEntity {
                 automationId,
                 memberId,
                 new AutomationFingerprint(fingerprint),
+                getUpdatedAt() != null ? getUpdatedAt() : getCreatedAt(),
                 new AutomationCheckRunItems(items.stream().map(AutomationCheckRunItemEntity::toModel).toList())
         );
     }

@@ -1,0 +1,1 @@
+export const ACTIVITY_INDICATOR_DEFAULT_SIZE = 16;

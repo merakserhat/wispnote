@@ -1,3 +1,5 @@
+import { useNavigate } from '@tanstack/react-router';
+
 import Box from 'components/core/Box';
 import Button from 'components/core/Button';
 import FormInput from 'components/core/FormInput';
@@ -5,11 +7,28 @@ import Text from 'components/core/Text';
 
 import GoogleSignIn from 'screens/Auth/views/GoogleSignIn';
 
-import { useSignInForm } from './SignIn.hooks';
-import { TSignInFormValues, TSignInProps } from './SignIn.types';
+import { TEmailNotVerifiedError } from 'shared/types/auth.types';
 
-function SignIn({ onRegister, onEmailNotVerified }: TSignInProps) {
-  const { control, submit, isPending, error } = useSignInForm({ onEmailNotVerified });
+import { useSignInForm } from './SignIn.hooks';
+import { TSignInFormValues } from './SignIn.types';
+
+function SignIn() {
+  const navigate = useNavigate();
+
+  function handleEmailNotVerified(email: string, error: TEmailNotVerifiedError) {
+    navigate({
+      to: '/verify-email',
+      search: { email, verificationToken: error.verificationToken, resendOnMount: true },
+    });
+  }
+
+  const { control, submit, isPending, error } = useSignInForm({
+    onEmailNotVerified: handleEmailNotVerified,
+  });
+
+  function handleRegister() {
+    navigate({ to: '/register' });
+  }
 
   return (
     <Box
@@ -59,7 +78,7 @@ function SignIn({ onRegister, onEmailNotVerified }: TSignInProps) {
             <Text variant="caption" color="textSecondary">
               New to WispNote?
             </Text>
-            <Button label="Create account" variant="ghost" size="small" onPress={onRegister} />
+            <Button label="Create account" variant="ghost" size="small" onPress={handleRegister} />
           </Box>
         </Box>
       </form>

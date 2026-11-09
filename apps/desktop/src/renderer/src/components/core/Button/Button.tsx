@@ -1,3 +1,5 @@
+import ActivityIndicator from 'components/core/ActivityIndicator';
+
 import { BUTTON_SIZE_MAP, BUTTON_VARIANT_MAP } from './Button.constants';
 import { ButtonLabel, StyledButton } from './Button.styles';
 import { TButtonProps } from './Button.types';
@@ -26,7 +28,7 @@ function Button({
       htmlType={htmlType}
       icon={Icon ? <Icon width={iconSize} height={iconSize} /> : undefined}
       iconPlacement={LeftIcon ? 'start' : 'end'}
-      loading={loading}
+      loading={loading && { icon: <ActivityIndicator size={iconSize} /> }}
       disabled={disabled}
       block={block}
       onClick={onPress}>

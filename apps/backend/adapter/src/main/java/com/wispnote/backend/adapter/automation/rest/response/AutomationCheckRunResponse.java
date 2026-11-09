@@ -5,6 +5,7 @@ import com.wispnote.backend.application.automationcheckrun.enums.AutomationCheck
 import com.wispnote.backend.application.automationcheckrun.enums.AutomationCheckRunStatus;
 import com.wispnote.backend.application.automationcheckrun.model.AutomationCheckRun;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record AutomationCheckRunResponse(AutomationCheckRunStatus status,
@@ -14,7 +15,8 @@ public record AutomationCheckRunResponse(AutomationCheckRunStatus status,
                                          UUID requiredGroupId,
                                          String requiredGroupTitle,
                                          Integer confidence,
-                                         String details) {
+                                         String details,
+                                         Instant updatedAt) {
 
     public static AutomationCheckRunResponse from(AutomationCheckRun checkRun) {
         return new AutomationCheckRunResponse(checkRun.status(),
@@ -24,6 +26,7 @@ public record AutomationCheckRunResponse(AutomationCheckRunStatus status,
                 checkRun.requiredGroupId(),
                 checkRun.requiredGroupTitle(),
                 checkRun.confidence(),
-                checkRun.details());
+                checkRun.details(),
+                checkRun.updatedAt());
     }
 }

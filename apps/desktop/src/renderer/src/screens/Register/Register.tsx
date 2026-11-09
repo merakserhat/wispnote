@@ -1,3 +1,5 @@
+import { useNavigate } from '@tanstack/react-router';
+
 import Box from 'components/core/Box';
 import Button from 'components/core/Button';
 import FormInput from 'components/core/FormInput';
@@ -5,11 +7,33 @@ import Text from 'components/core/Text';
 
 import GoogleSignIn from 'screens/Auth/views/GoogleSignIn';
 
-import { useRegisterForm } from './Register.hooks';
-import { TRegisterFormValues, TRegisterProps } from './Register.types';
+import { TRegisterResponse } from 'shared/types/auth.types';
 
-function Register({ onSignIn, onRegistered }: TRegisterProps) {
-  const { control, submit, isPending, error } = useRegisterForm({ onRegistered });
+import { useRegisterForm } from './Register.hooks';
+import { TRegisterFormValues } from './Register.types';
+
+function Register() {
+  const navigate = useNavigate();
+
+  function handleRegistered(email: string, result: TRegisterResponse) {
+    navigate({
+      to: '/verify-email',
+      search: {
+        email,
+        verificationToken: result.verificationToken,
+        codeExpiresIn: result.codeExpiresIn,
+        resendOnMount: false,
+      },
+    });
+  }
+
+  const { control, submit, isPending, error } = useRegisterForm({
+    onRegistered: handleRegistered,
+  });
+
+  function handleSignIn() {
+    navigate({ to: '/sign-in' });
+  }
 
   return (
     <Box
@@ -67,7 +91,7 @@ function Register({ onSignIn, onRegistered }: TRegisterProps) {
             <Text variant="caption" color="textSecondary">
               Already have an account?
             </Text>
-            <Button label="Sign in" variant="ghost" size="small" onPress={onSignIn} />
+            <Button label="Sign in" variant="ghost" size="small" onPress={handleSignIn} />
           </Box>
         </Box>
       </form>

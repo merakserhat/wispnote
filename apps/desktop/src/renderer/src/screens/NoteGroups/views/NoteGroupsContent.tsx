@@ -1,3 +1,4 @@
+import ActivityIndicator from 'components/core/ActivityIndicator';
 import Box from 'components/core/Box';
 import Text from 'components/core/Text';
 
@@ -14,7 +15,11 @@ function NoteGroupsContent({ search, onSelectGroup }: TNoteGroupsContentProps) {
   });
 
   if (isPending) {
-    return <></>;
+    return (
+      <Box py="xxl" alignItems="center">
+        <ActivityIndicator color="textTertiary" />
+      </Box>
+    );
   }
 
   if (isError) {

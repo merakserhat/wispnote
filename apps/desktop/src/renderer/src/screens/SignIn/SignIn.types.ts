@@ -5,7 +5,6 @@ export type TSignInFormValues = {
   password: string;
 };
 
-export type TSignInProps = {
-  onRegister: () => void;
+export type TUseSignInFormParams = {
   onEmailNotVerified: (email: string, error: TEmailNotVerifiedError) => void;
 };

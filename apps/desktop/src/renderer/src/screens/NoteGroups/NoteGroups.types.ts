@@ -26,8 +26,3 @@ export type TNoteGroupCardProps = {
   group: TNoteGroup;
   onPress: TSelectNoteGroupHandler;
 };
-
-export type TNoteGroupDetailProps = {
-  group: TNoteGroup;
-  onBack: () => void;
-};

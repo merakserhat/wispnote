@@ -4,7 +4,7 @@ import Text from 'components/core/Text';
 import { TRulesContentProps } from '../Automations.types';
 import RuleRow from './RuleRow';
 
-function RulesContent({ automations, isPending, isError }: TRulesContentProps) {
+function RulesContent({ rows, isPending, isError, onRecheck }: TRulesContentProps) {
   if (isPending) {
     return <></>;
   }
@@ -19,7 +19,7 @@ function RulesContent({ automations, isPending, isError }: TRulesContentProps) {
     );
   }
 
-  if (!automations.length) {
+  if (!rows.length) {
     return (
       <Box py="xl" alignItems="center">
         <Text variant="body" color="textSecondary">
@@ -31,8 +31,8 @@ function RulesContent({ automations, isPending, isError }: TRulesContentProps) {
 
   return (
     <>
-      {automations.map((automation) => (
-        <RuleRow key={automation.id} automation={automation} />
+      {rows.map(({ automation, check }) => (
+        <RuleRow key={automation.id} automation={automation} check={check} onRecheck={onRecheck} />
       ))}
     </>
   );

@@ -4,9 +4,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useRegister } from 'api/auth';
 
 import { REGISTER_DEFAULT_VALUES, registerSchema } from './Register.constants';
-import { TRegisterFormValues, TRegisterProps } from './Register.types';
+import { TRegisterFormValues, TUseRegisterFormParams } from './Register.types';
 
-export function useRegisterForm({ onRegistered }: Pick<TRegisterProps, 'onRegistered'>) {
+export function useRegisterForm({ onRegistered }: TUseRegisterFormParams) {
   const { control, handleSubmit, getValues } = useForm<TRegisterFormValues>({
     resolver: yupResolver(registerSchema),
     defaultValues: REGISTER_DEFAULT_VALUES,

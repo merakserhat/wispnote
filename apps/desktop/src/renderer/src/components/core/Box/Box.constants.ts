@@ -11,4 +11,5 @@ export const BOX_STYLE_PROP_NAMES = new Set<string>([
   'borderRadius',
   'gap',
   'cursor',
+  'opacity',
 ]);

@@ -4,7 +4,7 @@ macOS app that saves a highlight together with where it came from. Three apps, o
 
 | Path | What | Stack |
 | --- | --- | --- |
-| `apps/desktop` | Capture UI and sync client | Electron, React, styled-components, antd, TanStack Query |
+| `apps/desktop` | Capture UI and sync client | Electron, React, styled-components, antd, TanStack Query, TanStack Router |
 | `apps/backend` | REST API, source of truth, issues member and service tokens | Spring Boot 4, Java 21, Postgres 17, Flyway, RabbitMQ |
 | `apps/analyzer` | Consumes note and automation events, interprets automations with an LLM, acts through the backend internal API | Spring Boot 4, Java 21, RabbitMQ |
 
@@ -61,7 +61,10 @@ markdown file anywhere else unless asked, and never create one at all unless ask
 
 ## Desktop conventions that were corrected in review
 
-- Layout with core components (`Box`, `Text`, `Button`), not new styled-components. A
-  `*.styles.ts` file only when Box props cannot express it. Forms are a plain `<form>` around a `Box`.
+- Layout with core components (`Box`, `Text`, `Button`, `Card`), not new styled-components. A
+  `*.styles.ts` file only for what no core component can express (pseudo-selectors, keyframes,
+  element resets); extend `StyledBox` when you must, add missing props to `Box` otherwise.
+  Reason: screen-local styled components fork the design system and must each be changed by
+  hand when a component changes. Forms are a plain `<form>` around a `Box`.
 - Optional JSX renders with `cond && (...)`, never a ternary ending in `: null`.
 - No comments in `src/renderer/`.

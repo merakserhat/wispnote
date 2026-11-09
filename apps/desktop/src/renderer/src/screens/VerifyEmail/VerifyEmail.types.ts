@@ -4,12 +4,14 @@ export type TVerifyEmailFormValues = {
   code: string;
 };
 
-export type TVerifyEmailProps = {
+export type TVerifyEmailSearch = {
   email: string;
   verificationToken: string;
   codeExpiresIn?: number;
   resendOnMount?: boolean;
-  onUseDifferentEmail: () => void;
+};
+
+export type TUseVerifyEmailFormParams = Omit<TVerifyEmailSearch, 'email'> & {
   onSessionExpired: () => void;
 };
 

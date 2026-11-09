@@ -20,6 +20,7 @@ function FormInput<TFormValues extends FieldValues>({
   autoComplete,
   className,
   onPressEnter,
+  onPressEscape,
 }: TFormInputProps<TFormValues>) {
   return (
     <Controller
@@ -44,6 +45,7 @@ function FormInput<TFormValues extends FieldValues>({
           error={fieldState.error?.message}
           onChangeText={field.onChange}
           onPressEnter={onPressEnter}
+          onPressEscape={onPressEscape}
           onBlur={field.onBlur}
         />
       )}

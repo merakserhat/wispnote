@@ -7,6 +7,7 @@ import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationChec
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationCheckRun;
 import com.wispnote.analyzer.application.automationcheckrun.model.AutomationCheckRunItem;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record InternalAutomationCheckRunResponse(UUID automationId,
@@ -17,7 +18,8 @@ public record InternalAutomationCheckRunResponse(UUID automationId,
                                                  UUID requiredGroupId,
                                                  String requiredGroupTitle,
                                                  Integer confidence,
-                                                 String details) {
+                                                 String details,
+                                                 Instant updatedAt) {
 
     public static InternalAutomationCheckRunResponse from(AutomationCheckRun checkRun) {
         var enrichment = checkRun.findLiveItem(AutomationCheckRunStage.ACTION_ENRICHMENT)
@@ -33,6 +35,7 @@ public record InternalAutomationCheckRunResponse(UUID automationId,
                 enrichment.map(AutomationCheckRunItem::requiredGroupId).orElse(null),
                 enrichment.map(AutomationCheckRunItem::requiredGroupTitle).orElse(null),
                 outcomeItem.map(item -> item.result().confidence()).orElse(null),
-                outcomeItem.map(item -> item.result().details()).orElse(null));
+                outcomeItem.map(item -> item.result().details()).orElse(null),
+                checkRun.updatedAt());
     }
 }

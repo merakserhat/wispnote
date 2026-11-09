@@ -13,6 +13,7 @@ export type TAutomationCheckRun = {
   requiredGroupTitle?: string;
   confidence?: number;
   details?: string;
+  updatedAt: string;
 };
 
 export type TAutomation = {

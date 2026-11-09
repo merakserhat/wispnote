@@ -14,6 +14,7 @@ export type TBoxStyleProps = SpaceProps<TTheme> &
     borderRadius?: number;
     gap?: TSpacing;
     cursor?: CSSProperties['cursor'];
+    opacity?: number;
   };
 
 export type TBoxProps = TBoxStyleProps & {

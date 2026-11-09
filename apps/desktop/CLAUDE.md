@@ -133,6 +133,15 @@ Do not re-derive these.
   with no window open, and a rotating refresh token cannot have two refreshers.
 - **TanStack Query runs over IPC**, not HTTP: the queryFn calls
   `window.wisp.apiRequest`. Main-window only; the panel keeps `useBridgeAction`.
+- **Navigation is TanStack Router, code-based, on memory history**, the same shape as
+  the Wamo web app. Electron loads the renderer from a file URL, so there is no browser
+  history to drive. `src/renderer/src/routes/` holds the root, the two pathless layouts
+  (`main-layout` with the nav bar, `auth-layout` for sign-in) and the router; every screen
+  folder ships a `Name.routes.ts` that `routeTree.ts` assembles. Screens read their input
+  from the route (`getRouteApi('/main-layout/groups/$noteGroupId').useParams()`, typed
+  `validateSearch` for `/verify-email`) and move with `navigate({ to, params, search })`.
+  Auth gating is the layouts rendering `<Navigate>` from the member query, not a context.
+  Never put "which thing to show" state in a context; it belongs in params or search.
 - See `.claude/tech-design/backend-architecture.md` for all of the above.
 - **`../wispnote-app`'s PyObjC UI stays for now.** It is inert in `serve` mode
   (one lazy import in `cli.cmd_run`), it is the working fallback, and it is the
@@ -164,7 +173,8 @@ Mirrors `~/Documents/Wamo/wamo-business-web-app-new`. Follow these in all new co
   `.claude/tech-design/`.
 - **Prettier:** single quotes, width 100, tab 2, `trailingComma: es5`,
   `bracketSameLine: true`.
-- **Client state:** Context API only, no Redux.
+- **Client state:** Context API only, no Redux. Navigation state is the router's, never a
+  context: a screen's input is a path param or a typed search param.
 - **Server state:** TanStack Query — here the "server" is the bridge, so wrap
   engine commands in query/mutation hooks named `use[Action][Domain]`
   (`useGetNotes`, `useSaveHighlight`).
@@ -182,6 +192,17 @@ Mirrors `~/Documents/Wamo/wamo-business-web-app-new`. Follow these in all new co
   `AntdProvider.helpers.ts`. Never repaint an antd component in CSS when a token exists. `Box` and `Text` take styled-system props directly (`p="m"`, `gap="s"`) and strip
   them with `shouldForwardProp`; everything else styled uses transient `$` props. Every
   core component ships a `Name.stories.tsx` (CSF3 objects, `title: 'Core/Name'`).
+- **Core components before styled-components.** Build layout and chrome from `Box`, `Text`,
+  `Card`, `Button`, `IconButton`, `ActivityIndicator`… with their props (`display`, `gap`,
+  `px`, `borderWidth`, `borderStyle`, `borderColor`, `borderRadius`, `opacity`,
+  `verticalAlign`). A `*.styles.ts` file exists only for what no core component can express:
+  pseudo-elements and pseudo-classes (`::before`, `:focus-visible`), keyframe animations,
+  native element resets (`styled.button`). When a styled component is unavoidable, extend
+  `StyledBox` (see `Card.styles.ts`) so it still takes Box props, and keep only the CSS that
+  Box cannot do. If a prop is missing from `Box` (as `opacity` was), add it to `Box` rather
+  than writing a one-off styled component. Reason: a screen-local styled span is a fork of
+  the design system; when the chip, card or spacing changes, every fork has to be found and
+  changed by hand.
 - **Forms:** react-hook-form + Yup.
 - **Enums:** explicit values, default export, MAP + getter pattern.
 
@@ -249,7 +270,9 @@ src/
     ├── panel.html · hud.html      one entry per window
     └── src/
         ├── components/core/       Text · Button (antd behind our own props)
-        ├── screens/Panel · Hud    .tsx · .types · .hooks · .helpers · .styles · views/
+        ├── routes/                root · layouts · router (memory history) · routeTree
+        ├── layouts/               RootLayout · MainLayout (nav bar) · AuthLayout
+        ├── screens/Panel · Hud    .tsx · .types · .hooks · .helpers · .styles · .routes · views/
         ├── hooks/                 one folder per hook: useX/useX.ts · .types · index
         ├── context/               AllContextProvider nests ThemeProvider · AntdProvider
         ├── theme/                 tokens · theme.types · styled.d.ts

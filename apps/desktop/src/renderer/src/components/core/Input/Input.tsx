@@ -11,6 +11,7 @@ function Input({
   value,
   onChangeText,
   onPressEnter,
+  onPressEscape,
   label,
   error,
   secure = false,
@@ -31,7 +32,13 @@ function Input({
     onChangeText(event.target.value);
   }
 
-  function handleTextAreaKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    if (event.key === 'Escape' && onPressEscape) {
+      event.preventDefault();
+      onPressEscape();
+      return;
+    }
+
     if (event.key !== 'Enter' || event.shiftKey || !onPressEnter) {
       return;
     }
@@ -61,7 +68,7 @@ function Input({
           status={error ? 'error' : undefined}
           autoSize={{ minRows: 1, maxRows }}
           onChange={handleChange}
-          onKeyDown={handleTextAreaKeyDown}
+          onKeyDown={handleKeyDown}
           onBlur={onBlur}
         />
       ) : (
@@ -78,7 +85,7 @@ function Input({
           autoComplete={autoComplete}
           status={error ? 'error' : undefined}
           onChange={handleChange}
-          onPressEnter={onPressEnter}
+          onKeyDown={handleKeyDown}
           onBlur={onBlur}
         />
       )}

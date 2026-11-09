@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -64,6 +65,7 @@ public class AutomationCheckRunPersistenceAdapter implements AutomationCheckRunP
 
         var updatedItemEntities = updateItems(checkRunEntity, automationCheckRun);
         checkRunEntity.setFingerprint(automationCheckRun.fingerprint().value());
+        checkRunEntity.setUpdatedAt(Instant.now());
 
         return automationCheckRunRepository.saveAndFlush(checkRunEntity).toModel(updatedItemEntities);
     }

@@ -5,9 +5,9 @@ import { useLogin } from 'api/auth';
 
 import { SIGN_IN_DEFAULT_VALUES, signInSchema } from './SignIn.constants';
 import { isEmailNotVerifiedError } from './SignIn.helpers';
-import { TSignInFormValues, TSignInProps } from './SignIn.types';
+import { TSignInFormValues, TUseSignInFormParams } from './SignIn.types';
 
-export function useSignInForm({ onEmailNotVerified }: Pick<TSignInProps, 'onEmailNotVerified'>) {
+export function useSignInForm({ onEmailNotVerified }: TUseSignInFormParams) {
   const { control, handleSubmit, getValues } = useForm<TSignInFormValues>({
     resolver: yupResolver(signInSchema),
     defaultValues: SIGN_IN_DEFAULT_VALUES,

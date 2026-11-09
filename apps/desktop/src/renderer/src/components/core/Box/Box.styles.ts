@@ -42,4 +42,10 @@ export const StyledBox = styled.div.withConfig({
     css`
       cursor: ${cursor};
     `}
+
+  ${({ opacity }) =>
+    opacity !== undefined &&
+    css`
+      opacity: ${opacity};
+    `}
 `;

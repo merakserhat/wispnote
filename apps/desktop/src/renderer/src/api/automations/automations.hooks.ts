@@ -8,6 +8,7 @@ import {
   TAutomationSuggestion,
   TCreateAutomationRequestParams,
   TToggleAutomationRequestParams,
+  TUpdateAutomationRequestParams,
 } from 'shared/types/automation.types';
 import { TCommonResponse, TErrorResponse } from 'shared/types/common';
 
@@ -19,6 +20,7 @@ import {
   requestCreateAutomation,
   requestDeleteAutomation,
   requestToggleAutomation,
+  requestUpdateAutomation,
 } from './automations.ipc';
 import automationsQueryKeys from './automations.queries';
 
@@ -131,5 +133,31 @@ export function useDeleteAutomation({
   return {
     deleteAutomation,
     isPending,
+  };
+}
+
+export function useUpdateAutomation({
+  onSuccess,
+  onError,
+}: TMutationHookParams<TAutomation, TErrorResponse> = {}) {
+  const queryClient = useQueryClient();
+
+  const {
+    mutate: updateAutomation,
+    isPending,
+    error,
+  } = useMutation<TCommonResponse<TAutomation>, TErrorResponse, TUpdateAutomationRequestParams>({
+    mutationFn: requestUpdateAutomation,
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: automationsQueryKeys.all });
+      onSuccess?.(response.result);
+    },
+    onError: (requestError) => onError?.(requestError),
+  });
+
+  return {
+    updateAutomation,
+    isPending,
+    error,
   };
 }

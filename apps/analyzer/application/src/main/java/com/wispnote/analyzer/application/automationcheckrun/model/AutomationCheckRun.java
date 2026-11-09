@@ -6,6 +6,7 @@ import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationChec
 import com.wispnote.analyzer.application.automationcheckrun.enums.AutomationCheckRunStatus;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ public record AutomationCheckRun(UUID id,
                                  UUID automationId,
                                  UUID memberId,
                                  AutomationFingerprint fingerprint,
+                                 Instant updatedAt,
                                  AutomationCheckRunItems items) {
 
     public AutomationCheckRunStatus status() {
@@ -96,10 +98,10 @@ public record AutomationCheckRun(UUID id,
     }
 
     private AutomationCheckRun withItems(AutomationCheckRunItems items) {
-        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, items);
+        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, updatedAt, items);
     }
 
     public AutomationCheckRun updateFingerprint(AutomationFingerprint fingerprint) {
-        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, items.invalidated());
+        return new AutomationCheckRun(id, version, automationId, memberId, fingerprint, updatedAt, items.invalidated());
     }
 }

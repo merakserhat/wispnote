@@ -1,21 +1,28 @@
+import { getRouteApi, useNavigate } from '@tanstack/react-router';
+
 import Box from 'components/core/Box';
 
 import { useVerifyEmailForm } from './VerifyEmail.hooks';
-import { TVerifyEmailProps } from './VerifyEmail.types';
 import VerificationCodeField from './views/VerificationCodeField';
 import VerifyEmailAction from './views/VerifyEmailAction';
 import VerifyEmailHeader from './views/VerifyEmailHeader';
 import VerifyEmailLinks from './views/VerifyEmailLinks';
 import VerifyEmailNotice from './views/VerifyEmailNotice';
 
-function VerifyEmail({
-  email,
-  verificationToken,
-  codeExpiresIn,
-  resendOnMount,
-  onUseDifferentEmail,
-  onSessionExpired,
-}: TVerifyEmailProps) {
+const routeApi = getRouteApi('/auth-layout/verify-email');
+
+function VerifyEmail() {
+  const { email, verificationToken, codeExpiresIn, resendOnMount } = routeApi.useSearch();
+  const navigate = useNavigate();
+
+  function handleUseDifferentEmail() {
+    navigate({ to: '/register' });
+  }
+
+  function handleSessionExpired() {
+    navigate({ to: '/sign-in' });
+  }
+
   const {
     control,
     submit,
@@ -27,7 +34,12 @@ function VerifyEmail({
     isConfirmPending,
     isResendPending,
     isResendBlocked,
-  } = useVerifyEmailForm({ verificationToken, codeExpiresIn, resendOnMount, onSessionExpired });
+  } = useVerifyEmailForm({
+    verificationToken,
+    codeExpiresIn,
+    resendOnMount,
+    onSessionExpired: handleSessionExpired,
+  });
 
   return (
     <Box
@@ -55,7 +67,7 @@ function VerifyEmail({
             isExpired={isExpired}
             isResendBlocked={isResendBlocked}
             onResend={resend}
-            onUseDifferentEmail={onUseDifferentEmail}
+            onUseDifferentEmail={handleUseDifferentEmail}
           />
         </Box>
       </form>

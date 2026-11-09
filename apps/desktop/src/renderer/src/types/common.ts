@@ -9,7 +9,7 @@ export type TChildrenOnly = {
 export type TQueryHookParams<TOptions = undefined> = {
   queryParams?: {
     enabled?: boolean;
-    refetchInterval?: number;
+    refetchInterval?: number | false;
     retry?: boolean;
   };
 } & TQueryHookParamsOptions<TOptions>;

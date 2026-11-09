@@ -6,7 +6,6 @@ export type TRegisterFormValues = {
   passwordConfirm: string;
 };
 
-export type TRegisterProps = {
-  onSignIn: () => void;
+export type TUseRegisterFormParams = {
   onRegistered: (email: string, result: TRegisterResponse) => void;
 };

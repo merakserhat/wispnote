@@ -1,21 +1,25 @@
-import { useNavigation } from 'context/NavigationProvider';
-import { getIconByNavItem, getLabelByNavItem } from 'enums/NavItem';
+import { useMatchRoute, useNavigate } from '@tanstack/react-router';
+
+import { getIconByNavItem, getLabelByNavItem, getPathByNavItem } from 'enums/NavItem';
 
 import { TNavBarNavItemProps } from '../NavBar.types';
 import NavBarItem from './NavBarItem';
 
 function NavBarNavItem({ item, size }: TNavBarNavItemProps) {
-  const { activeItem, navigate } = useNavigation();
+  const navigate = useNavigate();
+  const matchRoute = useMatchRoute();
+  const path = getPathByNavItem(item);
+  const isActive = Boolean(matchRoute({ to: path, fuzzy: true }));
 
   function handlePress() {
-    navigate(item);
+    navigate({ to: path });
   }
 
   return (
     <NavBarItem
       label={getLabelByNavItem(item)}
       icon={getIconByNavItem(item)}
-      isActive={item === activeItem}
+      isActive={isActive}
       size={size}
       onPress={handlePress}
     />

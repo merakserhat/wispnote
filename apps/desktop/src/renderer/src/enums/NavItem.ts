@@ -15,12 +15,14 @@ enum NavItem {
   SETTINGS = 'SETTINGS',
 }
 
-const MAP: Record<NavItem, { label: string; icon: TIconComponent }> = {
-  [NavItem.NOTES]: { label: 'Notes', icon: File05Icon },
-  [NavItem.GROUPS]: { label: 'Groups', icon: LayersTwo01Icon },
-  [NavItem.SOURCES]: { label: 'Sources', icon: FolderIcon },
-  [NavItem.AUTOMATIONS]: { label: 'Automations', icon: ZapIcon },
-  [NavItem.SETTINGS]: { label: 'Settings', icon: Settings01Icon },
+export type TNavItemPath = '/notes' | '/groups' | '/sources' | '/automations' | '/settings';
+
+const MAP: Record<NavItem, { label: string; icon: TIconComponent; path: TNavItemPath }> = {
+  [NavItem.NOTES]: { label: 'Notes', icon: File05Icon, path: '/notes' },
+  [NavItem.GROUPS]: { label: 'Groups', icon: LayersTwo01Icon, path: '/groups' },
+  [NavItem.SOURCES]: { label: 'Sources', icon: FolderIcon, path: '/sources' },
+  [NavItem.AUTOMATIONS]: { label: 'Automations', icon: ZapIcon, path: '/automations' },
+  [NavItem.SETTINGS]: { label: 'Settings', icon: Settings01Icon, path: '/settings' },
 };
 
 export function getLabelByNavItem(item: NavItem) {
@@ -29,6 +31,10 @@ export function getLabelByNavItem(item: NavItem) {
 
 export function getIconByNavItem(item: NavItem) {
   return MAP[item].icon;
+}
+
+export function getPathByNavItem(item: NavItem) {
+  return MAP[item].path;
 }
 
 export default NavItem;
