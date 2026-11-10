@@ -1,7 +1,8 @@
 import { ipcMain, webContents } from 'electron';
 
 import { IPC_CHANNELS } from 'shared/constants/channels';
-import { TActionRequest, TIpcRequest, TIpcResponse } from 'shared/types/ipc.types';
+import { TCaptureHudIntent } from 'shared/types/captureHud.types';
+import { TIpcRequest, TIpcResponse } from 'shared/types/ipc.types';
 import { TAppearanceSettings } from 'shared/types/settings.types';
 
 import { cancelGoogleSignIn, startGoogleSignIn } from '../auth';
@@ -11,20 +12,15 @@ import storage from '../helpers/storage';
 import { sendApiRequest, toErrorResponse, toIpcData } from './ipc.helpers';
 import { TIpcContext } from './ipc.types';
 
-export function registerIpcHandlers({ actions, panel, settings }: TIpcContext): void {
-  ipcMain.handle(IPC_CHANNELS.action, async (_event, request: TActionRequest) => {
+export function registerIpcHandlers({ actions, settings }: TIpcContext): void {
+  ipcMain.on(IPC_CHANNELS.hudIntent, async (_event, intent: TCaptureHudIntent) => {
     try {
-      return await actions.runAction(request);
+      await actions.runIntent(intent);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      log('error', `action ${request.action} failed: ${message}`);
-      return { accepted: false, reason: message };
+      log('error', `hud ${intent.type} failed: ${message}`);
     }
   });
-
-  ipcMain.on(IPC_CHANNELS.focusInput, () => panel.focus());
-
-  ipcMain.on(IPC_CHANNELS.dismiss, () => panel.hide());
 
   ipcMain.handle(
     IPC_CHANNELS.apiRequest,

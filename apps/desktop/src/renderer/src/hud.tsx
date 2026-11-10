@@ -2,12 +2,12 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from './App';
-import Hud from './screens/Hud';
+import CaptureHud from './screens/CaptureHud';
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <App>
-      <Hud />
+      <CaptureHud />
     </App>
   </React.StrictMode>
 );

@@ -186,6 +186,10 @@ export class Engine extends EventEmitter {
     }
   }
 
+  notify(cmd: TEngineCommand, payload: TRequestPayload = {}): boolean {
+    return this.send({ cmd, ...payload });
+  }
+
   request<TResult = unknown>(
     cmd: TEngineCommand,
     payload: TRequestPayload = {},

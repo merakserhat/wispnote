@@ -37,6 +37,7 @@ export type TTriggerFrame = {
   action: TEngineAction;
   context: TRawCaptureContext;
   can_sync: boolean;
+  supersedes: TTriggerBinding | null;
 };
 
 export type TResultFrame = {
@@ -47,6 +48,13 @@ export type TResultFrame = {
   error: string | null;
 };
 
+export type TEngineKey = 'escape' | 'ctrl';
+
+export type TKeyFrame = {
+  type: 'key';
+  key: TEngineKey;
+};
+
 export type TErrorFrame = {
   type: 'error';
   message: string;
@@ -54,10 +62,17 @@ export type TErrorFrame = {
 };
 
 export type TEngineFrame =
-  TReadyFrame | THeartbeatFrame | TTriggerFrame | TResultFrame | TErrorFrame;
+  TReadyFrame | THeartbeatFrame | TTriggerFrame | TKeyFrame | TResultFrame | TErrorFrame;
 
 export type TEngineCommand =
-  'ping' | 'capture' | 'configure' | 'pdf_info' | 'pdf_locate' | 'pdf_annotations' | 'shutdown';
+  | 'ping'
+  | 'capture'
+  | 'configure'
+  | 'hud'
+  | 'pdf_info'
+  | 'pdf_locate'
+  | 'pdf_annotations'
+  | 'shutdown';
 
 export type TEngineSettings = {
   triggers: Record<string, TEngineAction>;

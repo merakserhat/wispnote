@@ -6,11 +6,12 @@ import { TCaptureResult } from 'shared/types/engine.types';
 import { createActions } from './actions';
 import { createEngine } from './engine';
 import { log } from './helpers';
+import { createCaptureHud } from './hud';
 import { registerIpcHandlers } from './ipc';
 import { registerShutdown } from './lifecycle';
 import { createSettingsStore } from './settings';
 import { createTray } from './tray';
-import { createPanelController, HudWindow, MainWindow, PanelWindow } from './windows';
+import { CaptureHudWindow, MainWindow } from './windows';
 
 app.whenReady().then(() => {
   app.dock?.hide();
@@ -18,31 +19,27 @@ app.whenReady().then(() => {
   const settings = createSettingsStore();
   const preloadPath = path.join(__dirname, '../preload/preload.js');
 
-  const panel = new PanelWindow();
-  panel.create(preloadPath);
-
-  const hud = new HudWindow();
-  hud.create(preloadPath);
+  const hudWindow = new CaptureHudWindow();
+  hudWindow.create(preloadPath);
 
   const mainWindow = new MainWindow();
   mainWindow.create(preloadPath);
 
-  const controller = createPanelController(panel);
-
   log('host', 'starting — Ctrl+C or the menu bar to quit');
   const engine = createEngine({ app });
-  const actions = createActions({ engine, hud, panel, controller, mainWindow });
+  const hud = createCaptureHud({ engine, window: hudWindow });
+  const actions = createActions({ engine, hud, mainWindow });
 
   async function showPanelFromMenu(): Promise<void> {
     try {
       const result = await engine.request<TCaptureResult>('capture');
-      controller.show({ action: 'show_panel', context: result.context, can_sync: result.can_sync });
+      hud.open(result);
     } catch (error) {
       log('error', `capture failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  registerIpcHandlers({ actions, panel, settings });
+  registerIpcHandlers({ actions, settings });
   createTray({
     engine,
     onShowPanel: showPanelFromMenu,

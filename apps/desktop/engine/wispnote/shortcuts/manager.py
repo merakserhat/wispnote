@@ -7,10 +7,15 @@ from .gesture_detector import GESTURE_TRIGGERS, GestureDetector
 
 
 class ShortcutManager:
-    def __init__(self, settings: Settings, dispatch: Callable[[str, str], None]):
+    def __init__(
+        self,
+        settings: Settings,
+        dispatch: Callable[[str, str, str | None], None],
+        on_key: Callable[[str], None] | None = None,
+    ):
         self.settings = settings
         self.dispatch = dispatch
-        self.detector = GestureDetector(self._on_trigger)
+        self.detector = GestureDetector(self._on_trigger, on_key)
         self.last_error: str | None = None
 
     def start(self) -> bool:
@@ -37,11 +42,16 @@ class ShortcutManager:
         if settings is not None:
             self.settings = settings
 
-    def _on_trigger(self, trigger: str) -> None:
+    def set_hud_up(self, up: bool) -> None:
+        self.detector.set_hud_up(up)
+
+    def _on_trigger(self, trigger: str, supersedes: str | None = None) -> None:
         action = self.settings.action_for(trigger)
         if action == ACTION_NONE:
             return
-        self.dispatch(action, trigger)
+        if supersedes is not None and self.settings.action_for(supersedes) == ACTION_NONE:
+            supersedes = None
+        self.dispatch(action, trigger, supersedes)
 
     def describe(self) -> list[tuple[str, str]]:
         return [

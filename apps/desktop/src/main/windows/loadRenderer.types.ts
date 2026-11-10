@@ -1,1 +1,1 @@
-export type TRendererEntry = 'panel' | 'hud' | 'main';
+export type TRendererEntry = 'hud' | 'main';

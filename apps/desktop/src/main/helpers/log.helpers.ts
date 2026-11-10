@@ -17,6 +17,7 @@ export type TLogChannel =
   | 'engine'
   | 'shortcut'
   | 'trigger'
+  | 'hud'
   | 'capture'
   | 'db'
   | 'result'

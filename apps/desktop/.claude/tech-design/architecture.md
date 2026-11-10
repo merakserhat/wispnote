@@ -27,7 +27,7 @@ reachable from Electron, so they live in Python.
 ┌─ Electron ──────────────────┐        ┌─ Python engine ─────────────┐
 │  all UI                     │ stdin  │  ⌃⇧ event tap (CGEventTap)  │
 │  supervises the engine      │ ──────►│  Accessibility capture      │
-│  panel · HUD · tray · log   │◄────── │  SQLite · enrichment        │
+│  capture HUD · tray · log   │◄────── │  SQLite · enrichment        │
 └─────────────────────────────┘ stdout └─────────────────────────────┘
                           line-delimited JSON
 ```
@@ -65,8 +65,9 @@ together.**
 | File | Why it exists |
 | --- | --- |
 | `types/capture.types.ts` | `TCaptureContext` (camelCase, used everywhere) and `TRawCaptureContext` (snake_case, exactly what Python sends). Two types on purpose: the wire format is Python's business, and it stops at the main process. |
-| `types/engine.types.ts` | Every frame the engine can send (`ready`, `heartbeat`, `trigger`, `toast`, `data`, `result`, `error`) and every command it accepts. A discriminated union on `type`, so a `switch` is exhaustively checked. |
-| `types/ipc.types.ts` | What crosses the Electron IPC boundary: `TPanelPayload`, `TActionRequest`, and `TWispBridge` — the complete surface the preload exposes. |
+| `types/engine.types.ts` | Every frame the engine can send (`ready`, `heartbeat`, `trigger`, `key`, `result`, `error`) and every command it accepts. A discriminated union on `type`, so a `switch` is exhaustively checked. |
+| `types/ipc.types.ts` | What crosses the Electron IPC boundary, and `TWispBridge` — the complete surface the preload exposes. |
+| `types/captureHud.types.ts` | The capture HUD's contract: `TCaptureHudState` (main → renderer, the phase and what to draw) and `TCaptureHudIntent` (renderer → main: save, sync, open notes, whether a note is typed, whether the pointer is over the shape). |
 | `types/note.types.ts` | Replies from `list_notes` / `list_sources`. The bridge already serves these; no screen renders them yet. |
 | `constants/channels.ts` | Every IPC channel name, in one object, so main and preload cannot drift on a string literal. |
 
@@ -86,14 +87,14 @@ together.**
 | `Engine.types.ts` | Spawn options, pending-request bookkeeping, outbound message shape. |
 | `index.ts` | Barrel. |
 
-### `windows/` — the two macOS panels
+### `windows/` and `hud/` — the capture HUD
 
 | File | Why it exists |
 | --- | --- |
-| `panelWindow.ts` | The quick-action panel. `type: 'panel'` applies `NSWindowStyleMaskNonactivatingPanel`, which is what lets it appear over the article being read without activating the app — and so without invalidating the capture. Owns the `show()` vs `showInactive()` decision (see below). |
-| `panelWindow.constants.ts` | Size, cursor offset, screen margin, blur grace. |
-| `hudWindow.ts` | The "Highlight saved" confirmation. `focusable: false` and `setIgnoreMouseEvents(true)` — it must never take the keyboard or swallow a click. |
-| `hudWindow.constants.ts` | Size, top margin, display duration, fade duration. The fade value **must match the CSS transition** or the window vanishes mid-fade. |
+| `windows/captureHudWindow.ts` | The one transparent window every capture state is drawn in. `type: 'panel'` applies `NSWindowStyleMaskNonactivatingPanel`, which is what lets it appear over the article being read without activating the app — and so without invalidating the capture. Knows how to take the keyboard (`show()`), give it back without hiding (`blur()`), sit under the cursor and let clicks through outside the shape. Knows nothing about states. |
+| `windows/captureHudWindow.constants.ts` | Size, seed position, cursor offset, screen margin, blur grace. |
+| `hud/createCaptureHud.ts` | The HUD's state machine: Hidden, Basic, Detailed, Result. Triggers, engine keys (`escape`, lone `ctrl`), blur, action results and the hold timers all meet here; it sends each new state to the renderer and tells the engine when the HUD is up. |
+| `hud/createCaptureHud.constants.ts` | The hold and morph durations from the design's timing table. They **must match the CSS transitions** in `screens/CaptureHud`. |
 | `loadRenderer.ts` | Dev server URL while developing, built HTML file once packaged. One place, so neither window gets it wrong. |
 | `index.ts` | Barrel. |
 
@@ -101,7 +102,7 @@ together.**
 
 | File | Why it exists |
 | --- | --- |
-| `ipc/registerIpcHandlers.ts` | Routes every panel action to an engine command. Echoes back the stored capture rather than taking a fresh one — see invariant 1. |
+| `ipc/registerIpcHandlers.ts` | Routes HUD intents to `actions/`, which echoes back the stored capture rather than taking a fresh one — see invariant 1. |
 | `ipc/ipc.types.ts` | What the handlers need injected, so they are not reaching for module globals. |
 | `tray/createTray.ts` | The menu-bar presence, and the **only** place a user can see that capture has stopped working — the glyph tracks engine status. |
 | `helpers/log.helpers.ts` | The terminal log. One line per event, aligned columns, so a capture reads top to bottom. |
@@ -117,8 +118,8 @@ together.**
 
 | File | Why it exists |
 | --- | --- |
-| `panel.html` / `hud.html` | One HTML entry per window. Separate documents, not routes — they are separate native windows with different lifetimes. |
-| `src/panel.tsx` / `src/hud.tsx` | React roots. Thin by design. |
+| `hud.html` / `main.html` | One HTML entry per window. Separate documents, not routes — they are separate native windows with different lifetimes. |
+| `src/hud.tsx` / `src/main.tsx` | React roots. Thin by design. |
 | `src/App.tsx` | Shared shell: `ThemeProvider` + `GlobalStyle`. Both windows use it. |
 | `src/types/global.d.ts` | Declares `window.wisp` so the renderer sees the preload's contract. |
 
@@ -144,16 +145,12 @@ Small and generic, mirroring Wamo's `components/core`.
 
 | Folder | Why it exists |
 | --- | --- |
-| `Panel/` | What was captured and what can be done with it. `Panel.tsx` is markup only; `Panel.hooks.ts` holds mode, note text, pending action and keyboard handling; `Panel.helpers.ts` decides which actions this capture supports and formats the header. `views/CaptureHeader` and `views/NoteField` are the two pieces worth naming. |
-| `Hud/` | The confirmation. Small enough that `useToast` is its whole brain. |
+| `CaptureHud/` | The morphing shape. `CaptureHud.helpers.ts` turns (phase, previous phase) into geometry and transition strings; `CaptureHud.constants.ts` holds the geometry and easings from the design; `CaptureHud.hooks.ts` keeps the draft, grows the note field, reports the pointer and sends intents. `views/` are the card, the source row, the pill, the satellites and the orbit. It never decides a phase. |
 
 ### `hooks/`
 
 | File | Why it exists |
 | --- | --- |
-| `usePanelRender.ts` | Subscribes to the main process pushing a new capture. |
-| `useBridgeAction.ts` | Fires an engine action and tracks which one is in flight, so a button can show progress. **Deliberately not TanStack Query** — there is no server state to cache, only a one-shot command. This is where Query goes when the notes screen needs it. |
-| `useToast.ts` | The HUD's state. `toast` and `visible` are separate so the message survives the fade-out. |
 
 ## Invariants
 
@@ -162,7 +159,7 @@ Break these and the app fails in ways that are hard to trace.
 1. **Capture happens in the engine, before Electron draws anything.**
    `context_capture` reads the *frontmost* app. If a window appears first, the
    capture describes WispNote instead of the article. Triggers ship their
-   `CaptureContext` inside the event; the panel echoes that same context back
+   `CaptureContext` inside the event; the HUD echoes that same context back
    with the action rather than re-capturing.
 2. **Neither process outlives the other.** The host kills the engine on quit; the
    engine watches `getppid()` and exits when the host dies. A surviving engine
@@ -173,15 +170,15 @@ Break these and the app fails in ways that are hard to trace.
    behind stays frontmost. `showInactive()` never becomes key, and a text field
    inside such a window cannot be typed into however much DOM focus it gets.
 4. **Every user-visible outcome needs a window.** `quick_highlight` and
-   `sync_source` finish inside the engine and emit only a `toast`. Route it to
-   the HUD, or a working save looks like a dead shortcut.
+   `sync_source` save with no card open. Every path in `actions/` ends in a
+   Result pill, or a working save looks like a dead shortcut.
 
 ## Where to add things
 
 | Task | Files to touch |
 | --- | --- |
 | New engine command | `shared/types/engine.types.ts` → `bridge.py` → the caller |
-| New panel action | `Panel.helpers.ts` (offer it) → `registerIpcHandlers.ts` (route it) |
+| New HUD action | `captureHud.types.ts` (a `TCaptureHudIntent`) → `CaptureHud.hooks.ts` (send it) → `createActions.ts` (`runIntent`) |
 | New window | `windows/` (class + constants) → an HTML entry → `electron.vite.config.ts` input |
 | New screen | `screens/Name/` with `.tsx` `.types` `.hooks` `.helpers` `.styles` `index.ts` |
 | New shared type | `shared/types/` — and change `models.py` in the same commit |

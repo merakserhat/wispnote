@@ -1,4 +1,5 @@
 import { TCaptureContext } from 'shared/types/capture.types';
+import { TCaptureHudIntent } from 'shared/types/captureHud.types';
 import {
   TEngineAction,
   TPdfAnnotation,
@@ -6,7 +7,6 @@ import {
   TPdfLocateResult,
   TTriggerFrame,
 } from 'shared/types/engine.types';
-import { TActionRequest } from 'shared/types/ipc.types';
 
 import { requestCreateNote } from '../api/notes';
 import { describeCapture, log, previewSelection, toCaptureContext } from '../helpers';
@@ -17,30 +17,24 @@ import {
   errorMessage,
   hasContent,
   toCreateNoteParams,
+  toDoneResult,
   toImportedNoteParams,
-  toSaveFailureToast,
+  toProblemResult,
+  toSaveFailureResult,
+  toWorkingResult,
 } from './actions.helpers';
 import {
-  NOT_A_PDF_TOAST,
-  NOTHING_TO_SAVE_TOAST,
+  NOT_A_PDF_RESULT,
+  NOTHING_TO_SAVE_RESULT,
   PDF_REQUEST_TIMEOUT_MS,
-  PDF_UNAVAILABLE_TOAST,
+  PDF_UNAVAILABLE_RESULT,
+  REVERSIBLE_ACTIONS,
 } from './createActions.constants';
-import {
-  TActionResult,
-  TActions,
-  TCreateActionsParams,
-  TSaveCaptureParams,
-} from './createActions.types';
+import { TActions, TCreateActionsParams, TSaveCaptureParams } from './createActions.types';
 
-// INFO: (serhat) engine triggers and panel IPC both land here, so a ⌃⇧ gesture and a panel button share one path.
-export function createActions({
-  engine,
-  hud,
-  panel,
-  controller,
-  mainWindow,
-}: TCreateActionsParams): TActions {
+// INFO: (serhat) engine triggers and HUD intents both land here, so a ⌃⇧ gesture and a key in the HUD share one path.
+// Every path ends in a Result pill: a save with no feedback looks like a dead shortcut.
+export function createActions({ engine, hud, mainWindow }: TCreateActionsParams): TActions {
   async function locateInPdf(context: TCaptureContext): Promise<TPdfLocateResult | null> {
     const isLocalPdf = context.sourceKind === 'pdf' && Boolean(context.filePath);
     if (!isLocalPdf || !context.selectedText.trim() || !engine.ready?.pdf) {
@@ -65,9 +59,14 @@ export function createActions({
 
   async function saveCapture({ context, userNote }: TSaveCaptureParams): Promise<void> {
     if (!hasContent(context, userNote)) {
-      hud.show(NOTHING_TO_SAVE_TOAST);
+      hud.showResult(NOTHING_TO_SAVE_RESULT);
       return;
     }
+
+    // INFO: (serhat) the pill's text only fades in after 170ms, so a fast save never shows this.
+    hud.showResult(
+      toWorkingResult(userNote ? 'Saving note…' : 'Saving highlight…', describeSource(context))
+    );
 
     const located = await locateInPdf(context);
 
@@ -79,14 +78,13 @@ export function createActions({
         'result',
         `saved ${result.kind.toLowerCase()} ${result.id} · ${describeCapture(context)}`
       );
-      hud.show({
-        message: userNote ? 'Note saved' : 'Highlight saved',
-        detail: describeSource(context),
-      });
+      hud.reportResult(
+        toDoneResult(userNote ? 'Note saved' : 'Highlight saved', describeSource(context))
+      );
     } catch (error) {
-      const toast = toSaveFailureToast(error);
-      log('error', `save failed · ${toast.message} · ${errorMessage(error)}`);
-      hud.show(toast);
+      const failure = toSaveFailureResult(error);
+      log('error', `save failed · ${failure.title} · ${errorMessage(error)}`);
+      hud.reportResult(failure);
     }
   }
 
@@ -105,13 +103,15 @@ export function createActions({
 
   async function syncSource(context: TCaptureContext): Promise<void> {
     if (context.sourceKind !== 'pdf' || !context.filePath) {
-      hud.show(NOT_A_PDF_TOAST);
+      hud.showResult(NOT_A_PDF_RESULT);
       return;
     }
     if (!engine.ready?.pdf) {
-      hud.show(PDF_UNAVAILABLE_TOAST);
+      hud.showResult(PDF_UNAVAILABLE_RESULT);
       return;
     }
+
+    hud.showResult(toWorkingResult('Syncing PDF…', describeSource(context)));
 
     let annotations: TPdfAnnotation[];
     try {
@@ -123,12 +123,12 @@ export function createActions({
       annotations = result.annotations;
     } catch (error) {
       log('error', `pdf_annotations failed: ${errorMessage(error)}`);
-      hud.show({ message: 'Could not read the PDF', detail: errorMessage(error) });
+      hud.reportResult(toProblemResult('Could not read the PDF', errorMessage(error)));
       return;
     }
 
     if (annotations.length === 0) {
-      hud.show({ message: 'No highlights found in this PDF', detail: describeSource(context) });
+      hud.reportResult(toProblemResult('No highlights found in this PDF', describeSource(context)));
       return;
     }
 
@@ -141,67 +141,110 @@ export function createActions({
     }, Promise.resolve([]));
 
     const imported = outcomes.filter(Boolean).length;
-    hud.show({
-      message: `Imported ${imported} of ${annotations.length} highlights`,
-      detail: describeSource(context),
-    });
+    const title = `Imported ${imported} of ${annotations.length} highlights`;
+    hud.reportResult(
+      imported > 0
+        ? toDoneResult(title, describeSource(context))
+        : toProblemResult(title, describeSource(context))
+    );
   }
 
-  async function perform(
-    action: TEngineAction,
-    context: TCaptureContext,
-    userNote = ''
-  ): Promise<TActionResult> {
+  // INFO: (serhat) a typed note is never lost silently: the card stays up behind the main window
+  // until esc or ↩, the same rule as a click away.
+  function openNotes(): void {
+    if (!hud.hasNote()) {
+      hud.dismiss();
+    }
+    mainWindow.show();
+  }
+
+  async function perform(action: TEngineAction, context: TCaptureContext): Promise<void> {
     switch (action) {
       case 'quick_highlight':
         await saveCapture({ context, userNote: '' });
-        return { accepted: true };
-
-      case 'quick_note':
-        await saveCapture({ context, userNote });
-        return { accepted: true };
+        break;
 
       case 'sync_source':
         await syncSource(context);
-        return { accepted: true };
+        break;
 
       case 'open_notes':
-        mainWindow.show();
-        return { accepted: true };
+        openNotes();
+        break;
 
       default:
-        return { accepted: false, reason: `nothing to do for ${action}` };
+        log('trigger', `nothing to do for ${action}`);
     }
+  }
+
+  // INFO: (serhat) nothing is hidden when a double tap takes a tap back: the Basic card the tap
+  // opened morphs into the Result pill of the action that replaces it.
+  function undoSuperseded(frame: TTriggerFrame): boolean {
+    if (!frame.supersedes) {
+      return true;
+    }
+
+    const { trigger, action } = frame.supersedes;
+    if (!REVERSIBLE_ACTIONS.includes(action)) {
+      log('trigger', `${frame.trigger} ignored · ${trigger} → ${action} already happened`);
+      return false;
+    }
+
+    return true;
   }
 
   async function handleTrigger(frame: TTriggerFrame): Promise<void> {
     log('trigger', `${frame.trigger} → ${frame.action}`);
+    if (!undoSuperseded(frame)) {
+      return;
+    }
     if (VERBOSE) {
       const context = toCaptureContext(frame.context);
       log('capture', describeCapture(context));
       log('capture', previewSelection(context));
     }
 
-    // INFO: (serhat) the panel needs the raw frame: it echoes the same capture back with the action.
+    // INFO: (serhat) the mirror gesture opens Basic too until it gets a job of its own.
     if (frame.action === 'show_panel' || frame.action === 'quick_note') {
-      controller.show(frame);
+      hud.open(frame);
       return;
     }
 
     await perform(frame.action, toCaptureContext(frame.context));
   }
 
-  async function runAction(request: TActionRequest): Promise<TActionResult> {
-    const raw = controller.getContext();
-    panel.hide();
+  // INFO: (serhat) the HUD echoes back the capture it was opened with instead of taking a new one:
+  // by now WispNote has the keyboard, so a fresh capture would describe the wrong window.
+  async function runIntent(intent: TCaptureHudIntent): Promise<void> {
+    const raw = hud.getContext();
+    const phase = hud.getPhase();
+    const isOpen = phase === 'basic' || phase === 'detailed';
 
-    if (!raw) {
-      return { accepted: false, reason: 'no capture to act on' };
+    switch (intent.type) {
+      case 'save':
+        if (raw && isOpen) {
+          await saveCapture({ context: toCaptureContext(raw), userNote: intent.note.trim() });
+        }
+        break;
+
+      case 'sync':
+        if (raw && phase === 'detailed') {
+          await syncSource(toCaptureContext(raw));
+        }
+        break;
+
+      case 'openNotes':
+        if (phase === 'detailed') {
+          openNotes();
+        }
+        break;
+
+      default:
+        hud.handleIntent(intent);
     }
-    return perform(request.action, toCaptureContext(raw), request.text ?? '');
   }
 
   engine.on('trigger', handleTrigger);
 
-  return { runAction };
+  return { runIntent };
 }

@@ -39,6 +39,7 @@ class Commands:
             "ping": self.ping,
             "capture": self.capture_command,
             "configure": self.configure,
+            "hud": self.hud,
             "pdf_info": self.pdf_info,
             "pdf_locate": self.pdf_locate,
             "pdf_annotations": self.pdf_annotations,
@@ -66,6 +67,11 @@ class Commands:
         settings = Settings.from_dict(raw)
         self.on_main(lambda: self._apply(settings))
         return {"triggers": self.describe_triggers()}
+
+    def hud(self, message: dict[str, Any]) -> dict[str, Any]:
+        up = bool(message.get("up"))
+        self.on_main(lambda: self.shortcuts.set_hud_up(up))
+        return {"up": up}
 
     def pdf_info(self, message: dict[str, Any]) -> dict[str, Any]:
         return self.pdf.document_info(self._file_path(message))

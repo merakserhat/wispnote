@@ -13,8 +13,10 @@ ACTION_OPEN_NOTES = "open_notes"
 DEFAULT_TRIGGERS: dict[str, str] = {
     "ctrl+shift": ACTION_SHOW_PANEL,
     "ctrl+shift+shift": ACTION_QUICK_HIGHLIGHT,
+    "ctrl+shift+hold": ACTION_NONE,
     "shift+ctrl": ACTION_QUICK_NOTE,
     "shift+ctrl+ctrl": ACTION_NONE,
+    "shift+ctrl+hold": ACTION_NONE,
 }
 
 

@@ -122,7 +122,6 @@
     },
     {
       "files": [
-        "src/renderer/src/panel.tsx",
         "src/renderer/src/hud.tsx"
       ],
       "rules": {

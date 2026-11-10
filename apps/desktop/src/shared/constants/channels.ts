@@ -1,10 +1,6 @@
 export const IPC_CHANNELS = {
-  panelRender: 'panel:render',
-  toastShow: 'toast:show',
-  toastHide: 'toast:hide',
-  action: 'action:run',
-  focusInput: 'panel:focus-input',
-  dismiss: 'panel:dismiss',
+  hudState: 'hud:state',
+  hudIntent: 'hud:intent',
   apiRequest: 'api:request',
   sessionExpired: 'auth:session-expired',
   signOut: 'auth:sign-out',

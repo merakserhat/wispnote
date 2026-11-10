@@ -13,6 +13,7 @@ export { default as LayersTwo01Icon } from './views/LayersTwo01Icon';
 export { default as Loading01Icon } from './views/Loading01Icon';
 export { default as Logout01Icon } from './views/Logout01Icon';
 export { default as PlusIcon } from './views/PlusIcon';
+export { default as RefreshCw01Icon } from './views/RefreshCw01Icon';
 export { default as SearchSmIcon } from './views/SearchSmIcon';
 export { default as Settings01Icon } from './views/Settings01Icon';
 export { default as SlashCircle01Icon } from './views/SlashCircle01Icon';

@@ -1,7 +1,7 @@
 import NoteKind from 'shared/enums/NoteKind';
 import SourceKind from 'shared/enums/SourceKind';
 import { TCaptureContext } from 'shared/types/capture.types';
-import { TToastPayload } from 'shared/types/ipc.types';
+import { TCaptureHudResult } from 'shared/types/captureHud.types';
 import { TCreateNoteRequestParams, TNoteSource } from 'shared/types/note.types';
 
 import { formatLocation, formatSource } from '../helpers';
@@ -113,14 +113,26 @@ export function toImportedNoteParams({
   };
 }
 
-export function toSaveFailureToast(error: unknown): TToastPayload {
+export function toDoneResult(title: string, caption: string): TCaptureHudResult {
+  return { icon: 'check', look: 'positive', title, caption };
+}
+
+export function toWorkingResult(title: string, caption: string): TCaptureHudResult {
+  return { icon: 'spin', look: 'neutral', title, caption };
+}
+
+export function toProblemResult(title: string, caption: string): TCaptureHudResult {
+  return { icon: 'alert', look: 'warning', title, caption };
+}
+
+export function toSaveFailureResult(error: unknown): TCaptureHudResult {
   const failure = toErrorResponse(error);
 
   if (failure.status === 401) {
-    return { message: 'Sign in to save', detail: 'Open WispNote from the menu bar' };
+    return toProblemResult('Sign in to save', 'Open WispNote from the menu bar');
   }
   if (failure.status === 0) {
-    return { message: 'Could not reach the server', detail: 'The highlight was not saved' };
+    return toProblemResult('Could not reach the server', 'The highlight was not saved');
   }
-  return { message: 'Could not save', detail: failure.errorMessage };
+  return toProblemResult('Could not save', failure.errorMessage);
 }

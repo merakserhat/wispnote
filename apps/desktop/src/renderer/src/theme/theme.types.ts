@@ -35,6 +35,7 @@ export type TThemePrimitiveKey =
   | 'sourceMail'
   | 'sourceApp'
   | 'sourceFile'
+  | 'shadowTint'
   | 'transparent';
 
 export type TThemePrimitives = Record<TThemePrimitiveKey, string>;

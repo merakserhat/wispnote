@@ -1,5 +1,2 @@
-export { PanelWindow } from './panelWindow';
-export { HudWindow } from './hudWindow';
+export { CaptureHudWindow } from './captureHudWindow';
 export { MainWindow } from './mainWindow';
-export { createPanelController } from './createPanelController';
-export * from './createPanelController.types';

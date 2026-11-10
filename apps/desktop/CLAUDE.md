@@ -18,11 +18,11 @@ else moves here over time.
 
 ## Status
 
-TypeScript throughout, built with electron-vite. The panel and HUD are
+TypeScript throughout, built with electron-vite. The capture HUD is
 implemented; the notes and settings screens are not.
 
-- ✅ Panel (capture + actions + note field), HUD, tray, supervisor, bridge
-- ✅ Engine rewritten in `engine/` (protocol v2); saves go main → backend via `src/main/actions/`
+- ✅ Capture HUD (one morphing shape: Basic, Detailed, Result), tray, supervisor, bridge
+- ✅ Engine rewritten in `engine/` (protocol v3); saves go main → backend via `src/main/actions/`
 - ⬜ Next: notes window, settings, then packaging
 - ⬜ Later: move SQLite + messaging here, leaving Python stateless
 
@@ -54,19 +54,35 @@ Break these and the app breaks in ways that are hard to trace.
    there, and macOS disables a tap that blocks (`kCGEventTapDisabledByTimeout`).
    Slow work goes on a thread.
 4. **Every user-visible outcome needs a window.** `quick_highlight` and
-   `sync_source` save with no panel open; `src/main/actions/` must end every
-   path in a HUD toast or a working save looks like a dead shortcut.
+   `sync_source` save with no card open; `src/main/actions/` must end every
+   path in a Result pill (`hud.showResult` / `hud.reportResult`) or a working
+   save looks like a dead shortcut.
+5. **Main owns the capture HUD's state machine** (`src/main/hud/`). Triggers,
+   engine keys, action results and the timers all arrive in main; the renderer
+   animates the state it is sent and keeps only the draft text. The HUD window
+   never moves or resizes while a state is up. esc closes whatever is up; a
+   click away closes the card only when the note is empty, otherwise the card
+   stays until esc or ↩.
 
 ## Bridge protocol
 
 Line-delimited JSON over stdin/stdout. stdout is taken away from Python's `print`
 so diagnostics (stderr) cannot corrupt it.
 
-Protocol v2. Every ⌃⇧ gesture is a `trigger`; the engine never decides what an
-action means. The host sends `configure` on every `ready`.
+Protocol v3. Every ⌃⇧ gesture is a `trigger`; the engine never decides what an
+action means. A `trigger` may carry `supersedes: { trigger, action }` when it upgrades
+the gesture that fired just before it (tap → double tap); the host takes the earlier
+action back if it was only a window, and ignores the upgrade if it was a save. The host
+sends `configure` on every `ready`.
 
-**Engine → host:** `ready` `heartbeat` `trigger` `result` `error`
-**Host → engine:** `ping` `capture` `configure` `pdf_info` `pdf_locate`
+While the HUD is up the host says so with `hud` (`up: true`, no reply, re-sent on every
+`ready`), and the tap reports two keys as `key` frames: `escape`, and `ctrl` for a lone ⌃
+(down and up with nothing in between, in a mode entered after the HUD was already up, so
+the release of the opening gesture's ⌃ never counts). The tap stays listen-only, so esc
+also reaches the app that has the keyboard. The renderer does not handle esc or ⌃ itself.
+
+**Engine → host:** `ready` `heartbeat` `trigger` `key` `result` `error`
+**Host → engine:** `ping` `capture` `configure` `hud` `pdf_info` `pdf_locate`
 `pdf_annotations` `shutdown`
 
 Engine side: `engine/wispnote/bridge/`. Host side: `src/main/engine/`, with
@@ -89,8 +105,19 @@ Do not re-derive these.
   window settling, not the user leaving; acting on it dismisses a field mid-type.
 - **Vibrancy:** set `backgroundColor: '#00000000'`, not `transparent: true` —
   they fight. Pair with `setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })`.
-- **HUD/toast windows:** `focusable: false`, `setIgnoreMouseEvents(true)`,
-  `setAlwaysOnTop(true, 'status')`.
+  The capture HUD has no vibrancy (it cannot follow a shape that changes size), so it
+  is `transparent: true` with `hasShadow: false` and draws its own surface and shadow.
+- **Giving the keyboard back without hiding:** `blur()` on a key panel resigns key and
+  keeps the window, but macOS fades the whole window out and back over ~270 ms (measured
+  with `CGWindowListCopyWindowInfo`: alpha 1 → 0 → 1). `hide()` + `showInactive()` does the
+  same. Never call either while the shape is morphing. `setFocusable(false)` does not make
+  a key window resign. This is why the HUD takes the keyboard only 280 ms after a tap (once
+  the double-tap window has passed), never blurs, and gives the keyboard back only by hiding:
+  after ↩ the Result pill keeps the keyboard until it shrinks into the seed.
+- **Click-through outside the shape:** `setIgnoreMouseEvents(true, { forward: true })`;
+  the renderer still gets mouse moves, hit-tests `[data-hud-hit]` and asks main to stop
+  ignoring while the pointer is over the shape. `acceptFirstMouse` lets a card left open by a click away be
+  clicked while the window is not key.
 - **Create windows at startup, not on demand** — on-demand costs 100–300ms and a
   white flash, which ruins a capture HUD.
 - **Modifier-only gestures are not Electron accelerators.** `globalShortcut` cannot
@@ -118,11 +145,17 @@ Do not re-derive these.
 
 ## Decisions already made
 
-- **Shortcuts are left ⌃/⇧ gestures, not Fn.** Fn belongs to Wispr Flow. Hold one
-  key, tap the other: ⌃ then ⇧ shows the panel, ⌃ then ⇧⇧ is a quick highlight, ⇧ then
-  ⌃ is a quick note. The held key must go down first and come up last; any other key,
-  click, non-momentum scroll or modifier cancels; the gesture is decided when the held
-  key is released, so there is no double-tap timer. Events are never swallowed.
+- **Shortcuts are left ⌃/⇧ gestures, not Fn.** Fn belongs to Wispr Flow. The first key
+  down is a mode key, like a layer; the other key is read inside it: tap (⌃ then ⇧) opens
+  the capture HUD, double tap (⌃ then ⇧⇧) is a quick highlight, hold (⌃ then ⇧ held 400 ms) is
+  free, and the mirror (⇧ then ⌃) opens the HUD too until it gets a job of its own. Every gesture fires on the release of
+  the tapped key, never on the release of the mode key, and nothing waits: a single tap
+  fires at once, and a second tap inside 250 ms fires the double-tap trigger with
+  `supersedes` set so the host morphs the Basic card it just showed into the Result pill. The engine reuses the first
+  tap's capture for the upgrade, since the HUD has the keyboard by then. A hold fires when the
+  threshold passes. Release order does not matter. Any other key, click, non-momentum
+  scroll or modifier cancels the current press but not the mode, so you can retry without
+  lifting the mode key. The tap is listen-only; events are never swallowed or delayed.
 - **Pipelines are a separate cloud service**, event-driven. Nothing local.
 - **The backend is the source of truth.** SQLite and RabbitMQ leave the desktop
   app entirely — the engine extracts, main posts. This reverses the earlier
@@ -132,7 +165,8 @@ Do not re-derive these.
 - **The API client lives in main, never the renderer.** `quick_highlight` saves
   with no window open, and a rotating refresh token cannot have two refreshers.
 - **TanStack Query runs over IPC**, not HTTP: the queryFn calls
-  `window.wisp.apiRequest`. Main-window only; the panel keeps `useBridgeAction`.
+  `window.wisp.apiRequest`. Main-window only; the HUD talks to main over `hud:state` and
+  `hud:intent`.
 - **Navigation is TanStack Router, code-based, on memory history**, the same shape as
   the Wamo web app. Electron loads the renderer from a file URL, so there is no browser
   history to drive. `src/renderer/src/routes/` holds the root, the two pathless layouts
@@ -260,19 +294,20 @@ src/
 ├── main/
 │   ├── main.ts       wiring only — holds no state of its own
 │   ├── engine/       Engine (mechanism) · createEngine (policy) · .types · .constants
-│   ├── windows/      panelWindow · hudWindow · createPanelController · loadRenderer
+│   ├── windows/      captureHudWindow · mainWindow · loadRenderer
+│   ├── hud/          createCaptureHud (the HUD state machine and its timers)
 │   ├── ipc/          registerIpcHandlers
 │   ├── lifecycle/    registerShutdown
 │   ├── tray/         createTray
 │   └── helpers/      log · capture (snake_case → camelCase)
 ├── preload/       contextBridge only — no logic
 └── renderer/
-    ├── panel.html · hud.html      one entry per window
+    ├── hud.html · main.html       one entry per window
     └── src/
         ├── components/core/       Text · Button (antd behind our own props)
         ├── routes/                root · layouts · router (memory history) · routeTree
         ├── layouts/               RootLayout · MainLayout (nav bar) · AuthLayout
-        ├── screens/Panel · Hud    .tsx · .types · .hooks · .helpers · .styles · .routes · views/
+        ├── screens/CaptureHud …   .tsx · .types · .hooks · .helpers · .styles · .routes · views/
         ├── hooks/                 one folder per hook: useX/useX.ts · .types · index
         ├── context/               AllContextProvider nests ThemeProvider · AntdProvider
         ├── theme/                 tokens · theme.types · styled.d.ts
@@ -290,8 +325,8 @@ barrel `index.ts` everywhere, and **transient (`$`) props for anything styled**
 — styled-components v6 forwards unknown props to the DOM and React warns.
 
 Not yet mirrored from Wamo, and deliberately: no i18n (labels are literals), and
-no TanStack Query — the panel fires one-shot commands with no server state to
-cache. `useBridgeAction` is where Query goes when the notes screen needs it.
+no TanStack Query in the HUD — it sends one-shot intents with no server state to
+cache.
 
 Once more screens exist, mirror Wamo's docs layout: `.claude/tech-design/*.md`
 for structure, `.claude/tech-rules/*.md` for conventions, a `PostToolUse`

@@ -32,6 +32,7 @@
       "sourceMail": "#4d8a6a",
       "sourceApp": "#6f5fa8",
       "sourceFile": "#778da9",
+      "shadowTint": "rgba(0, 0, 0, 0.1)",
       "transparent": "transparent"
     },
     "dark": {
@@ -63,6 +64,7 @@
       "sourceMail": "#6fc797",
       "sourceApp": "#b3a0f2",
       "sourceFile": "#9fb3cc",
+      "shadowTint": "rgba(0, 0, 0, 0.32)",
       "transparent": "transparent"
     }
   },
@@ -99,6 +101,7 @@
       "sourceMail": "#4d8a6a",
       "sourceApp": "#6f5fa8",
       "sourceFile": "#778da9",
+      "shadowTint": "rgba(0, 0, 0, 0.1)",
       "transparent": "transparent"
     },
     "dark": {
@@ -130,6 +133,7 @@
       "sourceMail": "#6fc797",
       "sourceApp": "#b3a0f2",
       "sourceFile": "#778da9",
+      "shadowTint": "rgba(0, 0, 0, 0.32)",
       "transparent": "transparent"
     }
   },
@@ -166,6 +170,7 @@
       "sourceMail": "#4d8a6a",
       "sourceApp": "#6f5fa8",
       "sourceFile": "#778da9",
+      "shadowTint": "rgba(0, 0, 0, 0.1)",
       "transparent": "transparent"
     },
     "dark": {
@@ -197,6 +202,7 @@
       "sourceMail": "#6fc797",
       "sourceApp": "#b3a0f2",
       "sourceFile": "#9fb3cc",
+      "shadowTint": "rgba(0, 0, 0, 0.32)",
       "transparent": "transparent"
     }
   }

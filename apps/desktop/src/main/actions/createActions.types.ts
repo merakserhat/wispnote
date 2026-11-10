@@ -1,26 +1,19 @@
 import { TCaptureContext } from 'shared/types/capture.types';
+import { TCaptureHudIntent } from 'shared/types/captureHud.types';
 import { TPdfAnnotation, TPdfLocateResult } from 'shared/types/engine.types';
-import { TActionRequest } from 'shared/types/ipc.types';
 
 import { Engine } from '../engine';
-import { HudWindow, MainWindow, PanelWindow } from '../windows';
-import { TPanelController } from '../windows/createPanelController.types';
+import { TCaptureHud } from '../hud';
+import { MainWindow } from '../windows';
 
 export type TCreateActionsParams = {
   engine: Engine;
-  hud: HudWindow;
-  panel: PanelWindow;
-  controller: TPanelController;
+  hud: TCaptureHud;
   mainWindow: MainWindow;
 };
 
-export type TActionResult = {
-  accepted: boolean;
-  reason?: string;
-};
-
 export type TActions = {
-  runAction: (request: TActionRequest) => Promise<TActionResult>;
+  runIntent: (intent: TCaptureHudIntent) => Promise<void>;
 };
 
 export type TSaveCaptureParams = {

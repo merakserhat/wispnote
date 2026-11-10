@@ -1,41 +1,17 @@
 import type { AxiosRequestConfig } from 'axios';
 
-import { TCaptureContext } from './capture.types';
+import { TCaptureHudIntent, TCaptureHudState } from './captureHud.types';
 import { TErrorResponse } from './common';
-import { TEngineAction } from './engine.types';
 import { TAppearanceSettings } from './settings.types';
 
-export type TPanelMode = 'panel' | 'note';
-
-export type TPanelPayload = {
-  mode: TPanelMode;
-  action: TEngineAction;
-  context: TCaptureContext;
-  canSync: boolean;
-};
-
-export type TActionRequest = {
-  action: TEngineAction;
-  text?: string;
-};
-
-export type TToastPayload = {
-  message: string;
-  detail: string;
-};
-
 export type TWispBridge = {
-  onPanelRender: (handler: (payload: TPanelPayload) => void) => () => void;
-  onToastShow: (handler: (payload: TToastPayload) => void) => () => void;
-  onToastHide: (handler: () => void) => () => void;
-  runAction: (request: TActionRequest) => Promise<unknown>;
+  onHudState: (handler: (state: TCaptureHudState) => void) => () => void;
+  sendHudIntent: (intent: TCaptureHudIntent) => void;
   ipcRequest: <TResult>(request: TIpcRequest) => Promise<TIpcResponse<TResult>>;
   onSessionExpired: (handler: () => void) => () => void;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<TIpcResponse<null>>;
   cancelGoogleSignIn: () => Promise<void>;
-  focusInput: () => void;
-  dismiss: () => void;
   getSettings: () => Promise<TAppearanceSettings>;
   setSettings: (patch: Partial<TAppearanceSettings>) => Promise<TAppearanceSettings>;
   onSettingsChanged: (handler: (settings: TAppearanceSettings) => void) => () => void;

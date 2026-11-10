@@ -14,17 +14,19 @@ from .. import __version__
 from ..capture.context_capture import ContextCapture
 from ..config import Settings
 from ..mainthread import is_main_thread, run_on_main
+from ..models import CaptureContext
 from ..pdf.tools import PdfTools
 from ..shortcuts.manager import ShortcutManager
 from .channel import Channel
 from .commands import Commands
 
-PROTOCOL_VERSION = 2
+PROTOCOL_VERSION = 3
 HEARTBEAT_SECONDS = 2.0
 MAIN_THREAD_TIMEOUT = 20.0
 ORPHAN_CHECK_SECONDS = 2.0
 SHUTDOWN_DELAY_SECONDS = 0.1
 COMMAND_WORKERS = 4
+SUPERSEDE_REUSE_SECONDS = 1.0
 
 
 class Bridge:
@@ -41,7 +43,7 @@ class Bridge:
 
         self.settings = Settings()
         self.capture = ContextCapture(self.settings)
-        self.shortcuts = ShortcutManager(self.settings, self.on_gesture)
+        self.shortcuts = ShortcutManager(self.settings, self.on_gesture, self.on_key)
         self.pdf = PdfTools()
         self.commands = Commands(
             capture=self.capture,
@@ -53,6 +55,7 @@ class Bridge:
 
         self._stopping = threading.Event()
         self._sequence = 0
+        self._last_gesture: tuple[str, CaptureContext, float] | None = None
         self._workers = ThreadPoolExecutor(
             max_workers=COMMAND_WORKERS, thread_name_prefix="wispnote-command"
         )
@@ -103,22 +106,42 @@ class Bridge:
     def _stop_soon(self) -> None:
         threading.Timer(SHUTDOWN_DELAY_SECONDS, lambda: self.stop("host asked")).start()
 
-    def on_gesture(self, action: str, trigger: str = "") -> None:
-        self.channel.log(f"trigger {trigger} -> {action}")
-        try:
-            ctx = self.commands.capture_context()
-        except Exception as exc:
-            self.channel.log(f"trigger {trigger} failed: {exc}")
-            self.channel.send("error", message=str(exc), trigger=trigger)
-            return
+    def on_gesture(self, action: str, trigger: str = "", supersedes: str | None = None) -> None:
+        note = f" (supersedes {supersedes})" if supersedes else ""
+        self.channel.log(f"trigger {trigger} -> {action}{note}")
+        ctx = self._reusable_capture(supersedes)
+        if ctx is None:
+            try:
+                ctx = self.commands.capture_context()
+            except Exception as exc:
+                self.channel.log(f"trigger {trigger} failed: {exc}")
+                self.channel.send("error", message=str(exc), trigger=trigger)
+                return
 
+        self._last_gesture = (trigger, ctx, time.monotonic())
         self.channel.send(
             "trigger",
             trigger=trigger,
             action=action,
             context=ctx.to_dict(),
             can_sync=self.commands.can_sync(ctx),
+            supersedes=(
+                {"trigger": supersedes, "action": self.settings.action_for(supersedes)}
+                if supersedes
+                else None
+            ),
         )
+
+    def on_key(self, key: str) -> None:
+        self.channel.send("key", key=key)
+
+    def _reusable_capture(self, supersedes: str | None) -> CaptureContext | None:
+        if supersedes is None or self._last_gesture is None:
+            return None
+        trigger, ctx, at = self._last_gesture
+        if trigger != supersedes or time.monotonic() - at > SUPERSEDE_REUSE_SECONDS:
+            return None
+        return ctx
 
     def _read_commands(self) -> None:
         for line in sys.stdin:
