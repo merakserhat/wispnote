@@ -40,7 +40,7 @@ export const Motion = styled(StyledBox)<TMotionStyleProps>`
 
 export const Shape = styled(Motion)`
   border-style: solid;
-  overflow: hidden;
+  overflow: clip;
   box-shadow:
     0 14px 36px ${({ theme }) => theme.colors.shadowTint},
     0 2px 6px ${({ theme }) => theme.colors.shadowTint};
