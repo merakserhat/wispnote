@@ -44,14 +44,14 @@ function CaptureHud() {
           motion={getSatelliteMotion(detailed && canSync, SLOT_ANGLE, 0)}
           icon={RefreshCw01Icon}
           label="Sync PDF"
-          keyLabel="⌘1"
+          keyLabel="⌃1"
           onPress={onSync}
         />
         <HudSatellite
           motion={getSatelliteMotion(detailed, canSync ? -SLOT_ANGLE : 0, canSync ? 1 : 0)}
           icon={File05Icon}
           label="Open notes"
-          keyLabel={canSync ? '⌘2' : '⌘1'}
+          keyLabel={canSync ? '⌃2' : '⌃1'}
           onPress={onOpenNotes}
         />
       </Motion>

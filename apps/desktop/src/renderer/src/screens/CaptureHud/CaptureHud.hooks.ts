@@ -148,7 +148,7 @@ export function useCaptureHudHooks(): TCaptureHudHooksReturn {
       return;
     }
 
-    if (!event.metaKey || phase !== 'detailed') {
+    if (!event.ctrlKey || phase !== 'detailed') {
       return;
     }
 
