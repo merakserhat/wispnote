@@ -17,6 +17,7 @@ const textVariants = {
     textTransform: 'uppercase',
   },
   kbd: { fontSize: '10px', fontWeight: 600, lineHeight: 1 },
+  keycap: { fontSize: '12px', fontWeight: 600, lineHeight: 1 },
   mono: { fontSize: '12px', fontWeight: 400, lineHeight: 1.5, fontFamily: fonts.mono },
 } as const;
 

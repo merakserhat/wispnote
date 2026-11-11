@@ -1,4 +1,5 @@
 import Box from 'components/core/Box';
+import Keycap from 'components/core/Keycap';
 import Text from 'components/core/Text';
 
 import {
@@ -9,7 +10,6 @@ import {
 } from '../CaptureHud.constants';
 import { Motion, SatelliteCard } from '../CaptureHud.styles';
 import { THudSatelliteProps } from '../CaptureHud.types';
-import KeyHint from './KeyHint';
 
 function HudSatellite({ motion, icon: Icon, label, keyLabel, onPress }: THudSatelliteProps) {
   return (
@@ -64,7 +64,7 @@ function HudSatellite({ motion, icon: Icon, label, keyLabel, onPress }: THudSate
             <Text variant="caption" color="textSecondary" nowrap>
               {label}
             </Text>
-            <KeyHint keyLabel={keyLabel} />
+            <Keycap size="small" label={keyLabel} />
           </Motion>
         </Motion>
       </Motion>

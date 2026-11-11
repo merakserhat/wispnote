@@ -7,8 +7,12 @@ export type TBoxStyleProps = SpaceProps<TTheme> &
   LayoutProps<TTheme> &
   FlexboxProps<TTheme> &
   PositionProps<TTheme> &
-  Omit<BorderProps<TTheme>, 'borderColor' | 'borderRadius' | 'borderWidth'> & {
+  Omit<
+    BorderProps<TTheme>,
+    'borderColor' | 'borderRadius' | 'borderWidth' | 'borderBottomWidth'
+  > & {
     borderWidth?: number;
+    borderBottomWidth?: number;
     backgroundColor?: keyof TThemePrimitives;
     borderColor?: keyof TThemePrimitives;
     borderRadius?: number;

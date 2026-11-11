@@ -148,8 +148,3 @@ export type THudSatelliteProps = {
 export type THudOrbitProps = {
   motion: TOrbitMotion;
 };
-
-export type TKeyHintProps = {
-  keyLabel: string;
-  label?: string;
-};

@@ -16,3 +16,21 @@ export type TSettingsSectionProps = {
 export type TSwatchStyleProps = {
   $color: string;
 };
+
+export type TShortcutKey = {
+  glyph: string;
+  label: string;
+};
+
+export type TShortcut = {
+  id: string;
+  action: string;
+  description: string;
+  hold: TShortcutKey;
+  tap: TShortcutKey;
+  isTwice: boolean;
+};
+
+export type TShortcutRowProps = {
+  shortcut: TShortcut;
+};

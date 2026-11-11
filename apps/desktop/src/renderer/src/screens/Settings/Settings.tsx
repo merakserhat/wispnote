@@ -10,10 +10,12 @@ import {
   APPEARANCE_DESCRIPTION,
   COLOR_SCHEME_OPTIONS,
   SETTINGS_PAGE_DESCRIPTION,
+  SHORTCUTS,
 } from './Settings.constants';
 import { PaletteGrid, SettingsRow } from './Settings.styles';
 import PaletteCard from './views/PaletteCard';
 import SettingsSection from './views/SettingsSection';
+import ShortcutRow from './views/ShortcutRow';
 
 function Settings() {
   const { colorScheme, paletteId, setColorScheme, setPaletteId } = useAppearance();
@@ -21,6 +23,13 @@ function Settings() {
   return (
     <Box gap="xl">
       <PageHeader title="Settings" description={SETTINGS_PAGE_DESCRIPTION} />
+      <SettingsSection title="Shortcuts">
+        <Box>
+          {SHORTCUTS.map((shortcut) => (
+            <ShortcutRow key={shortcut.id} shortcut={shortcut} />
+          ))}
+        </Box>
+      </SettingsSection>
       <SettingsSection title="Palette">
         <PaletteGrid>
           {palettes.map((palette) => (
