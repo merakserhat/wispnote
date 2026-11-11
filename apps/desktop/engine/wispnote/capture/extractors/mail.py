@@ -49,29 +49,13 @@ class MailExtractor(SourceExtractor):
 
     bundle_ids = {"com.apple.mail"}
 
-    def extract_selection(
+    def selection_scope(
         self, ctx: CaptureContext, ax: Any, elements: ElementBundle
-    ) -> str | None:
+    ) -> Iterator[tuple[Any, int]] | None:
         root, _anchored = self._message_root(ax, elements.window)
         if root is None:
             return None
-
-        web_area = self._find_web_area(ax, root)
-        if web_area is not None:
-            selection = text_markers.selection(ax, web_area)
-            if selection:
-                return selection
-
-        return self._native_selection(ax, root)
-
-    def _native_selection(self, ax: Any, root: Any) -> str | None:
-        for element, _depth in self._walk(ax, root):
-            if self._role(ax, element) not in ("AXTextArea", "AXTextField"):
-                continue
-            text = ax.string(element, "AXSelectedText")
-            if text and text.strip():
-                return text
-        return None
+        return self._walk(ax, root)
 
     def extract(self, ctx: CaptureContext, ax: Any, elements: ElementBundle) -> None:
         ctx.source_kind = SOURCE_MAIL

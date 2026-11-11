@@ -35,7 +35,26 @@ export function toNoteSource(context: TCaptureContext): TNoteSource {
     bundleId: context.bundleId || undefined,
     documentId: needsDocumentId ? context.sourceKey : undefined,
     pageCount: toPageCount(context),
+    metadata: toSourceMetadata(context, kind),
   };
+}
+
+function toSourceMetadata(
+  context: TCaptureContext,
+  kind: SourceKind
+): Record<string, unknown> | undefined {
+  if (kind !== SourceKind.MAIL) {
+    return undefined;
+  }
+
+  const { sender, mailbox, timestamp, recipients } = context.extras;
+  const metadata = Object.fromEntries(
+    Object.entries({ sender, mailbox, sentAt: timestamp, recipients }).filter(([, value]) =>
+      Boolean(value)
+    )
+  );
+
+  return Object.keys(metadata).length > 0 ? metadata : undefined;
 }
 
 function toPageCount(context: TCaptureContext): number | undefined {

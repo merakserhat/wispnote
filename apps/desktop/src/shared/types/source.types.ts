@@ -12,6 +12,7 @@ export type TSource = {
   bundleId?: string;
   externalId?: string;
   pageCount?: number;
+  metadata?: Record<string, unknown>;
   noteCount: number;
   lastActivityAt: string;
 };

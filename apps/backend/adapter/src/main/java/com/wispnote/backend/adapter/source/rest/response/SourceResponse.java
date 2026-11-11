@@ -4,6 +4,7 @@ import com.wispnote.backend.application.source.enums.SourceKind;
 import com.wispnote.backend.application.source.model.SourceSummary;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 public record SourceResponse(UUID id,
@@ -15,6 +16,7 @@ public record SourceResponse(UUID id,
                              String bundleId,
                              String externalId,
                              Integer pageCount,
+                             Map<String, Object> metadata,
                              Long noteCount,
                              Instant lastActivityAt) {
 
@@ -30,6 +32,7 @@ public record SourceResponse(UUID id,
                 source.bundleId(),
                 source.externalId(),
                 source.pageCount(),
+                source.metadata(),
                 summary.noteCount(),
                 summary.lastActivityAt());
     }

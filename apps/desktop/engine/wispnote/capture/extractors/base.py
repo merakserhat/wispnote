@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Any
 
@@ -31,9 +32,9 @@ class SourceExtractor:
     def extract(self, ctx: CaptureContext, ax: Any, elements: ElementBundle) -> None:
         raise NotImplementedError
 
-    def extract_selection(
+    def selection_scope(
         self, ctx: CaptureContext, ax: Any, elements: ElementBundle
-    ) -> str | None:
+    ) -> Iterator[tuple[Any, int]] | None:
         return None
 
     def extract_context(

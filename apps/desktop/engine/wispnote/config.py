@@ -27,6 +27,7 @@ class Settings:
     max_selection_chars: int = 20_000
     max_context_chars: int = 600
     deep_search_selection: bool = True
+    clipboard_fallback: bool = True
 
     def action_for(self, trigger: str) -> str:
         return self.triggers.get(trigger, ACTION_NONE)

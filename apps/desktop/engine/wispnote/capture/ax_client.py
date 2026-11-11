@@ -15,6 +15,8 @@ try:
         AXUIElementCopyParameterizedAttributeValue,
         AXUIElementCreateApplication,
         AXUIElementCreateSystemWide,
+        AXUIElementSetAttributeValue,
+        AXUIElementSetMessagingTimeout,
         AXValueGetType,
         AXValueGetValue,
         kAXErrorSuccess,
@@ -79,6 +81,23 @@ class AXClient:
         if error != kAXErrorSuccess or value is None:
             return default
         return self.convert(value)
+
+    def set_attribute(self, element: Any, name: str, value: Any) -> bool:
+        if element is None:
+            return False
+        try:
+            return AXUIElementSetAttributeValue(element, name, value) == kAXErrorSuccess
+        except Exception:
+            return False
+
+    @staticmethod
+    def set_messaging_timeout(element: Any, seconds: float) -> None:
+        if element is None:
+            return
+        try:
+            AXUIElementSetMessagingTimeout(element, seconds)
+        except Exception:
+            return
 
     def raw_attribute(self, element: Any, name: str) -> Any:
         if element is None:

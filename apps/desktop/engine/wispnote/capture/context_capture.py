@@ -7,7 +7,9 @@ from ..config import Settings
 from ..models import CaptureContext
 from ..utils import clean_window_title
 from .ax_client import AXClient, AXUnavailable, is_trusted
+from .ax_wake import AccessibilityWaker
 from .extractors import ElementBundle, SourceExtractor, default_extractors, select_extractor
+from .selection import read_selection
 
 
 class ContextCapture:
@@ -29,6 +31,12 @@ class ContextCapture:
                 self._ax = AXClient()
             except AXUnavailable as exc:
                 self._ax_error = str(exc)
+
+        self._waker = AccessibilityWaker(self._ax) if self._ax is not None else None
+
+    def watch_activations(self) -> None:
+        if self._waker is not None:
+            self._waker.watch_activations()
 
     @property
     def available(self) -> bool:
@@ -62,6 +70,9 @@ class ContextCapture:
             ctx.app_name = str(application.localizedName() or "")
             ctx.bundle_id = str(application.bundleIdentifier() or "")
             ctx.pid = int(application.processIdentifier())
+
+            if self._waker is not None and self._waker.wake(ctx.pid):
+                ctx.extras["accessibility_woken"] = True
 
             elements.app = ax.application_element(ctx.pid)
             elements.window = ax.focused_window(elements.app)
@@ -113,28 +124,17 @@ class ContextCapture:
         elements: ElementBundle,
         extractor: SourceExtractor | None = None,
     ) -> None:
-        selection: str | None = None
+        scope = None
         if extractor is not None:
             try:
-                selection = extractor.extract_selection(ctx, ax, elements)
-                if selection:
-                    ctx.extras["selection_source"] = extractor.name
+                scope = extractor.selection_scope(ctx, ax, elements)
             except Exception as exc:
-                ctx.add_error(f"{extractor.name} selection failed: {exc}")
+                ctx.add_error(f"{extractor.name} selection scope failed: {exc}")
 
-        if not selection:
-            selection = ax.string(elements.focused, "AXSelectedText")
-
-        if not selection:
-            selection = self._selection_from_range(ax, elements.focused)
-
-        if not selection and self.settings.deep_search_selection and elements.window is not None:
-            selection = self._search_selection(ax, elements.window)
-            if selection:
-                ctx.extras["selection_source"] = "window-search"
-
-        if not selection:
+        found = read_selection(ax, elements, self.settings, scope)
+        if found is None:
             return
+        selection, ctx.extras["selection_source"] = found
 
         limit = self.settings.max_selection_chars
         if limit and len(selection) > limit:
@@ -143,27 +143,6 @@ class ContextCapture:
             selection = selection[:limit]
 
         ctx.selected_text = selection
-
-    @staticmethod
-    def _selection_from_range(ax: AXClient, element: Any) -> str | None:
-        selected_range = ax.attribute(element, "AXSelectedTextRange")
-        if not isinstance(selected_range, dict) or selected_range.get("_type") != "range":
-            return None
-        length = int(selected_range.get("length") or 0)
-        location = int(selected_range.get("location") or 0)
-        if length <= 0:
-            return None
-        value = ax.string(element, "AXValue")
-        if not value or location >= len(value):
-            return None
-        return value[location : location + length] or None
-
-    def _search_selection(self, ax: AXClient, window: Any) -> str | None:
-        for element, _depth in ax.walk(window, max_depth=8, max_nodes=250, time_budget=0.4):
-            text = ax.string(element, "AXSelectedText")
-            if text and text.strip():
-                return text
-        return None
 
     def _read_context(
         self,

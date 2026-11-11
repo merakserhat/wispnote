@@ -79,6 +79,7 @@ export type TEngineSettings = {
   max_selection_chars: number;
   max_context_chars: number;
   deep_search_selection: boolean;
+  clipboard_fallback: boolean;
 };
 
 export type TCaptureResult = {

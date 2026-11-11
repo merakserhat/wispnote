@@ -21,6 +21,7 @@ try:
         kCGEventOtherMouseDown,
         kCGEventRightMouseDown,
         kCGEventScrollWheel,
+        kCGEventSourceUserData,
         kCGEventTapDisabledByTimeout,
         kCGEventTapDisabledByUserInput,
         kCGEventTapOptionListenOnly,
@@ -36,6 +37,7 @@ except ImportError:
     QUARTZ_AVAILABLE = False
 
 from ..mainthread import run_after, run_on_main
+from ..synthetic import SYNTHETIC_EVENT_TAG
 
 LEFT_CONTROL_KEYCODE = 59
 LEFT_SHIFT_KEYCODE = 56
@@ -175,6 +177,9 @@ class GestureDetector:
             self._reset()
             self._control_down = False
             self._shift_down = False
+            return
+
+        if CGEventGetIntegerValueField(event, kCGEventSourceUserData) == SYNTHETIC_EVENT_TAG:
             return
 
         if event_type == kCGEventFlagsChanged:

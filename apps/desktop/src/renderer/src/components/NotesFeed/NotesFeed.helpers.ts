@@ -53,6 +53,10 @@ export function getNoteDetailEntries(note: TNote, source?: TSource): TNoteDetail
     entries.push({ label: 'File', value: source.filePath, mono: true });
   }
 
+  if (source?.kind === SourceKind.MAIL && typeof source.metadata?.sender === 'string') {
+    entries.push({ label: 'From', value: source.metadata.sender });
+  }
+
   if (source?.kind === SourceKind.MAIL && source.externalId) {
     entries.push({ label: 'Message', value: source.externalId, mono: true });
   }

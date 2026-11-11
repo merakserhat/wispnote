@@ -7,7 +7,20 @@ export function getLabelBySourceKind(kind: SourceKind) {
   return SOURCE_KIND_MAP[kind].label;
 }
 
-export function formatSourceOrigin({ url, filePath, appName }: TSource): string {
+export function getSourceSender({ metadata }: TSource): string {
+  const sender = metadata?.sender;
+
+  return typeof sender === 'string' ? sender : '';
+}
+
+export function formatSourceOrigin(source: TSource): string {
+  const { url, filePath, appName } = source;
+  const sender = getSourceSender(source);
+
+  if (sender) {
+    return sender;
+  }
+
   if (url) {
     return url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
   }
@@ -25,6 +38,8 @@ export function formatSourceMeta({ noteCount, pageCount }: TSource): string {
   return pageCount ? `${notes} · ${pageCount} pages` : notes;
 }
 
-export function formatSourceLocation({ url, filePath, appName }: TSource): string {
-  return url ?? filePath ?? appName ?? '';
+export function formatSourceLocation(source: TSource): string {
+  const { url, filePath, appName } = source;
+
+  return url ?? filePath ?? (getSourceSender(source) || appName) ?? '';
 }

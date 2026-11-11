@@ -12,4 +12,5 @@ export const DEFAULT_ENGINE_SETTINGS: TEngineSettings = {
   max_selection_chars: 20000,
   max_context_chars: 600,
   deep_search_selection: true,
+  clipboard_fallback: true,
 };

@@ -65,6 +65,8 @@ class Bridge:
         if self.want_tap and not tap_started:
             self.channel.log(self.shortcuts.last_error or "event tap unavailable")
 
+        self.capture.watch_activations()
+
         self.channel.send(
             "ready",
             protocol=PROTOCOL_VERSION,
