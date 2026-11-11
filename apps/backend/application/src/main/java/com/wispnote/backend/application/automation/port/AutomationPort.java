@@ -5,6 +5,7 @@ import com.wispnote.backend.application.automation.model.AutomationFilter;
 import com.wispnote.backend.application.common.model.Paginated;
 import com.wispnote.backend.application.common.model.PaginationInfo;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,8 @@ public interface AutomationPort {
     Optional<Automation> findByIdAndMemberId(UUID id, UUID memberId);
 
     Paginated<Automation> findAllByMemberId(UUID memberId, AutomationFilter filter, PaginationInfo paginationInfo);
+
+    List<Automation> findAllByMemberId(UUID memberId, AutomationFilter filter);
 
     long countEnabledByMemberId(UUID memberId);
 

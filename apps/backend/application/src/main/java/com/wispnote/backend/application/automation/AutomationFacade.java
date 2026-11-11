@@ -54,6 +54,11 @@ public class AutomationFacade {
         return new AutomationPage(page, automationPort.countEnabledByMemberId(memberId), checkRuns);
     }
 
+    public List<Automation> listAll(UUID memberId, AutomationFilter filter) {
+        log.info("Retrieving all automations {} {}", kv("memberId", memberId), kv("enabled", filter.enabled()));
+        return automationPort.findAllByMemberId(memberId, filter);
+    }
+
     public List<AutomationSuggestion> suggestions(UUID memberId) {
         if (automationPort.existsByMemberId(memberId)) {
             return List.of();
