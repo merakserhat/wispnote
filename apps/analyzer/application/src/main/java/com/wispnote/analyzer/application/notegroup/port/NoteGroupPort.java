@@ -1,11 +1,12 @@
 package com.wispnote.analyzer.application.notegroup.port;
 
-import com.wispnote.analyzer.application.notegroup.model.NoteGroup;
+import com.wispnote.analyzer.application.notegroup.model.NoteGroups;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface NoteGroupPort {
 
-    List<NoteGroup> findAllByMemberId(UUID memberId);
+    NoteGroups findAllByMemberId(UUID memberId);
+
+    void addNote(UUID memberId, UUID noteGroupId, UUID noteId);
 }

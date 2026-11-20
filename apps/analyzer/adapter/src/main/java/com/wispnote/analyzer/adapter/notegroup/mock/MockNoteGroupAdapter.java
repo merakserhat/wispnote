@@ -1,6 +1,7 @@
 package com.wispnote.analyzer.adapter.notegroup.mock;
 
 import com.wispnote.analyzer.application.notegroup.model.NoteGroup;
+import com.wispnote.analyzer.application.notegroup.model.NoteGroups;
 import com.wispnote.analyzer.application.notegroup.port.NoteGroupPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,10 +18,18 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 public class MockNoteGroupAdapter implements NoteGroupPort {
 
     @Override
-    public List<NoteGroup> findAllByMemberId(UUID memberId) {
+    public NoteGroups findAllByMemberId(UUID memberId) {
         log.info("MOCK - Listing note groups. {}", kv("memberId", memberId));
-        return List.of(
+        return new NoteGroups(List.of(
                 new NoteGroup(UUID.randomUUID(), "Research", "Papers and articles worth revisiting"),
-                new NoteGroup(UUID.randomUUID(), "Reading list", "Things to read later"));
+                new NoteGroup(UUID.randomUUID(), "Reading list", "Things to read later")));
+    }
+
+    @Override
+    public void addNote(UUID memberId, UUID noteGroupId, UUID noteId) {
+        log.info("MOCK - Adding note to note group. {} {} {}",
+                kv("memberId", memberId),
+                kv("noteGroupId", noteGroupId),
+                kv("noteId", noteId));
     }
 }

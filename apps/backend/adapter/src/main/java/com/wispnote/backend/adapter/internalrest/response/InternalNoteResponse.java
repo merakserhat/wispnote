@@ -1,6 +1,7 @@
 package com.wispnote.backend.adapter.internalrest.response;
 
 import com.wispnote.backend.application.note.model.Note;
+import com.wispnote.backend.application.source.model.Source;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,9 +16,10 @@ public record InternalNoteResponse(UUID id,
                                    String section,
                                    Integer pageNumber,
                                    String windowTitle,
-                                   Instant createdAt) {
+                                   Instant createdAt,
+                                   InternalNoteSourceResponse source) {
 
-    public static InternalNoteResponse from(Note note) {
+    public static InternalNoteResponse from(Note note, Source source) {
         return new InternalNoteResponse(note.id(),
                 note.memberId(),
                 note.sourceId(),
@@ -28,6 +30,7 @@ public record InternalNoteResponse(UUID id,
                 note.section(),
                 note.pageNumber(),
                 note.windowTitle(),
-                note.createdAt());
+                note.createdAt(),
+                InternalNoteSourceResponse.from(source));
     }
 }

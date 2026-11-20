@@ -2,6 +2,8 @@ package com.wispnote.backend.application.source;
 
 import com.wispnote.backend.application.common.model.Paginated;
 import com.wispnote.backend.application.common.model.PaginationInfo;
+import com.wispnote.backend.application.source.exception.SourceNotFoundBusinessException;
+import com.wispnote.backend.application.source.model.Source;
 import com.wispnote.backend.application.source.model.SourceFilter;
 import com.wispnote.backend.application.source.model.SourceSummary;
 import com.wispnote.backend.application.source.port.SourcePort;
@@ -18,5 +20,10 @@ public class SourceFacade {
 
     public Paginated<SourceSummary> list(UUID memberId, SourceFilter filter, PaginationInfo paginationInfo) {
         return sourcePort.findAllByMemberId(memberId, filter, paginationInfo);
+    }
+
+    public Source retrieve(UUID memberId, UUID sourceId) {
+        return sourcePort.findByIdAndMemberId(sourceId, memberId)
+                .orElseThrow(SourceNotFoundBusinessException::new);
     }
 }

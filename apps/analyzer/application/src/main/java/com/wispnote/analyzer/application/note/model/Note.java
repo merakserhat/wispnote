@@ -13,5 +13,6 @@ public record Note(UUID id,
                    String section,
                    Integer pageNumber,
                    String windowTitle,
-                   Instant createdAt) {
+                   Instant createdAt,
+                   NoteSource source) {
 }

@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SourceRepository extends JpaRepository<SourceEntity, UUID> {
+    Optional<SourceEntity> findByIdAndMemberIdAndDeletedFalse(UUID id, UUID memberId);
+
     Optional<SourceEntity> findByMemberIdAndKeyAndDeletedFalse(UUID memberId, String key);
 
     @Query(value = """

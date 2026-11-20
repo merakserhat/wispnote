@@ -1,5 +1,6 @@
 package com.wispnote.analyzer.adapter.automation.mock;
 
+import java.util.List;
 import com.wispnote.analyzer.application.automation.model.Automation;
 import com.wispnote.analyzer.application.automation.port.AutomationPort;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,5 +22,10 @@ public class MockAutomationAdapter implements AutomationPort {
                 true,
                 now,
                 now);
+    }
+
+    @Override
+    public List<Automation> findAllEnabledByMemberId(UUID memberId) {
+        return List.of(retrieveById(memberId, UUID.randomUUID()));
     }
 }

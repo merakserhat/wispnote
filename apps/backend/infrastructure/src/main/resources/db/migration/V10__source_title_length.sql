@@ -1,0 +1,2 @@
+ALTER TABLE source
+    ALTER COLUMN title TYPE VARCHAR(300);

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -23,6 +24,12 @@ import java.util.UUID;
 public class SourceJpaAdapter implements SourcePort {
 
     private final SourceRepository sourceRepository;
+
+    @Override
+    public Optional<Source> findByIdAndMemberId(UUID id, UUID memberId) {
+        return sourceRepository.findByIdAndMemberIdAndDeletedFalse(id, memberId)
+                .map(SourceEntity::toModel);
+    }
 
     @Override
     public Source upsertByMemberIdAndKey(UUID memberId, String key, SourceCapture capture) {

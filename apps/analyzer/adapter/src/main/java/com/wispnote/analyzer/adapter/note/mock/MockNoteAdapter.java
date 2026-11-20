@@ -1,6 +1,7 @@
 package com.wispnote.analyzer.adapter.note.mock;
 
 import com.wispnote.analyzer.application.note.model.Note;
+import com.wispnote.analyzer.application.note.model.NoteSource;
 import com.wispnote.analyzer.application.note.port.NotePort;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ public class MockNoteAdapter implements NotePort {
                 null,
                 null,
                 "Mock window",
-                Instant.now());
+                Instant.now(),
+                new NoteSource("WEB", "Mock page", "https://example.com/mock", "Mock browser"));
     }
 }

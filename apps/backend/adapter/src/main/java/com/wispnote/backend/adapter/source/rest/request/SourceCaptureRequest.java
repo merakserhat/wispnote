@@ -6,12 +6,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
 @Getter
 @Setter
 public class SourceCaptureRequest {
+
+    private static final int MAX_TITLE_LENGTH = 200;
 
     @NotNull(message = "{validations.note.source.kind.empty}")
     private SourceKind kind;
@@ -29,6 +32,14 @@ public class SourceCaptureRequest {
     private Map<String, Object> metadata;
 
     public SourceCapture toModel() {
-        return new SourceCapture(kind, title, url, filePath, appName, bundleId, documentId, pageCount, metadata);
+        return new SourceCapture(kind,
+                StringUtils.left(title, MAX_TITLE_LENGTH),
+                url,
+                filePath,
+                appName,
+                bundleId,
+                documentId,
+                pageCount,
+                metadata);
     }
 }

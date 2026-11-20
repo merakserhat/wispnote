@@ -2,6 +2,7 @@ package com.wispnote.backend.application.automation;
 
 import com.wispnote.backend.application.automation.event.AutomationCreatedEvent;
 import com.wispnote.backend.application.automation.event.AutomationUpdatedEvent;
+import com.wispnote.backend.application.automation.exception.AutomationEnabledLimitReachedValidationException;
 import com.wispnote.backend.application.automation.exception.AutomationNotFoundBusinessException;
 import com.wispnote.backend.application.automation.model.Automation;
 import com.wispnote.backend.application.automation.model.AutomationCreate;
@@ -31,6 +32,7 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 public class AutomationFacade {
 
     private static final int MAX_SUGGESTIONS = 3;
+    private static final int MAX_ENABLED = 15;
 
     private final AutomationPort automationPort;
     private final AutomationSuggestionPort automationSuggestionPort;
@@ -39,6 +41,10 @@ public class AutomationFacade {
 
     @Transactional
     public Automation create(UUID memberId, AutomationCreate create) {
+        if (automationPort.countEnabledByMemberId(memberId) >= MAX_ENABLED) {
+            throw new AutomationEnabledLimitReachedValidationException(MAX_ENABLED);
+        }
+
         var automation = automationPort.create(create.toAutomation(memberId));
         applicationEventPublisher.publishEvent(new AutomationCreatedEvent(AutomationChangedMessage.created(automation)));
 
@@ -78,6 +84,10 @@ public class AutomationFacade {
 
         var ruleText = update.ruleText() != null ? update.ruleText() : current.ruleText();
         var enabled = update.enabled() != null ? update.enabled() : current.enabled();
+
+        if (enabled && !current.enabled() && automationPort.countEnabledByMemberId(memberId) >= MAX_ENABLED) {
+            throw new AutomationEnabledLimitReachedValidationException(MAX_ENABLED);
+        }
 
         log.info("Automation is being updated {} {}", kv("memberId", memberId), kv("automationId", automationId));
         var updated = automationPort.update(new Automation(current.id(),

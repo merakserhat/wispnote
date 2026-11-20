@@ -106,7 +106,7 @@ class BrowserExtractor(SourceExtractor):
     def _find_title(self, ax: Any, elements: ElementBundle, ctx: CaptureContext) -> str | None:
         title = self._first_string(ax, elements.focused, "AXTitle")
         role = self._role(ax, elements.focused)
-        if title and role in ("AXWebArea", "AXGroup", "AXDocument"):
+        if title and role in ("AXWebArea", "AXDocument"):
             return title
 
         window_title = self._first_string(ax, elements.window, "AXTitle") or ctx.window_title

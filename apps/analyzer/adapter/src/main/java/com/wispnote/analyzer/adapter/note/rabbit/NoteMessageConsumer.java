@@ -1,7 +1,8 @@
 package com.wispnote.analyzer.adapter.note.rabbit;
 
 import com.wispnote.analyzer.adapter.note.rabbit.message.NoteChangedMessage;
-import com.wispnote.analyzer.application.note.NoteAnalyzerFacade;
+import com.wispnote.analyzer.application.note.enums.NoteEventKind;
+import com.wispnote.analyzer.application.noteautomationrun.service.NoteAutomationRunTriggerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -17,7 +18,7 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
 public class NoteMessageConsumer {
 
-    private final NoteAnalyzerFacade noteAnalyzerFacade;
+    private final NoteAutomationRunTriggerService noteAutomationRunTriggerService;
 
     @RabbitListener(queues = "${rabbitmq.notes-queue}")
     public void consumeNoteChangedMessage(@Payload NoteChangedMessage message) {
@@ -27,9 +28,9 @@ public class NoteMessageConsumer {
                 kv("noteId", message.noteId()));
 
         var event = message.toModel();
-        switch (event.kind()) {
-            case CREATED -> noteAnalyzerFacade.analyzeNote(event);
-            case DELETED -> noteAnalyzerFacade.forgetNote(event);
+        if (event.kind() == NoteEventKind.CREATED) {
+            noteAutomationRunTriggerService.trigger(event);
         }
+        // TODO: (serhat) we should handle deleted kind
     }
 }

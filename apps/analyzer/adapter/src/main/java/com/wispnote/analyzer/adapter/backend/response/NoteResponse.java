@@ -15,10 +15,22 @@ public record NoteResponse(UUID id,
                            String section,
                            Integer pageNumber,
                            String windowTitle,
-                           Instant createdAt) {
+                           Instant createdAt,
+                           NoteSourceResponse source) {
+
 
     public Note toModel() {
-        return new Note(id, memberId, sourceId, selectedText, userNote, contextBefore, contextAfter,
-                section, pageNumber, windowTitle, createdAt);
+        return new Note(id,
+                memberId,
+                sourceId,
+                selectedText,
+                userNote,
+                contextBefore,
+                contextAfter,
+                section,
+                pageNumber,
+                windowTitle,
+                createdAt,
+                source != null ? source.toModel() : null);
     }
 }

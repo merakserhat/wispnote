@@ -1,5 +1,7 @@
 package com.wispnote.analyzer.adapter.automation.backend;
 
+import com.wispnote.analyzer.adapter.backend.response.AutomationResponse;
+import java.util.List;
 import com.wispnote.analyzer.adapter.backend.BackendRestClient;
 import com.wispnote.analyzer.application.automation.model.Automation;
 import com.wispnote.analyzer.application.automation.port.AutomationPort;
@@ -19,5 +21,12 @@ public class AutomationBackendAdapter implements AutomationPort {
     @Override
     public Automation retrieveById(UUID memberId, UUID automationId) {
         return backendRestClient.retrieveAutomation(memberId, automationId).result().toModel();
+    }
+
+    @Override
+    public List<Automation> findAllEnabledByMemberId(UUID memberId) {
+        return backendRestClient.listAutomations(memberId, true).result().stream()
+                .map(AutomationResponse::toModel)
+                .toList();
     }
 }
