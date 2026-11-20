@@ -22,8 +22,18 @@ function SignIn() {
     });
   }
 
+  function handleAccessPending(email: string) {
+    navigate({ to: '/access-pending', search: { email } });
+  }
+
+  function handleAccessRejected(email: string) {
+    navigate({ to: '/access-rejected', search: { email } });
+  }
+
   const { control, submit, isPending, error } = useSignInForm({
     onEmailNotVerified: handleEmailNotVerified,
+    onAccessPending: handleAccessPending,
+    onAccessRejected: handleAccessRejected,
   });
 
   function handleRegister() {

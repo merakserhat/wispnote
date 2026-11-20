@@ -31,6 +31,7 @@
         <logback-encoder.version>8.0</logback-encoder.version>
         <lombok.version>1.18.46</lombok.version>
         <archunit-junit5.version>1.4.2</archunit-junit5.version>
+        <togglz.version>4.6.4</togglz.version>
     </properties>
 
     <dependencies>
@@ -59,6 +60,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.togglz</groupId>
+                <artifactId>togglz-core</artifactId>
+                <version>${togglz.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.tngtech.archunit</groupId>
                 <artifactId>archunit-junit5</artifactId>

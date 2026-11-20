@@ -1,6 +1,6 @@
 package com.wispnote.backend.adapter.auth.model;
 
-
+import com.wispnote.backend.application.member.enums.MemberAccessStatus;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +20,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Getter
     private boolean emailVerified;
+
+    @Getter
+    private MemberAccessStatus accessStatus;
     private String password;
     private Collection<? extends GrantedAuthority> grantedAuthorities;
 

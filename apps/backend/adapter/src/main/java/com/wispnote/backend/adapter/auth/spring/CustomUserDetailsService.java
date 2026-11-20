@@ -24,6 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .id(member.id())
                 .username(member.email())
                 .emailVerified(member.isEmailVerified())
+                .accessStatus(member.accessStatus())
                 .password(member.passwordHash())
                 .grantedAuthorities(List.of())
                 .build();

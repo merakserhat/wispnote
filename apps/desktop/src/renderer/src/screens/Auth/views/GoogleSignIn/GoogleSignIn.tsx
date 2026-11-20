@@ -1,3 +1,5 @@
+import { useNavigate } from '@tanstack/react-router';
+
 import { useGoogleSignIn } from 'api/auth';
 
 import Box from 'components/core/Box';
@@ -5,8 +7,26 @@ import Button from 'components/core/Button';
 import Text from 'components/core/Text';
 import { GoogleIcon } from 'components/Icons';
 
+import ApiErrorCode from 'shared/enums/ApiErrorCode';
+import { isAccessError } from 'screens/Auth/Auth.helpers';
+
+import { TErrorResponse } from 'shared/types/common';
+
 function GoogleSignIn() {
-  const { signIn, cancel, isPending, error } = useGoogleSignIn();
+  const navigate = useNavigate();
+
+  function handleError(signInError?: TErrorResponse) {
+    if (signInError?.errorCode === ApiErrorCode.ACCESS_PENDING) {
+      navigate({ to: '/access-pending', search: {} });
+    }
+
+    if (signInError?.errorCode === ApiErrorCode.ACCESS_REJECTED) {
+      navigate({ to: '/access-rejected', search: {} });
+    }
+  }
+
+  const { signIn, cancel, isPending, error } = useGoogleSignIn({ onError: handleError });
+  const visibleError = isAccessError(error) ? null : error;
 
   return (
     <Box gap="m">
@@ -25,9 +45,9 @@ function GoogleSignIn() {
         onPress={isPending ? cancel : signIn}
         block
       />
-      {error && (
+      {visibleError && (
         <Text variant="caption" color="statusErrorPrimary">
-          {error.errorMessage}
+          {visibleError.errorMessage}
         </Text>
       )}
     </Box>

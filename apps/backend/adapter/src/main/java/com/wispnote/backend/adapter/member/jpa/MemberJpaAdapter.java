@@ -1,8 +1,10 @@
 package com.wispnote.backend.adapter.member.jpa;
 
 import com.wispnote.backend.adapter.common.exception.EntityNotFoundException;
+import com.wispnote.backend.adapter.member.converter.MemberAccessStatusConverter;
 import com.wispnote.backend.adapter.member.jpa.entity.MemberEntity;
 import com.wispnote.backend.adapter.member.jpa.repository.MemberRepository;
+import com.wispnote.backend.application.member.enums.MemberAccessStatus;
 import com.wispnote.backend.application.member.model.Member;
 import com.wispnote.backend.application.member.port.MemberPort;
 import lombok.RequiredArgsConstructor;
@@ -46,20 +48,22 @@ public class MemberJpaAdapter implements MemberPort {
     }
 
     @Override
-    public Member create(String email, String passwordHash) {
+    public Member create(String email, String passwordHash, MemberAccessStatus accessStatus) {
         var memberEntity = new MemberEntity();
         memberEntity.setEmail(email);
         memberEntity.setPasswordHash(passwordHash);
+        memberEntity.setAccessStatus(MemberAccessStatusConverter.jpa.fromEnum(accessStatus));
 
         return memberRepository.save(memberEntity).toModel();
     }
 
     @Override
-    public Member createWithGoogle(String email, String googleId, Instant emailVerifiedAt) {
+    public Member createWithGoogle(String email, String googleId, Instant emailVerifiedAt, MemberAccessStatus accessStatus) {
         var memberEntity = new MemberEntity();
         memberEntity.setEmail(email);
         memberEntity.setGoogleId(googleId);
         memberEntity.setEmailVerifiedAt(emailVerifiedAt);
+        memberEntity.setAccessStatus(MemberAccessStatusConverter.jpa.fromEnum(accessStatus));
 
         return memberRepository.save(memberEntity).toModel();
     }

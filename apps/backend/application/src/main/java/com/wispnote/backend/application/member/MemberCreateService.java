@@ -13,12 +13,15 @@ public class MemberCreateService {
 
     private final MemberPort memberPort;
     private final PasswordHasherPort passwordHasherPort;
+    private final MemberAccessService memberAccessService;
 
     public Member create(String email, String rawPassword) {
         if (memberPort.existsByEmail(email)) {
             throw new EmailAlreadyUsedValidationException();
         }
 
-        return memberPort.create(email, passwordHasherPort.hash(rawPassword));
+        var accessStatus = memberAccessService.resolveInitialStatus();
+
+        return memberPort.create(email, passwordHasherPort.hash(rawPassword), accessStatus);
     }
 }

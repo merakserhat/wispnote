@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import ApiErrorCode from 'shared/enums/ApiErrorCode';
 import {
   TConfirmEmailRequestParams,
   TLoginRequestParams,
@@ -177,6 +178,6 @@ export function useGoogleSignIn({
     signIn,
     cancel: requestCancelGoogleSignIn,
     isPending,
-    error: error?.errorCode === 'GOOGLE_SIGN_IN_CANCELLED' ? null : error,
+    error: error?.errorCode === ApiErrorCode.GOOGLE_SIGN_IN_CANCELLED ? null : error,
   };
 }

@@ -9,6 +9,9 @@ import com.wispnote.backend.application.emailverification.model.ResendResult;
 import com.wispnote.backend.application.emailverification.port.EmailVerificationPort;
 import com.wispnote.backend.application.emailverification.properties.EmailVerificationProperties;
 import com.wispnote.backend.application.emailverification.service.EmailVerificationService;
+import com.wispnote.backend.application.member.MemberAccessService;
+import com.wispnote.backend.application.member.exception.AccessPendingValidationException;
+import com.wispnote.backend.application.member.exception.AccessRejectedValidationException;
 import com.wispnote.backend.application.member.port.MemberPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +34,13 @@ public class EmailVerificationFacade {
     private final EmailVerificationProperties properties;
     private final PasswordHasherPort passwordHasherPort;
     private final AccessTokenPort accessTokenPort;
+    private final MemberAccessService memberAccessService;
 
-    @Transactional(noRollbackFor = EmailVerificationInvalidCodeValidationException.class)
+    @Transactional(noRollbackFor = {
+            EmailVerificationInvalidCodeValidationException.class,
+            AccessPendingValidationException.class,
+            AccessRejectedValidationException.class
+    })
     public AccessTokenResult confirm(UUID memberId, String code) {
         log.info("Email verification confirm started for {}", kv("memberId", memberId));
 
@@ -63,6 +71,8 @@ public class EmailVerificationFacade {
         emailVerificationPort.update(verification.withStatus(EmailVerificationStatus.CONFIRMED));
 
         log.info("Email verified for {}", kv("memberId", member.id()));
+
+        memberAccessService.assertCanSignIn(member.id(), member.accessStatus());
 
         return accessTokenPort.generate(member.id(), member.email());
     }

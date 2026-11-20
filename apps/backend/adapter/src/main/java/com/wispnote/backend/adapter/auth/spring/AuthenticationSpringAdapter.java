@@ -27,7 +27,10 @@ public class AuthenticationSpringAdapter implements AuthenticationPort {
             var authentication = authenticationManager.authenticate(authenticationToken);
             var customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-            return new AuthenticatedUser(customUserDetails.getId(), customUserDetails.isEmailVerified());
+            return new AuthenticatedUser(
+                    customUserDetails.getId(),
+                    customUserDetails.isEmailVerified(),
+                    customUserDetails.getAccessStatus());
         } catch (BadCredentialsException e) {
             log.info("A BadCredentialsException has occurred for {}", kv("email", email));
             throw new AuthenticationInvalidCredentialsValidationException();

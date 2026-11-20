@@ -1,10 +1,4 @@
-export type TApiErrorCode =
-  | 'INVALID_REQUEST'
-  | 'NOT_FOUND'
-  | 'GENERIC_ERROR'
-  | 'EMAIL_NOT_VERIFIED'
-  | 'GOOGLE_LOGIN_FAILED'
-  | 'GOOGLE_SIGN_IN_CANCELLED';
+import ApiErrorCode from 'shared/enums/ApiErrorCode';
 
 export type TCommonResponse<TResult> = {
   result: TResult;
@@ -28,6 +22,6 @@ export type TPaginationRequestParams<TFilterParams = unknown> = TFilterParams & 
 
 export type TErrorResponse = {
   status: number;
-  errorCode: TApiErrorCode | null;
+  errorCode: ApiErrorCode | null;
   errorMessage: string;
 };

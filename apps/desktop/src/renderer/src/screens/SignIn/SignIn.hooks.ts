@@ -1,13 +1,19 @@
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+import ApiErrorCode from 'shared/enums/ApiErrorCode';
+
 import { useLogin } from 'api/auth';
 
 import { SIGN_IN_DEFAULT_VALUES, signInSchema } from './SignIn.constants';
-import { isEmailNotVerifiedError } from './SignIn.helpers';
+import { getSignInFormError, isEmailNotVerifiedError } from './SignIn.helpers';
 import { TSignInFormValues, TUseSignInFormParams } from './SignIn.types';
 
-export function useSignInForm({ onEmailNotVerified }: TUseSignInFormParams) {
+export function useSignInForm({
+  onEmailNotVerified,
+  onAccessPending,
+  onAccessRejected,
+}: TUseSignInFormParams) {
   const { control, handleSubmit, getValues } = useForm<TSignInFormValues>({
     resolver: yupResolver(signInSchema),
     defaultValues: SIGN_IN_DEFAULT_VALUES,
@@ -18,6 +24,14 @@ export function useSignInForm({ onEmailNotVerified }: TUseSignInFormParams) {
       if (isEmailNotVerifiedError(loginError)) {
         onEmailNotVerified(getValues('email'), loginError);
       }
+
+      if (loginError?.errorCode === ApiErrorCode.ACCESS_PENDING) {
+        onAccessPending(getValues('email'));
+      }
+
+      if (loginError?.errorCode === ApiErrorCode.ACCESS_REJECTED) {
+        onAccessRejected(getValues('email'));
+      }
     },
   });
 
@@ -27,6 +41,6 @@ export function useSignInForm({ onEmailNotVerified }: TUseSignInFormParams) {
     control,
     submit,
     isPending,
-    error: isEmailNotVerifiedError(error) ? null : error,
+    error: getSignInFormError(error),
   };
 }

@@ -2,6 +2,7 @@ package com.wispnote.backend.application.auth;
 
 import com.wispnote.backend.application.auth.model.GoogleIdentity;
 import com.wispnote.backend.application.emailverification.service.EmailVerificationService;
+import com.wispnote.backend.application.member.MemberAccessService;
 import com.wispnote.backend.application.member.model.Member;
 import com.wispnote.backend.application.member.port.MemberPort;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class GoogleMemberService {
 
     private final MemberPort memberPort;
     private final EmailVerificationService emailVerificationService;
+    private final MemberAccessService memberAccessService;
 
     @Transactional
     public Member resolve(GoogleIdentity identity) {
@@ -43,6 +45,8 @@ public class GoogleMemberService {
         });
 
         log.info("Creating member from Google account {}", kv("email", identity.email()));
-        return memberPort.createWithGoogle(identity.email(), identity.subject(), Instant.now());
+        var accessStatus = memberAccessService.resolveInitialStatus();
+
+        return memberPort.createWithGoogle(identity.email(), identity.subject(), Instant.now(), accessStatus);
     }
 }

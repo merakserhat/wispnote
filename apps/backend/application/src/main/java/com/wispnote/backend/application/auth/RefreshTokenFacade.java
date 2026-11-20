@@ -4,6 +4,7 @@ import com.wispnote.backend.application.auth.model.AccessTokenResult;
 import com.wispnote.backend.application.auth.port.AccessTokenPort;
 import com.wispnote.backend.application.auth.port.RefreshTokenPort;
 import com.wispnote.backend.application.auth.exception.InvalidRefreshTokenValidationException;
+import com.wispnote.backend.application.member.MemberAccessService;
 import com.wispnote.backend.application.member.port.MemberPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ public class RefreshTokenFacade {
     private final RefreshTokenPort refreshTokenPort;
     private final MemberPort memberPort;
     private final AccessTokenPort accessTokenPort;
+    private final MemberAccessService memberAccessService;
 
     public AccessTokenResult refresh(String refreshToken) {
         var memberId = refreshTokenPort.readMemberId(refreshToken);
@@ -26,6 +28,8 @@ public class RefreshTokenFacade {
 
         var member = memberPort.findById(memberId)
                 .orElseThrow(InvalidRefreshTokenValidationException::new);
+
+        memberAccessService.assertCanSignIn(member.id(), member.accessStatus());
 
         return accessTokenPort.generate(member.id(), member.email());
     }

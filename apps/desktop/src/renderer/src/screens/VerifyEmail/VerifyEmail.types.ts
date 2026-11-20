@@ -13,6 +13,7 @@ export type TVerifyEmailSearch = {
 
 export type TUseVerifyEmailFormParams = Omit<TVerifyEmailSearch, 'email'> & {
   onSessionExpired: () => void;
+  onAccessPending: () => void;
 };
 
 export type TVerifyEmailNoticeTone = 'positive' | 'error';

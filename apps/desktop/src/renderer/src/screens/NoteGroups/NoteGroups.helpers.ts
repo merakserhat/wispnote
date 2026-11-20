@@ -1,3 +1,4 @@
+import ApiErrorCode from 'shared/enums/ApiErrorCode';
 import { TErrorResponse } from 'shared/types/common';
 import { TNoteGroup } from 'shared/types/noteGroup.types';
 
@@ -21,7 +22,9 @@ export function getCreateNoteGroupErrorMessage({
   errorCode,
   errorMessage,
 }: TErrorResponse): string {
-  return errorCode === 'GENERIC_ERROR' ? NOTE_GROUP_CREATE_GENERIC_ERROR_MESSAGE : errorMessage;
+  return errorCode === ApiErrorCode.GENERIC_ERROR
+    ? NOTE_GROUP_CREATE_GENERIC_ERROR_MESSAGE
+    : errorMessage;
 }
 
 export function formatNoNoteGroupMatch(search: string): string {

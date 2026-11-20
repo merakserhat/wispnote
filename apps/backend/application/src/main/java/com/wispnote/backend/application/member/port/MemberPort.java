@@ -1,5 +1,6 @@
 package com.wispnote.backend.application.member.port;
 
+import com.wispnote.backend.application.member.enums.MemberAccessStatus;
 import com.wispnote.backend.application.member.model.Member;
 
 import java.time.Instant;
@@ -11,8 +12,8 @@ public interface MemberPort {
     Optional<Member> findByEmail(String email);
     Optional<Member> findById(UUID id);
     Optional<Member> findByGoogleId(String googleId);
-    Member create(String email, String passwordHash);
-    Member createWithGoogle(String email, String googleId, Instant emailVerifiedAt);
+    Member create(String email, String passwordHash, MemberAccessStatus accessStatus);
+    Member createWithGoogle(String email, String googleId, Instant emailVerifiedAt, MemberAccessStatus accessStatus);
     void linkGoogle(UUID id, String googleId);
     void delete(UUID id);
     void markEmailVerified(UUID id, Instant verifiedAt);

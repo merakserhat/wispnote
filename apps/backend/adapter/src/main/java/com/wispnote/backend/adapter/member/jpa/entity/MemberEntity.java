@@ -1,6 +1,7 @@
 package com.wispnote.backend.adapter.member.jpa.entity;
 
 import com.wispnote.backend.adapter.common.jpa.entity.BaseEntity;
+import com.wispnote.backend.adapter.member.converter.MemberAccessStatusConverter;
 import com.wispnote.backend.application.member.model.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,7 +26,16 @@ public class MemberEntity extends BaseEntity {
 
     private String googleId;
 
+    @Column(nullable = false)
+    private String accessStatus;
+
     public Member toModel() {
-        return new Member(getId(), email, passwordHash, emailVerifiedAt, googleId);
+        return new Member(
+                getId(),
+                email,
+                passwordHash,
+                emailVerifiedAt,
+                googleId,
+                MemberAccessStatusConverter.jpa.toEnum(accessStatus));
     }
 }

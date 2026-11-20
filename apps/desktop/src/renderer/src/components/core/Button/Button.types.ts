@@ -1,6 +1,6 @@
 import type { ButtonProps as AntButtonProps } from 'antd';
 
-import { TIconComponent } from 'components/Icons/Icon.types';
+import { TIconComponent } from 'components/Icons';
 
 export type TButtonProps = Pick<AntButtonProps, 'htmlType'> & {
   label: string;

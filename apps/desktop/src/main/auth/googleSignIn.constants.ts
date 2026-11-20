@@ -1,3 +1,4 @@
+import ApiErrorCode from 'shared/enums/ApiErrorCode';
 import { TErrorResponse } from 'shared/types/common';
 
 export const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -14,19 +15,19 @@ export const NOT_CONFIGURED_ERROR: TErrorResponse = {
 
 export const CANCELLED_ERROR: TErrorResponse = {
   status: 0,
-  errorCode: 'GOOGLE_SIGN_IN_CANCELLED',
+  errorCode: ApiErrorCode.GOOGLE_SIGN_IN_CANCELLED,
   errorMessage: 'Google sign-in was cancelled.',
 };
 
 export const TIMED_OUT_ERROR: TErrorResponse = {
   status: 0,
-  errorCode: 'GOOGLE_SIGN_IN_CANCELLED',
+  errorCode: ApiErrorCode.GOOGLE_SIGN_IN_CANCELLED,
   errorMessage: 'Google sign-in timed out.',
 };
 
 export const DENIED_ERROR: TErrorResponse = {
   status: 0,
-  errorCode: 'GOOGLE_LOGIN_FAILED',
+  errorCode: ApiErrorCode.GOOGLE_LOGIN_FAILED,
   errorMessage: 'Google sign-in could not be completed. Please try again.',
 };
 

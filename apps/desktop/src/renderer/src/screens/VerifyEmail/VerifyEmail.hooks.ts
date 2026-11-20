@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+import ApiErrorCode from 'shared/enums/ApiErrorCode';
 import { TResendVerificationResponse } from 'shared/types/auth.types';
 import { TErrorResponse } from 'shared/types/common';
 
@@ -51,6 +52,7 @@ export function useVerifyEmailForm({
   codeExpiresIn,
   resendOnMount = false,
   onSessionExpired,
+  onAccessPending,
 }: TUseVerifyEmailFormParams) {
   const { control, handleSubmit, setError, clearErrors, reset, watch } =
     useForm<TVerifyEmailFormValues>({
@@ -105,6 +107,11 @@ export function useVerifyEmailForm({
 
     if (isSessionExpiredError(error)) {
       onSessionExpired();
+      return;
+    }
+
+    if (error.errorCode === ApiErrorCode.ACCESS_PENDING) {
+      onAccessPending();
       return;
     }
 

@@ -7,6 +7,7 @@ import com.wispnote.backend.application.auth.model.GoogleIdentity;
 import com.wispnote.backend.application.auth.port.AccessTokenPort;
 import com.wispnote.backend.application.auth.port.GoogleIdentityPort;
 import com.wispnote.backend.application.common.exception.ClientException;
+import com.wispnote.backend.application.member.MemberAccessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class GoogleLoginFacade {
     private final GoogleIdentityPort googleIdentityPort;
     private final GoogleMemberService googleMemberService;
     private final AccessTokenPort accessTokenPort;
+    private final MemberAccessService memberAccessService;
 
     public AccessTokenResult login(String code, String codeVerifier, String redirectUri) {
         log.info("Google login started");
@@ -42,6 +44,8 @@ public class GoogleLoginFacade {
         }
 
         var member = googleMemberService.resolve(identity);
+
+        memberAccessService.assertCanSignIn(member.id(), member.accessStatus());
 
         log.info("Google login completed for {}", kv("memberId", member.id()));
         return accessTokenPort.generate(member.id(), member.email());

@@ -1,4 +1,4 @@
-import { TBoxProps } from 'components/core/Box/Box.types';
+import { TBoxProps } from 'components/core/Box';
 
 export type TCardVariant = 'flat' | 'outlined' | 'elevated';
 

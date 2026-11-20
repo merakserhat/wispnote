@@ -1,7 +1,7 @@
 import type { ButtonProps as AntButtonProps } from 'antd';
 
-import { TIconComponent } from 'components/Icons/Icon.types';
-import { TButtonSize, TButtonVariant } from 'components/core/Button/Button.types';
+import { TIconComponent } from 'components/Icons';
+import { TButtonSize, TButtonVariant } from 'components/core/Button';
 
 export type TIconButtonProps = {
   icon: TIconComponent;

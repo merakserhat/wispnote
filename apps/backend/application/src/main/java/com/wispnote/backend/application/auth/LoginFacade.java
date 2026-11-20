@@ -5,6 +5,7 @@ import com.wispnote.backend.application.auth.model.AccessTokenResult;
 import com.wispnote.backend.application.auth.port.AccessTokenPort;
 import com.wispnote.backend.application.auth.port.AuthenticationPort;
 import com.wispnote.backend.application.auth.port.EmailVerificationTokenPort;
+import com.wispnote.backend.application.member.MemberAccessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class LoginFacade {
     private final AuthenticationPort authenticationPort;
     private final AccessTokenPort accessTokenPort;
     private final EmailVerificationTokenPort emailVerificationTokenPort;
+    private final MemberAccessService memberAccessService;
 
     public AccessTokenResult login(String email, String password) {
         log.info("Login started for {}", kv("email", email));
@@ -30,6 +32,8 @@ public class LoginFacade {
             var verificationToken = emailVerificationTokenPort.generate(authenticatedUser.memberId(), email);
             throw new EmailNotVerifiedValidationException(verificationToken);
         }
+
+        memberAccessService.assertCanSignIn(authenticatedUser.memberId(), authenticatedUser.accessStatus());
 
         return accessTokenPort.generate(authenticatedUser.memberId(), email);
     }

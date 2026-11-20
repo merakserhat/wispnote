@@ -23,6 +23,10 @@ function VerifyEmail() {
     navigate({ to: '/sign-in' });
   }
 
+  function handleAccessPending() {
+    navigate({ to: '/access-pending', search: { email } });
+  }
+
   const {
     control,
     submit,
@@ -39,6 +43,7 @@ function VerifyEmail() {
     codeExpiresIn,
     resendOnMount,
     onSessionExpired: handleSessionExpired,
+    onAccessPending: handleAccessPending,
   });
 
   return (

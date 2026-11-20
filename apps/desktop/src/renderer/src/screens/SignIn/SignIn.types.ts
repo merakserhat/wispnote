@@ -7,4 +7,6 @@ export type TSignInFormValues = {
 
 export type TUseSignInFormParams = {
   onEmailNotVerified: (email: string, error: TEmailNotVerifiedError) => void;
+  onAccessPending: (email: string) => void;
+  onAccessRejected: (email: string) => void;
 };
