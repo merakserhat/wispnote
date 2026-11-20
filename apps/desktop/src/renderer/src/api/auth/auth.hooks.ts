@@ -29,6 +29,7 @@ export function useGetMember({ queryParams }: TQueryHookParams = {}) {
   const { data, isLoading, isPending, isError, refetch } = useQuery<TCommonResponse<TMember>>({
     queryKey: authQueryKeys.member(),
     queryFn: requestMember,
+    retryOnMount: false,
     ...queryParams,
   });
 
