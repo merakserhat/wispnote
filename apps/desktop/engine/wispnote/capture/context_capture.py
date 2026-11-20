@@ -10,6 +10,7 @@ from .ax_client import AXClient, AXUnavailable, is_trusted
 from .ax_wake import AccessibilityWaker
 from .extractors import ElementBundle, SourceExtractor, default_extractors, select_extractor
 from .selection import read_selection
+from .text_input import detect as detect_text_input
 
 
 class ContextCapture:
@@ -89,6 +90,8 @@ class ContextCapture:
             document = ax.string(elements.window, "AXDocument")
             if document:
                 ctx.extras["document_path"] = document
+
+            ctx.extras["text_input"] = detect_text_input(ax, elements, ctx.bundle_id)
 
             extractor = select_extractor(ctx, self.extractors)
             self._read_selection(ctx, ax, elements, extractor)

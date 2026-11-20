@@ -1,6 +1,6 @@
 import NoteKind from 'shared/enums/NoteKind';
 import SourceKind from 'shared/enums/SourceKind';
-import { TCaptureContext } from 'shared/types/capture.types';
+import { TCaptureContext, TTextInput } from 'shared/types/capture.types';
 import { TCaptureHudResult } from 'shared/types/captureHud.types';
 import { TCreateNoteRequestParams, TNoteSource } from 'shared/types/note.types';
 
@@ -16,6 +16,24 @@ export function hasContent(context: TCaptureContext, userNote: string): boolean 
 
 export function describeSource(context: TCaptureContext): string {
   return [formatSource(context), formatLocation(context)].filter(Boolean).join(' · ');
+}
+
+export function toTextInput(context: TCaptureContext): TTextInput | null {
+  return (context.extras.text_input as TTextInput | undefined) ?? null;
+}
+
+export function describeTextInput(context: TCaptureContext): string {
+  const textInput = toTextInput(context);
+  if (!textInput) {
+    return 'text input · not reported';
+  }
+
+  return [
+    `text input · ${textInput.editable ? 'yes' : 'no'}`,
+    textInput.reason,
+    context.elementRole || 'no role',
+    textInput.caret ? 'caret' : 'no caret position',
+  ].join(' · ');
 }
 
 export function errorMessage(error: unknown): string {

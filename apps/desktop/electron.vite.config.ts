@@ -44,6 +44,7 @@ export default defineConfig({
         input: {
           hud: resolve(__dirname, 'src/renderer/hud.html'),
           main: resolve(__dirname, 'src/renderer/main.html'),
+          paste: resolve(__dirname, 'src/renderer/paste.html'),
         },
       },
     },

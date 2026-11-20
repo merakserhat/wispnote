@@ -2,11 +2,14 @@ import type { AxiosRequestConfig } from 'axios';
 
 import { TCaptureHudIntent, TCaptureHudState } from './captureHud.types';
 import { TErrorResponse } from './common';
+import { TQuickPasteIntent, TQuickPasteState } from './quickPaste.types';
 import { TAppearanceSettings } from './settings.types';
 
 export type TWispBridge = {
   onHudState: (handler: (state: TCaptureHudState) => void) => () => void;
   sendHudIntent: (intent: TCaptureHudIntent) => void;
+  onQuickPasteState: (handler: (state: TQuickPasteState) => void) => () => void;
+  sendQuickPasteIntent: (intent: TQuickPasteIntent) => void;
   ipcRequest: <TResult>(request: TIpcRequest) => Promise<TIpcResponse<TResult>>;
   onSessionExpired: (handler: () => void) => () => void;
   signOut: () => Promise<void>;

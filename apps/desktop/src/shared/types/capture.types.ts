@@ -1,5 +1,18 @@
 export type TSourceKind = 'web' | 'pdf' | 'file' | 'mail' | 'app';
 
+export type TCaretRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type TTextInput = {
+  editable: boolean;
+  reason: string;
+  caret: TCaretRect | null;
+};
+
 export type TCaptureContext = {
   timestamp: string;
 

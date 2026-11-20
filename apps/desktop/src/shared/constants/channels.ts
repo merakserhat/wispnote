@@ -1,6 +1,8 @@
 export const IPC_CHANNELS = {
   hudState: 'hud:state',
   hudIntent: 'hud:intent',
+  quickPasteState: 'quick-paste:state',
+  quickPasteIntent: 'quick-paste:intent',
   apiRequest: 'api:request',
   sessionExpired: 'auth:session-expired',
   signOut: 'auth:sign-out',

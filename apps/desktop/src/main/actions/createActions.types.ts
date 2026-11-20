@@ -4,11 +4,13 @@ import { TPdfAnnotation, TPdfLocateResult } from 'shared/types/engine.types';
 
 import { Engine } from '../engine';
 import { TCaptureHud } from '../hud';
+import { TQuickPaste } from '../quickPaste';
 import { MainWindow } from '../windows';
 
 export type TCreateActionsParams = {
   engine: Engine;
   hud: TCaptureHud;
+  quickPaste: TQuickPaste;
   mainWindow: MainWindow;
 };
 

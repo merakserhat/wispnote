@@ -14,6 +14,7 @@ import { VERBOSE } from '../main.constants';
 
 import {
   describeSource,
+  describeTextInput,
   errorMessage,
   hasContent,
   toCreateNoteParams,
@@ -21,6 +22,7 @@ import {
   toImportedNoteParams,
   toProblemResult,
   toSaveFailureResult,
+  toTextInput,
   toWorkingResult,
 } from './actions.helpers';
 import {
@@ -34,7 +36,12 @@ import { TActions, TCreateActionsParams, TSaveCaptureParams } from './createActi
 
 // INFO: (serhat) engine triggers and HUD intents both land here, so a ⌃⇧ gesture and a key in the HUD share one path.
 // Every path ends in a Result pill: a save with no feedback looks like a dead shortcut.
-export function createActions({ engine, hud, mainWindow }: TCreateActionsParams): TActions {
+export function createActions({
+  engine,
+  hud,
+  quickPaste,
+  mainWindow,
+}: TCreateActionsParams): TActions {
   async function locateInPdf(context: TCaptureContext): Promise<TPdfLocateResult | null> {
     const isLocalPdf = context.sourceKind === 'pdf' && Boolean(context.filePath);
     if (!isLocalPdf || !context.selectedText.trim() || !engine.ready?.pdf) {
@@ -195,22 +202,37 @@ export function createActions({ engine, hud, mainWindow }: TCreateActionsParams)
 
   async function handleTrigger(frame: TTriggerFrame): Promise<void> {
     log('trigger', `${frame.trigger} → ${frame.action}`);
+    // INFO: (serhat) while the paste menu is up the gesture closes it; the double tap that follows
+    // the tap that opened it has no job here.
+    if (quickPaste.isOpen()) {
+      if (!frame.supersedes) {
+        quickPaste.close('gesture');
+      }
+      return;
+    }
     if (!undoSuperseded(frame)) {
       return;
     }
+    const context = toCaptureContext(frame.context);
     if (VERBOSE) {
-      const context = toCaptureContext(frame.context);
       log('capture', describeCapture(context));
       log('capture', previewSelection(context));
+      log('capture', describeTextInput(context));
     }
 
     // INFO: (serhat) the mirror gesture opens Basic too until it gets a job of its own.
     if (frame.action === 'show_panel' || frame.action === 'quick_note') {
+      const textInput = toTextInput(context);
+      if (textInput?.editable && !context.selectedText.trim()) {
+        quickPaste.open(textInput.caret);
+        return;
+      }
+
       hud.open(frame);
       return;
     }
 
-    await perform(frame.action, toCaptureContext(frame.context));
+    await perform(frame.action, context);
   }
 
   // INFO: (serhat) the HUD echoes back the capture it was opened with instead of taking a new one:

@@ -4,7 +4,7 @@ import os
 import re
 from typing import Any
 
-from ...models import SOURCE_FILE, CaptureContext
+from ...models import SOURCE_APP, SOURCE_FILE, CaptureContext
 from ...utils import clean_window_title, file_url_to_path
 from .base import ElementBundle, SourceExtractor
 
@@ -36,7 +36,7 @@ class EditorExtractor(SourceExtractor):
 
     def extract(self, ctx: CaptureContext, ax: Any, elements: ElementBundle) -> None:
         path = self._find_path(ax, elements)
-        ctx.source_kind = SOURCE_FILE
+        ctx.source_kind = SOURCE_FILE if path else SOURCE_APP
         ctx.file_path = path
 
         if path:

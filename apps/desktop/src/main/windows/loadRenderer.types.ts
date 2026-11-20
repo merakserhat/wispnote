@@ -1,1 +1,1 @@
-export type TRendererEntry = 'hud' | 'main';
+export type TRendererEntry = 'hud' | 'main' | 'paste';

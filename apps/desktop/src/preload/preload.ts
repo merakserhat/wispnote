@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { IPC_CHANNELS } from 'shared/constants/channels';
 import { TCaptureHudIntent, TCaptureHudState } from 'shared/types/captureHud.types';
 import { TIpcRequest, TIpcResponse, TWispBridge } from 'shared/types/ipc.types';
+import { TQuickPasteIntent, TQuickPasteState } from 'shared/types/quickPaste.types';
 import { TAppearanceSettings } from 'shared/types/settings.types';
 
 import { subscribe } from './preload.helpers';
@@ -13,6 +14,12 @@ const bridge: TWispBridge = {
   },
   sendHudIntent(intent: TCaptureHudIntent) {
     ipcRenderer.send(IPC_CHANNELS.hudIntent, intent);
+  },
+  onQuickPasteState(handler) {
+    return subscribe<TQuickPasteState>(IPC_CHANNELS.quickPasteState, handler);
+  },
+  sendQuickPasteIntent(intent: TQuickPasteIntent) {
+    ipcRenderer.send(IPC_CHANNELS.quickPasteIntent, intent);
   },
   onSessionExpired(handler) {
     return subscribe<void>(IPC_CHANNELS.sessionExpired, handler);

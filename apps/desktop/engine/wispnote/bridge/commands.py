@@ -5,6 +5,7 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+from ..capture import clipboard
 from ..capture.context_capture import ContextCapture
 from ..config import Settings
 from ..models import CaptureContext
@@ -40,6 +41,7 @@ class Commands:
             "capture": self.capture_command,
             "configure": self.configure,
             "hud": self.hud,
+            "paste": self.paste,
             "pdf_info": self.pdf_info,
             "pdf_locate": self.pdf_locate,
             "pdf_annotations": self.pdf_annotations,
@@ -72,6 +74,12 @@ class Commands:
         up = bool(message.get("up"))
         self.on_main(lambda: self.shortcuts.set_hud_up(up))
         return {"up": up}
+
+    def paste(self, message: dict[str, Any]) -> dict[str, Any]:
+        text = message.get("text")
+        if not isinstance(text, str) or not text:
+            raise CommandError("paste needs `text`")
+        return {"pasted": clipboard.paste_text(text)}
 
     def pdf_info(self, message: dict[str, Any]) -> dict[str, Any]:
         return self.pdf.document_info(self._file_path(message))

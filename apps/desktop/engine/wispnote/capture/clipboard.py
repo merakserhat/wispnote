@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 import time
 from typing import Any
 
@@ -24,7 +25,9 @@ except ImportError:
     CLIPBOARD_AVAILABLE = False
 
 C_KEYCODE = 8
+V_KEYCODE = 9
 COPY_TIMEOUT = 0.2
+PASTE_RESTORE_DELAY = 0.4
 POLL_INTERVAL = 0.01
 
 
@@ -36,7 +39,7 @@ def copy_selection() -> str | None:
     saved = _snapshot(pasteboard)
     before = pasteboard.changeCount()
 
-    _post_copy()
+    _post_command_key(C_KEYCODE)
 
     deadline = time.monotonic() + COPY_TIMEOUT
     while pasteboard.changeCount() == before:
@@ -53,10 +56,35 @@ def copy_selection() -> str | None:
     return text if text.strip() else None
 
 
-def _post_copy() -> None:
+def paste_text(text: str) -> bool:
+    if not CLIPBOARD_AVAILABLE:
+        return False
+
+    pasteboard = NSPasteboard.generalPasteboard()
+    saved = _snapshot(pasteboard)
+
+    pasteboard.clearContents()
+    if not pasteboard.setString_forType_(text, NSPasteboardTypeString):
+        _restore(pasteboard, saved)
+        return False
+    written = pasteboard.changeCount()
+
+    _post_command_key(V_KEYCODE)
+
+    def put_back() -> None:
+        if pasteboard.changeCount() == written:
+            _restore(pasteboard, saved)
+
+    timer = threading.Timer(PASTE_RESTORE_DELAY, put_back)
+    timer.daemon = True
+    timer.start()
+    return True
+
+
+def _post_command_key(keycode: int) -> None:
     source = CGEventSourceCreate(kCGEventSourceStatePrivate)
     for key_down in (True, False):
-        event = CGEventCreateKeyboardEvent(source, C_KEYCODE, key_down)
+        event = CGEventCreateKeyboardEvent(source, keycode, key_down)
         CGEventSetFlags(event, kCGEventFlagMaskCommand)
         CGEventSetIntegerValueField(event, kCGEventSourceUserData, SYNTHETIC_EVENT_TAG)
         CGEventPost(kCGAnnotatedSessionEventTap, event)

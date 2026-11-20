@@ -22,7 +22,7 @@ TypeScript throughout, built with electron-vite. The capture HUD is
 implemented; the notes and settings screens are not.
 
 - ✅ Capture HUD (one morphing shape: Basic, Detailed, Result), tray, supervisor, bridge
-- ✅ Engine rewritten in `engine/` (protocol v3); saves go main → backend via `src/main/actions/`
+- ✅ Engine rewritten in `engine/` (protocol v4); saves go main → backend via `src/main/actions/`
 - ⬜ Next: notes window, settings, then packaging
 - ⬜ Later: move SQLite + messaging here, leaving Python stateless
 
@@ -69,7 +69,7 @@ Break these and the app breaks in ways that are hard to trace.
 Line-delimited JSON over stdin/stdout. stdout is taken away from Python's `print`
 so diagnostics (stderr) cannot corrupt it.
 
-Protocol v3. Every ⌃⇧ gesture is a `trigger`; the engine never decides what an
+Protocol v4. Every ⌃⇧ gesture is a `trigger`; the engine never decides what an
 action means. A `trigger` may carry `supersedes: { trigger, action }` when it upgrades
 the gesture that fired just before it (tap → double tap); the host takes the earlier
 action back if it was only a window, and ignores the upgrade if it was a save. The host
@@ -82,7 +82,7 @@ the release of the opening gesture's ⌃ never counts). The tap stays listen-onl
 also reaches the app that has the keyboard. The renderer does not handle esc or ⌃ itself.
 
 **Engine → host:** `ready` `heartbeat` `trigger` `key` `result` `error`
-**Host → engine:** `ping` `capture` `configure` `hud` `pdf_info` `pdf_locate`
+**Host → engine:** `ping` `capture` `configure` `hud` `paste` `pdf_info` `pdf_locate`
 `pdf_annotations` `shutdown`
 
 Engine side: `engine/wispnote/bridge/`. Host side: `src/main/engine/`, with

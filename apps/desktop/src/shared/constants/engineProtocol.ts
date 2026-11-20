@@ -1,1 +1,1 @@
-export const ENGINE_PROTOCOL_VERSION = 3;
+export const ENGINE_PROTOCOL_VERSION = 4;

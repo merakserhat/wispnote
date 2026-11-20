@@ -3,6 +3,7 @@ import { ipcMain, webContents } from 'electron';
 import { IPC_CHANNELS } from 'shared/constants/channels';
 import { TCaptureHudIntent } from 'shared/types/captureHud.types';
 import { TIpcRequest, TIpcResponse } from 'shared/types/ipc.types';
+import { TQuickPasteIntent } from 'shared/types/quickPaste.types';
 import { TAppearanceSettings } from 'shared/types/settings.types';
 
 import { cancelGoogleSignIn, startGoogleSignIn } from '../auth';
@@ -12,7 +13,7 @@ import storage from '../helpers/storage';
 import { sendApiRequest, toErrorResponse, toIpcData } from './ipc.helpers';
 import { TIpcContext } from './ipc.types';
 
-export function registerIpcHandlers({ actions, settings }: TIpcContext): void {
+export function registerIpcHandlers({ actions, quickPaste, settings }: TIpcContext): void {
   ipcMain.on(IPC_CHANNELS.hudIntent, async (_event, intent: TCaptureHudIntent) => {
     try {
       await actions.runIntent(intent);
@@ -20,6 +21,10 @@ export function registerIpcHandlers({ actions, settings }: TIpcContext): void {
       const message = error instanceof Error ? error.message : String(error);
       log('error', `hud ${intent.type} failed: ${message}`);
     }
+  });
+
+  ipcMain.on(IPC_CHANNELS.quickPasteIntent, (_event, intent: TQuickPasteIntent) => {
+    quickPaste.handleIntent(intent);
   });
 
   ipcMain.handle(

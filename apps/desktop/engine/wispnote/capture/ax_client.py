@@ -15,6 +15,7 @@ try:
         AXUIElementCopyParameterizedAttributeValue,
         AXUIElementCreateApplication,
         AXUIElementCreateSystemWide,
+        AXUIElementIsAttributeSettable,
         AXUIElementSetAttributeValue,
         AXUIElementSetMessagingTimeout,
         AXValueGetType,
@@ -89,6 +90,16 @@ class AXClient:
             return AXUIElementSetAttributeValue(element, name, value) == kAXErrorSuccess
         except Exception:
             return False
+
+    @staticmethod
+    def is_settable(element: Any, name: str) -> bool:
+        if element is None:
+            return False
+        try:
+            error, settable = AXUIElementIsAttributeSettable(element, name, None)
+        except Exception:
+            return False
+        return error == kAXErrorSuccess and bool(settable)
 
     @staticmethod
     def set_messaging_timeout(element: Any, seconds: float) -> None:

@@ -20,7 +20,7 @@ from ..shortcuts.manager import ShortcutManager
 from .channel import Channel
 from .commands import Commands
 
-PROTOCOL_VERSION = 3
+PROTOCOL_VERSION = 4
 HEARTBEAT_SECONDS = 2.0
 MAIN_THREAD_TIMEOUT = 20.0
 ORPHAN_CHECK_SECONDS = 2.0

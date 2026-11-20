@@ -9,9 +9,10 @@ import { log } from './helpers';
 import { createCaptureHud } from './hud';
 import { registerIpcHandlers } from './ipc';
 import { registerShutdown } from './lifecycle';
+import { createQuickPaste } from './quickPaste';
 import { createSettingsStore } from './settings';
 import { createTray } from './tray';
-import { CaptureHudWindow, MainWindow } from './windows';
+import { CaptureHudWindow, MainWindow, QuickPasteWindow } from './windows';
 
 app.whenReady().then(() => {
   app.dock?.hide();
@@ -22,13 +23,17 @@ app.whenReady().then(() => {
   const hudWindow = new CaptureHudWindow();
   hudWindow.create(preloadPath);
 
+  const quickPasteWindow = new QuickPasteWindow();
+  quickPasteWindow.create(preloadPath);
+
   const mainWindow = new MainWindow();
   mainWindow.create(preloadPath);
 
   log('host', 'starting — Ctrl+C or the menu bar to quit');
   const engine = createEngine({ app });
   const hud = createCaptureHud({ engine, window: hudWindow });
-  const actions = createActions({ engine, hud, mainWindow });
+  const quickPaste = createQuickPaste({ engine, hud, window: quickPasteWindow });
+  const actions = createActions({ engine, hud, quickPaste, mainWindow });
 
   async function showPanelFromMenu(): Promise<void> {
     try {
@@ -39,7 +44,7 @@ app.whenReady().then(() => {
     }
   }
 
-  registerIpcHandlers({ actions, settings });
+  registerIpcHandlers({ actions, quickPaste, settings });
   createTray({
     engine,
     onShowPanel: showPanelFromMenu,

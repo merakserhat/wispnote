@@ -4,6 +4,8 @@ export { default as ArrowLeftIcon } from './views/ArrowLeftIcon';
 export { default as ArrowRightIcon } from './views/ArrowRightIcon';
 export { default as CheckCircleIcon } from './views/CheckCircleIcon';
 export { default as CheckIcon } from './views/CheckIcon';
+export { default as ChevronRightIcon } from './views/ChevronRightIcon';
+export { default as ClockIcon } from './views/ClockIcon';
 export { default as Edit02Icon } from './views/Edit02Icon';
 export { default as File05Icon } from './views/File05Icon';
 export { default as FolderIcon } from './views/FolderIcon';

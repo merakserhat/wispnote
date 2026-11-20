@@ -48,6 +48,10 @@ export type TResultFrame = {
   error: string | null;
 };
 
+export type TPasteResult = {
+  pasted: boolean;
+};
+
 export type TEngineKey = 'escape' | 'ctrl';
 
 export type TKeyFrame = {
@@ -69,6 +73,7 @@ export type TEngineCommand =
   | 'capture'
   | 'configure'
   | 'hud'
+  | 'paste'
   | 'pdf_info'
   | 'pdf_locate'
   | 'pdf_annotations'
@@ -89,20 +94,6 @@ export type TCaptureResult = {
 
 export type TConfigureResult = {
   triggers: TTriggerBinding[];
-};
-
-export type TPdfTocEntry = {
-  level: number;
-  title: string;
-  page: number;
-};
-
-export type TPdfInfoResult = {
-  pdf_title?: string;
-  pdf_author?: string;
-  page_count?: number;
-  toc?: TPdfTocEntry[];
-  file_size?: number;
 };
 
 export type TPdfLocateResult = {
