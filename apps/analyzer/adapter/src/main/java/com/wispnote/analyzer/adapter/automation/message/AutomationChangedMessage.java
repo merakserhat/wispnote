@@ -1,4 +1,4 @@
-package com.wispnote.analyzer.adapter.automation.rabbit.message;
+package com.wispnote.analyzer.adapter.automation.message;
 
 import com.wispnote.analyzer.adapter.automation.converter.AutomationEventKindConverter;
 import com.wispnote.analyzer.application.automation.model.AutomationChangedEvent;
@@ -15,7 +15,7 @@ public record AutomationChangedMessage(UUID eventId,
     public AutomationChangedEvent toModel() {
         return new AutomationChangedEvent(
                 eventId,
-                AutomationEventKindConverter.rabbit.toEnum(eventType),
+                AutomationEventKindConverter.message.toEnum(eventType),
                 occurredAt,
                 automationId,
                 memberId

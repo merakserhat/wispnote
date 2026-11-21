@@ -32,6 +32,7 @@
         <lombok.version>1.18.46</lombok.version>
         <archunit-junit5.version>1.4.2</archunit-junit5.version>
         <togglz.version>4.6.4</togglz.version>
+        <spring-cloud-gcp.version>8.3.1</spring-cloud-gcp.version>
     </properties>
 
     <dependencies>
@@ -60,6 +61,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>spring-cloud-gcp-dependencies</artifactId>
+                <version>${spring-cloud-gcp.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.togglz</groupId>
                 <artifactId>togglz-core</artifactId>

@@ -18,16 +18,18 @@ services:
       timeout: 5s
       retries: 10
 
-  rabbitmq:
-    image: rabbitmq:4-management
+  pubsub:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    entrypoint: ["bash", "/start.sh"]
+    volumes:
+      - ./docker/pubsub/start.sh:/start.sh:ro
     ports:
-      - "127.0.0.1:5672:5672"
-      - "127.0.0.1:15672:15672"
+      - "127.0.0.1:8085:8085"
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ["CMD-SHELL", "test -f /tmp/ready"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 24
 
   backend:
     build: docker/java-dev
@@ -36,7 +38,7 @@ services:
       - m2:/root/.m2
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/wispnote
-      RABBITMQ_HOST: rabbitmq
+      PUBSUB_EMULATOR_HOST: pubsub:8085
       ANALYZER_BASE_URL: http://analyzer:8096
       MAIL_PROVIDER: ${MAIL_PROVIDER:-mock}
       MAIL_FROM: ${MAIL_FROM:-noreply@wispnote.local}
@@ -53,7 +55,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      rabbitmq:
+      pubsub:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8090'"]
@@ -69,7 +71,6 @@ services:
       - m2:/root/.m2
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/wispnote_analyzer
-      SPRING_RABBITMQ_HOST: rabbitmq
       BACKEND_BASE_URL: http://backend:8090
       LLM_PROVIDER: ${LLM_PROVIDER:-openai}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -77,8 +78,6 @@ services:
       - "127.0.0.1:8096:8096"
     depends_on:
       postgres:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
 
 volumes:

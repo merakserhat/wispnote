@@ -6,14 +6,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
-import static com.wispnote.analyzer.adapter.automation.rabbit.config.AutomationRabbitConfiguration.AUTOMATION_CREATED;
-import static com.wispnote.analyzer.adapter.automation.rabbit.config.AutomationRabbitConfiguration.AUTOMATION_UPDATED;
 import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
 public class AutomationEventKindConverter {
-    public static final BaseEnumConverter<AutomationEventKind, String> rabbit = new BaseEnumConverter<>(Map.of(
-            AutomationEventKind.CREATED, AUTOMATION_CREATED,
-            AutomationEventKind.UPDATED, AUTOMATION_UPDATED
+    public static final BaseEnumConverter<AutomationEventKind, String> message = new BaseEnumConverter<>(Map.of(
+            AutomationEventKind.CREATED, "automation.created",
+            AutomationEventKind.UPDATED, "automation.updated"
     ));
 }

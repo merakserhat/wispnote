@@ -4,7 +4,7 @@ The API behind [WispNote](https://github.com/merakserhat/wispnote-desktop), a ma
 saves a highlight together with where it came from. This service is the source of truth for
 members, notes, sources and automations.
 
-Spring Boot 4, Java 21, PostgreSQL 17, Flyway, RabbitMQ. Hexagonal architecture across three
+Spring Boot 4, Java 21, PostgreSQL 17, Flyway, Google Cloud Pub/Sub. Hexagonal architecture across three
 Maven modules, enforced by ArchUnit tests.
 
 ## The WispNote project
@@ -29,7 +29,7 @@ Maven modules, enforced by ArchUnit tests.
   This service stores them, with a toggle and a soft delete. The analyzer runs them.
 - **Suggestions.** A seeded list of starter rules. A member only sees the ones they have not
   used yet.
-- **Events.** Every saved or deleted note is announced on RabbitMQ after the database commit,
+- **Events.** Every saved or deleted note is announced on Pub/Sub after the database commit,
   so the analyzer can pick it up. See [Events](#events).
 
 Everything a member owns is scoped by `member_id`. Deletes are soft: rows are flagged, never
@@ -63,12 +63,13 @@ All routes live under `/v1`. Responses are wrapped in `{ "result": … }`; error
 
 ## Events
 
-After a note is committed, the backend publishes a JSON message to the topic exchange
-`wispnote.notes`. The routing key is the event type. One durable queue,
-`wispnote.notes.analyzer`, is bound to both keys; the backend declares all three on its first
-connection.
+After a note is committed, the backend publishes a JSON message to the Pub/Sub topic
+`wispnote-notes`. The event type travels in the payload and in the message attribute
+`eventType`. Automation changes go to `wispnote-automations` the same way, with
+`automation.created` and `automation.updated`. Topics and subscriptions are created outside
+the backend: by `docker/pubsub/start.sh` for the local emulator.
 
-| Routing key | When |
+| Event type | When |
 | --- | --- |
 | `note.created` | `POST /v1/notes` succeeded |
 | `note.deleted` | `DELETE /v1/notes/{id}` succeeded |
@@ -85,8 +86,9 @@ connection.
 ```
 
 The payload carries identifiers only. A consumer fetches the current note by ID, and on
-`note.deleted` drops any pending work for it. Messages are persistent, `message_id` equals
-`eventId`, and the publisher logs any unconfirmed, rejected or unroutable message.
+`note.deleted` drops any pending work for it. The publisher waits up to 5 seconds for
+Pub/Sub to accept the message and logs a failure; a failed publish never fails the request.
+Delivery is at-least-once, so a consumer must tolerate duplicates.
 
 Publishing happens in a transactional event listener after the commit, so a rolled-back
 request never produces a message. It is not yet at-least-once: a crash between commit and
@@ -107,7 +109,7 @@ infrastructure  ──►  adapter  ──►  application
 - **application** knows nothing about Spring Web, JPA or HTTP. It defines ports such as
   `NotePort` and `AccessTokenPort` and the facades that use them.
 - **adapter** implements those ports: JPA adapters against Postgres, JWT adapters for
-  tokens, the RabbitMQ publisher (or its mock), and the REST controllers that translate
+  tokens, the Pub/Sub publisher (or its mock), and the REST controllers that translate
   requests into facade calls.
 - **infrastructure** wires it all together: the Spring Boot entry point, security filter
   chains, key loading, migrations, and the ArchUnit tests.
@@ -120,7 +122,7 @@ Naming inside a module follows one pattern per layer: `XController`, `XFacade`, 
 ### Requirements
 
 - Java 21 or newer
-- Docker, for the local Postgres and RabbitMQ
+- Docker, for the local Postgres and the Pub/Sub emulator
 
 ### 1. Start the database
 
@@ -134,16 +136,17 @@ docker run -d --name wispnote-postgres -p 5432:5432 wispnote-postgres
 Database, user and password all default to `wispnote`. Flyway creates the schema when the app first
 starts, and the state is recorded in `flyway_schema_history`.
 
-### 2. Start the broker
+### 2. Start the Pub/Sub emulator
+
+From the repository root:
 
 ```bash
-docker run -d --name wispnote-rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management
+docker compose up -d pubsub
 ```
 
-The management UI is at `http://localhost:15672` (`guest` / `guest`). The exchange, queue and
-bindings appear there after the backend's first publish. To run without a broker, set
-`MESSAGE_PUBLISHER_PROVIDER=mock`: events are logged instead of sent. Add
-`management.health.rabbit.enabled=false` in that case, or the health endpoint reports `DOWN`.
+The emulator listens on `localhost:8085` and starts with the topics `wispnote-notes` and
+`wispnote-automations`. It keeps nothing across restarts. To run without it, set
+`MESSAGE_PUBLISHER_PROVIDER=mock`: events are logged instead of sent.
 
 ### 3. Run
 
@@ -175,7 +178,7 @@ openssl pkey -in access-token.pem -pubout -out access-token.pub
 | --- | --- |
 | `./mvnw clean verify` | Build all modules and run the tests, including ArchUnit |
 | `./mvnw install -DskipTests` | Build and install all modules without tests |
-| `./mvnw -pl infrastructure spring-boot:run -Dspring-boot.run.profiles=local` | Run against the local Postgres and RabbitMQ |
+| `./mvnw -pl infrastructure spring-boot:run -Dspring-boot.run.profiles=local` | Run against the local Postgres and Pub/Sub emulator |
 | `./mvnw -pl infrastructure package` | Produce `infrastructure/target/wispnote-backend.jar` |
 
 Migrations live in `infrastructure/src/main/resources/db/migration/` as `V{n}__{name}.sql`.
@@ -186,7 +189,7 @@ Add a new file, never edit an applied one.
 - ✅ Register, login, refresh with rotating RSA-signed tokens
 - ✅ Notes and sources with per-member ownership and soft delete
 - ✅ Automations and suggestions
-- ✅ `note.created` and `note.deleted` events on RabbitMQ, published after commit
+- ✅ `note.created` and `note.deleted` events on Pub/Sub, published after commit
 - ⬜ Transactional outbox, so a crash between commit and publish cannot lose an event
 - ⬜ Internal API for the analyzer to read notes and rules
 - ⬜ Deployment configuration beyond the local profile

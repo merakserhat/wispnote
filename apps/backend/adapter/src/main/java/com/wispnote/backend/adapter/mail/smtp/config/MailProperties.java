@@ -13,6 +13,4 @@ public class MailProperties {
     private String provider;
     private String from;
     private String fromName;
-    private String exchange;
-    private String queue;
 }

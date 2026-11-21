@@ -5,14 +5,14 @@ macOS app that saves a highlight together with where it came from. Three apps, o
 | Path | What | Stack |
 | --- | --- | --- |
 | `apps/desktop` | Capture UI and sync client | Electron, React, styled-components, antd, TanStack Query, TanStack Router |
-| `apps/backend` | REST API, source of truth, issues member and service tokens | Spring Boot 4, Java 21, Postgres 17, Flyway, RabbitMQ |
-| `apps/analyzer` | Consumes note and automation events, interprets automations with an LLM, acts through the backend internal API | Spring Boot 4, Java 21, RabbitMQ |
+| `apps/backend` | REST API, source of truth, issues member and service tokens | Spring Boot 4, Java 21, Postgres 17, Flyway, Google Cloud Pub/Sub |
+| `apps/analyzer` | Consumes note and automation events, interprets automations with an LLM, acts through the backend internal API | Spring Boot 4, Java 21, Pub/Sub push |
 
 Each app has its own `CLAUDE.md` or README with conventions. Read the app's file before editing it.
 
 ## Running
 
-`make up` starts Postgres, RabbitMQ, backend and analyzer in Docker. Backend and analyzer run from
+`make up` starts Postgres, the Pub/Sub emulator, backend and analyzer in Docker. Backend and analyzer run from
 the bind-mounted source with Maven, so after a Java change run `make restart` (or
 `docker compose restart backend|analyzer`), not a rebuild. `make dev` also starts the desktop app.
 `make test` runs Maven verify for both Java apps, including ArchUnit rules.
@@ -21,7 +21,7 @@ the bind-mounted source with Maven, so after a Java change run `make restart` (o
 | --- | --- |
 | Backend | http://localhost:8090 |
 | Analyzer | http://localhost:8096 |
-| RabbitMQ UI | http://localhost:15672 (guest / guest) |
+| Pub/Sub emulator | http://localhost:8085, project `wispnote-local` |
 | Postgres | localhost:5432, db / user / password `wispnote` |
 
 ## Docs and working notes
@@ -33,6 +33,7 @@ markdown file anywhere else unless asked, and never create one at all unless ask
 - `apps/analyzer/.ai/docs/structure.md` – analyzer design: responsibilities, matching pipeline, internal API, auth
 - `apps/analyzer/.ai/docs/automation-validation.md` – async automation validation design
 - `apps/analyzer/.ai/docs/wamo-llm-integration.md` – the LLM port/adapter pattern to follow
+- `apps/backend/.ai/docs/pubsub-migration.md` – RabbitMQ to Pub/Sub: design, steps, what was verified, open Google Cloud step
 - `apps/backend/.ai/docs/curl.md` – ready-to-paste curls for tokens and internal endpoints
 - `apps/backend/.ai/docs/email-verification.md` – email verification design, done
 - `apps/backend/.ai/docs/google-login.md` – Continue with Google design and task status
@@ -52,6 +53,13 @@ markdown file anywhere else unless asked, and never create one at all unless ask
 - The analyzer gets its token through Spring Security's OAuth2 client (properties only, no
   token code) and calls the backend through an `@HttpExchange` interface behind a port, with a
   mock adapter switched by `backend.provider=mock`.
+- Events go over Pub/Sub. The backend publishes to the topics `wispnote-notes` and
+  `wispnote-automations` behind `MessagePublisherPort` (`message-publisher.provider=pubsub|mock`).
+  The analyzer has no Pub/Sub library: push subscriptions POST to `/pubsub/notes` and
+  `/pubsub/automations`, a 2xx acknowledges, anything else is redelivered and dead-lettered
+  after 10 attempts. Its `/pubsub/**` filter chain checks the Google-signed token, except
+  locally (`pubsub.push.verification=none`) because the emulator sends none. Topics and
+  subscriptions are created outside the apps; locally by `docker/pubsub/start.sh`.
 - Successful backend responses are wrapped in `{ "result": … }` by a `ResponseBodyAdvice`;
   errors are not. The analyzer unwraps with `InternalResponse<T>`.
 - Contracts between apps are plain records duplicated on each side, kept in sync by hand. There

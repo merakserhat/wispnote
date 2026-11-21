@@ -55,7 +55,7 @@ WispNote services.
 │  Accessibility API │            │  API client + tokens    │           │  Postgres           │
 │  PyMuPDF           │ ◄───────── │  IPC to the windows     │ ◄──────── │  publishes events   │
 └────────────────────┘            └───────────┬─────────────┘           └──────────┬──────────┘
-                                              │ IPC                                │ RabbitMQ
+                                              │ IPC                                │ Pub/Sub
                                   ┌───────────┴─────────────┐           ┌──────────┴──────────┐
                                   │  Electron renderer      │           │  wispnote-analyzer  │
                                   │  panel · HUD · notes    │           │  enrichment         │
@@ -69,12 +69,12 @@ WispNote services.
 - **Electron** (`src/`) owns every window, talks to the backend, and supervises the engine.
   TypeScript, React 18, styled-components, antd, TanStack Query, built with electron-vite.
 - **wispnote-backend** is the source of truth. It stores notes and sources, serves the REST
-  API the desktop app calls, and publishes an event such as `note.created` to RabbitMQ for
+  API the desktop app calls, and publishes an event such as `note.created` to Pub/Sub for
   every change.
 - **wispnote-analyzer** consumes those events and runs the enrichment pipelines: fetching
   the surrounding paragraphs of a web page, and whatever automations the user has set up.
   Results flow back through the backend, so the desktop app only ever talks HTTPS and
-  never speaks AMQP.
+  never touches the message broker.
 
 Inside the desktop app, the engine and Electron talk over line-delimited JSON on
 stdin/stdout. Capture always happens in the engine *before* any window appears, so the note

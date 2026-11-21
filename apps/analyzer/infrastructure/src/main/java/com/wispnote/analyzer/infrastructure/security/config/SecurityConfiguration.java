@@ -17,7 +17,7 @@ public class SecurityConfiguration {
     private static final String SCOPE_SERVICE = "SCOPE_SERVICE";
 
     @Bean
-    @Order(0)
+    @Order(1)
     public SecurityFilterChain internalEndpoints(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         return hardened(http.securityMatcher("/internal/**"))
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().hasAuthority(SCOPE_SERVICE))
@@ -29,17 +29,17 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    @Order(1)
+    @Order(2)
     public SecurityFilterChain publicEndpoints(HttpSecurity http) throws Exception {
         return hardened(http.securityMatcher("/**"))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/actuator/**", "/error").permitAll()
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(AbstractHttpConfigurer::disable)
                 .build();
     }
 
-    private HttpSecurity hardened(HttpSecurity http) throws Exception {
+    static HttpSecurity hardened(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)

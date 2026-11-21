@@ -1,4 +1,4 @@
-package com.wispnote.analyzer.adapter.note.rabbit.message;
+package com.wispnote.analyzer.adapter.note.message;
 
 import com.wispnote.analyzer.adapter.note.converter.NoteEventKindConverter;
 import com.wispnote.analyzer.application.note.model.NoteChangedEvent;
@@ -16,7 +16,7 @@ public record NoteChangedMessage(UUID eventId,
     public NoteChangedEvent toModel() {
         return new NoteChangedEvent(
                 eventId,
-                NoteEventKindConverter.rabbit.toEnum(eventType),
+                NoteEventKindConverter.message.toEnum(eventType),
                 occurredAt,
                 noteId,
                 memberId,
