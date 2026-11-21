@@ -12,7 +12,9 @@ import com.wispnote.backend.application.automation.model.AutomationSuggestion;
 import com.wispnote.backend.application.automation.model.AutomationUpdate;
 import com.wispnote.backend.application.automation.port.AutomationPort;
 import com.wispnote.backend.application.automation.port.AutomationSuggestionPort;
+import com.wispnote.backend.application.automationcheckrun.model.AutomationCheckRun;
 import com.wispnote.backend.application.automationcheckrun.port.AutomationCheckRunPort;
+import com.wispnote.backend.application.common.exception.ClientException;
 import com.wispnote.backend.application.common.model.PaginationInfo;
 import com.wispnote.backend.application.messagepublisher.model.AutomationChangedMessage;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +57,13 @@ public class AutomationFacade {
         var page = automationPort.findAllByMemberId(memberId, filter, paginationInfo);
         var automationIds = page.getContent().stream().map(Automation::id).toList();
 
-        var checkRuns = automationCheckRunPort.findAllByMemberIdAndAutomationIds(memberId, automationIds);
+        List<AutomationCheckRun> checkRuns;
+        try {
+            checkRuns = automationCheckRunPort.findAllByMemberIdAndAutomationIds(memberId, automationIds);
+        } catch (ClientException e) {
+            log.warn("Automation check runs could not be retrieved, listing without them {}", kv("memberId", memberId));
+            checkRuns = List.of();
+        }
 
         return new AutomationPage(page, automationPort.countEnabledByMemberId(memberId), checkRuns);
     }

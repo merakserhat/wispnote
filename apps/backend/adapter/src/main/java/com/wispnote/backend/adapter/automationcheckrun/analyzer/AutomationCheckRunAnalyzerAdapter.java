@@ -1,6 +1,7 @@
 package com.wispnote.backend.adapter.automationcheckrun.analyzer;
 
 import com.wispnote.backend.adapter.analyzer.AnalyzerRestClient;
+import com.wispnote.backend.adapter.analyzer.exception.AnalyzerClientException;
 import com.wispnote.backend.adapter.analyzer.response.AnalyzerAutomationCheckRunResponse;
 import com.wispnote.backend.application.automationcheckrun.model.AutomationCheckRun;
 import com.wispnote.backend.application.automationcheckrun.port.AutomationCheckRunPort;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,8 +34,13 @@ public class AutomationCheckRunAnalyzerAdapter implements AutomationCheckRunPort
             return List.of();
         }
 
-        return analyzerRestClient.listAutomationCheckRuns(memberId, automationIds).result().stream()
-                .map(AnalyzerAutomationCheckRunResponse::toModel)
-                .toList();
+        try {
+            return analyzerRestClient.listAutomationCheckRuns(memberId, automationIds).result().stream()
+                    .map(AnalyzerAutomationCheckRunResponse::toModel)
+                    .toList();
+        } catch (ResourceAccessException e) {
+            log.warn("Analyzer could not be reached", e);
+            throw new AnalyzerClientException("errors.general");
+        }
     }
 }
