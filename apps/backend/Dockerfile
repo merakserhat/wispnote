@@ -1,20 +1,16 @@
-# syntax=docker/dockerfile:1.3
+# syntax=docker/dockerfile:1
 
-ARG PG_VER=17-alpine
+FROM eclipse-temurin:21-jdk AS build
+WORKDIR /build
+COPY . .
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw -B -q -pl infrastructure -am package -DskipTests
 
-FROM postgres:${PG_VER} AS database
-
-# Defaults used by the local profile (see application-local.properties).
-# Override at build/run time if needed.
-ENV POSTGRES_DB=wispnote \
-    POSTGRES_USER=wispnote \
-    POSTGRES_PASSWORD=wispnote \
-    LANG=en_US.utf8
-
-# Scripts here run once, on first initialisation of an empty data directory.
-COPY ./.platform/postgres/init /docker-entrypoint-initdb.d
-
-EXPOSE 5432
-
-HEALTHCHECK --interval=5s --timeout=5s --start-period=10s --retries=10 \
-    CMD pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" || exit 1
+FROM eclipse-temurin:21-jre
+RUN useradd --system --uid 10001 wispnote
+WORKDIR /app
+COPY --from=build /build/infrastructure/target/wispnote-backend.jar app.jar
+USER 10001
+ENV SERVER_PORT=8080
+EXPOSE 8080
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]

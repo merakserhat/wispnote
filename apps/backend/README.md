@@ -126,12 +126,14 @@ Naming inside a module follows one pattern per layer: `XController`, `XFacade`, 
 
 ### 1. Start the database
 
-The root `Dockerfile` builds a Postgres 17 image with the extensions the schema needs.
+From the repository root:
 
 ```bash
-docker build -t wispnote-postgres .
-docker run -d --name wispnote-postgres -p 5432:5432 wispnote-postgres
+docker compose up -d postgres
 ```
+
+Compose runs Postgres 17 and applies the init scripts in `.platform/postgres/init`, which add
+the extensions the schema needs.
 
 Database, user and password all default to `wispnote`. Flyway creates the schema when the app first
 starts, and the state is recorded in `flyway_schema_history`.
