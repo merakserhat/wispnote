@@ -1,6 +1,10 @@
 # WispNote
 
-Monorepo for WispNote: a macOS app that saves a highlight together with where it came from.
+WispNote is a macOS app that saves the text you highlight together with where it came from, on one shortcut, and files it by rules you write.
+
+Download and details: https://wispnote.app
+
+This is the monorepo for it.
 
 | Path | What | Stack |
 | --- | --- | --- |
