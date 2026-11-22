@@ -50,10 +50,10 @@ The desktop app is two processes that ship together. Behind them sit the two oth
 WispNote services.
 
 ```
-┌─ Python engine ────┐   stdio    ┌─ Electron main ─────────┐   HTTPS   ┌─ wispnote-backend ──┐
+┌─ Swift engine ─────┐   stdio    ┌─ Electron main ─────────┐   HTTPS   ┌─ wispnote-backend ──┐
 │  Fn event tap      │ ─────────► │  supervises the engine  │ ────────► │  REST API           │
 │  Accessibility API │            │  API client + tokens    │           │  Postgres           │
-│  PyMuPDF           │ ◄───────── │  IPC to the windows     │ ◄──────── │  publishes events   │
+│  PDFKit            │ ◄───────── │  IPC to the windows     │ ◄──────── │  publishes events   │
 └────────────────────┘            └───────────┬─────────────┘           └──────────┬──────────┘
                                               │ IPC                                │ Pub/Sub
                                   ┌───────────┴─────────────┐           ┌──────────┴──────────┐
@@ -63,9 +63,9 @@ WispNote services.
                                                                         └─────────────────────┘
 ```
 
-- **The Python engine** (`engine/`) does only what macOS exposes to native code: the `Fn`
+- **The Swift engine** (`engine/`) does only what macOS exposes to native code: the `Fn`
   key event tap, reading another app's selection through the Accessibility API, and PDF
-  extraction with PyMuPDF. It is stateless: no disk, no network.
+  extraction with PDFKit. It is stateless: no disk, no network.
 - **Electron** (`src/`) owns every window, talks to the backend, and supervises the engine.
   TypeScript, React 18, styled-components, antd, TanStack Query, built with electron-vite.
 - **wispnote-backend** is the source of truth. It stores notes and sources, serves the REST
@@ -84,7 +84,7 @@ describes the article and not WispNote.
 
 - macOS (Apple Silicon or Intel)
 - Node.js 20 and npm
-- Python 3.13
+- Xcode or the Swift toolchain, Swift 6
 - A running `wispnote-backend` (defaults to `http://localhost:8090`)
 - Accessibility permission for the app binary (see below)
 
@@ -94,12 +94,11 @@ describes the article and not WispNote.
 git clone https://github.com/merakserhat/wispnote-desktop.git
 cd wispnote-desktop
 npm install
-pip install -r engine/requirements.txt
 npm run dev
 ```
 
-`npm run dev` starts Electron with hot reload **and** spawns the Python engine itself. Do
-not run `python engine/main.py serve` alongside it, or two `Fn` event taps will fight over
+`npm run dev` builds the Swift engine, starts Electron with hot reload **and** spawns the
+engine itself. Do not run `wispnote-engine serve` alongside it, or two `Fn` event taps will fight over
 the same key. `Ctrl+C` quits both processes.
 
 ### Accessibility permission
@@ -125,7 +124,6 @@ WISPNOTE_API_URL=https://api.example.com npm run dev
 | --- | --- | --- |
 | `WISPNOTE_API_URL` | Backend base URL | `http://localhost:8090` |
 | `WISPNOTE_GOOGLE_CLIENT_ID` | OAuth client id for "Continue with Google"; empty disables the button | empty |
-| `WISPNOTE_PYTHON` | Python interpreter used to run the engine | `python3` |
 | `WISPNOTE_NO_TAP=1` | Skip the `Fn` event tap (no Accessibility permission needed) | off |
 | `WISPNOTE_VERBOSE=1` | Log engine heartbeats | off |
 
@@ -133,7 +131,9 @@ WISPNOTE_API_URL=https://api.example.com npm run dev
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Start main, preload and renderer with HMR, and spawn the engine |
+| `npm run dev` | Build the engine, start main, preload and renderer with HMR, and spawn the engine |
+| `npm run engine:build` | Build the Swift engine alone |
+| `npm run engine:test` | Run the engine's gesture tests |
 | `npm run dev:notap` | Same, without the event tap |
 | `npm run dev:verbose` | Same, with heartbeats in the log |
 | `npm run build` | Typecheck, then build everything into `out/` |
@@ -142,14 +142,14 @@ WISPNOTE_API_URL=https://api.example.com npm run dev
 | `npm run format` / `format:check` | Prettier over `src/**` |
 | `npm run storybook` | Storybook for the core components on port 6006 |
 
-The engine has no test suite by design. Smoke-test it with:
+The engine's tests cover the gesture state machine only. Smoke-test the rest with:
 
 ```bash
-WISPNOTE_NO_TAP=1 python3 engine/main.py serve
+engine/.build/release/wispnote-engine serve --no-tap
 {"id":1,"cmd":"ping"}
 ```
 
-Lint it with `ruff check engine && ruff format --check engine`.
+Format it with `swift format -i -r engine/Sources engine/Tests`.
 
 ## Project structure
 
@@ -165,9 +165,8 @@ src/
         ├── api/         TanStack Query hooks over IPC
         ├── context/     theme, appearance, navigation, query client providers
         └── theme/       palettes and design tokens
-engine/
-├── main.py      entry point (`serve`, `capture`, `doctor`)
-└── wispnote/    bridge, Fn detector, Accessibility capture, PDF tools
+engine/          Swift package, builds the `wispnote-engine` binary (`serve`, `capture`, `doctor`)
+└── Sources/EngineCore/   bridge, gesture detector, Accessibility capture, PDF tools
 ```
 
 ## Status

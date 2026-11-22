@@ -12,7 +12,7 @@ Every file and folder in this project, and why it is there.
 | Build | electron-vite 2 (Vite 5) |
 | UI | React 18 + styled-components 6 + styled-system |
 | Package manager | npm |
-| Companion process | Python 3.13 + PyObjC, at `../wispnote-app` |
+| Companion process | Swift, in `engine/`. See `.ai/docs/swift-engine.md` |
 
 ## The two processes
 
@@ -21,10 +21,10 @@ number, chapter, surrounding paragraph — on one keypress, without switching ap
 
 That needs two things macOS only exposes to a native process: a `CGEventTap` for
 the ⌃⇧ gestures, and the Accessibility API to read another app's selection. Neither is
-reachable from Electron, so they live in Python.
+reachable from Electron, so they live in the engine.
 
 ```
-┌─ Electron ──────────────────┐        ┌─ Python engine ─────────────┐
+┌─ Electron ──────────────────┐        ┌─ Swift engine ──────────────┐
 │  all UI                     │ stdin  │  ⌃⇧ event tap (CGEventTap)  │
 │  supervises the engine      │ ──────►│  Accessibility capture      │
 │  capture HUD · tray · log   │◄────── │  SQLite · enrichment        │
@@ -32,8 +32,8 @@ reachable from Electron, so they live in Python.
                           line-delimited JSON
 ```
 
-The guiding rule: **Python keeps only what is impossible elsewhere.** Storage and
-messaging are expected to move to this side later, leaving Python stateless.
+The guiding rule: **The engine keeps only what is impossible elsewhere.** Storage and
+messaging are expected to move to this side later, leaving the engine stateless.
 
 ## Root files
 
@@ -59,12 +59,12 @@ messaging are expected to move to this side later, leaving Python stateless.
 ## `src/shared/` — the contract
 
 Imported by all three processes. Everything here mirrors
-`../wispnote-app/wispnote/models.py` and `bridge.py`; **change both sides
+`engine/Sources/EngineCore/Models` and `Bridge/Frames`; **change both sides
 together.**
 
 | File | Why it exists |
 | --- | --- |
-| `types/capture.types.ts` | `TCaptureContext` (camelCase, used everywhere) and `TRawCaptureContext` (snake_case, exactly what Python sends). Two types on purpose: the wire format is Python's business, and it stops at the main process. |
+| `types/capture.types.ts` | `TCaptureContext` (camelCase, used everywhere) and `TRawCaptureContext` (snake_case, exactly what the engine sends). Two types on purpose: the wire format is the engine's business, and it stops at the main process. |
 | `types/engine.types.ts` | Every frame the engine can send (`ready`, `heartbeat`, `trigger`, `key`, `result`, `error`) and every command it accepts. A discriminated union on `type`, so a `switch` is exhaustively checked. |
 | `types/ipc.types.ts` | What crosses the Electron IPC boundary, and `TWispBridge` — the complete surface the preload exposes. |
 | `types/captureHud.types.ts` | The capture HUD's contract: `TCaptureHudState` (main → renderer, the phase and what to draw) and `TCaptureHudIntent` (renderer → main: save, sync, open notes, whether a note is typed, whether the pointer is over the shape). |
@@ -76,13 +76,13 @@ together.**
 | File | Why it exists |
 | --- | --- |
 | `main.ts` | Lifecycle and wiring: create windows, start the engine, translate its frames into log lines and window calls, shut everything down. The only file that knows about all the pieces at once. |
-| `main.constants.ts` | Where the Python app lives, the heartbeat interval, the verbose flag. |
+| `main.constants.ts` | Where the engine binary lives, the heartbeat interval, the verbose flag. |
 
 ### `engine/` — the supervised child process
 
 | File | Why it exists |
 | --- | --- |
-| `Engine.ts` | Spawn, health, restart, request/reply. **Liveness is not the pid**: a wedged PyObjC run loop stays alive and does nothing, so the heartbeat carries `tap` and an engine whose event tap died is restarted anyway. |
+| `Engine.ts` | Spawn, health, restart, request/reply. **Liveness is not the pid**: a wedged run loop stays alive and does nothing, so the heartbeat carries `tap` and an engine whose event tap died is restarted anyway. |
 | `Engine.constants.ts` | Backoff ladder, missed-beat threshold, circuit-breaker limit. Separated so the policy is readable without the mechanism. |
 | `Engine.types.ts` | Spawn options, pending-request bookkeeping, outbound message shape. |
 | `index.ts` | Barrel. |
@@ -106,7 +106,7 @@ together.**
 | `ipc/ipc.types.ts` | What the handlers need injected, so they are not reaching for module globals. |
 | `tray/createTray.ts` | The menu-bar presence, and the **only** place a user can see that capture has stopped working — the glyph tracks engine status. |
 | `helpers/log.helpers.ts` | The terminal log. One line per event, aligned columns, so a capture reads top to bottom. |
-| `helpers/capture.helpers.ts` | snake_case → camelCase, **once**, at the process boundary. This is why Python field names never reach a React component. Also the location/source/preview formatters used by the log. |
+| `helpers/capture.helpers.ts` | snake_case → camelCase, **once**, at the process boundary. This is why wire field names never reach a React component. Also the location/source/preview formatters used by the log. |
 
 ## `src/preload/`
 
@@ -177,9 +177,9 @@ Break these and the app fails in ways that are hard to trace.
 
 | Task | Files to touch |
 | --- | --- |
-| New engine command | `shared/types/engine.types.ts` → `bridge.py` → the caller |
+| New engine command | `shared/types/engine.types.ts` → `Commands.swift` → the caller |
 | New HUD action | `captureHud.types.ts` (a `TCaptureHudIntent`) → `CaptureHud.hooks.ts` (send it) → `createActions.ts` (`runIntent`) |
 | New window | `windows/` (class + constants) → an HTML entry → `electron.vite.config.ts` input |
 | New screen | `screens/Name/` with `.tsx` `.types` `.hooks` `.helpers` `.styles` `index.ts` |
-| New shared type | `shared/types/` — and change `models.py` in the same commit |
+| New shared type | `shared/types/` — and change the engine's model in the same commit |
 | New path alias | `electron.vite.config.ts` **and** the matching tsconfig |

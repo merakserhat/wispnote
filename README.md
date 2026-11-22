@@ -4,7 +4,7 @@ Monorepo for WispNote: a macOS app that saves a highlight together with where it
 
 | Path | What | Stack |
 | --- | --- | --- |
-| `apps/desktop` | Capture UI and sync client | Electron, React, Vite, Python engine |
+| `apps/desktop` | Capture UI and sync client | Electron, React, Vite, Swift engine |
 | `apps/backend` | REST API, source of truth for members, notes, sources, automations | Spring Boot 4, Java 21, PostgreSQL 17, Flyway, Google Cloud Pub/Sub |
 | `apps/analyzer` | Event-driven pipelines that enrich notes after they are saved | Spring Boot 4, Java 21, Pub/Sub push |
 

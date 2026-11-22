@@ -3,8 +3,8 @@ import { TCaptureContext, TRawCaptureContext } from 'shared/types/capture.types'
 /**
  * snake_case on the wire, camelCase in the app.
  *
- * Done once, here, rather than letting Python's field names leak into every
- * component - and it is the single place to change when `models.py` changes.
+ * Done once, here, rather than letting the engine's field names leak into every
+ * component - and it is the single place to change when `CaptureContext.swift` changes.
  */
 export const toCaptureContext = (raw: TRawCaptureContext): TCaptureContext => ({
   timestamp: raw.timestamp,

@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 import { ENGINE_PROTOCOL_VERSION } from 'shared/constants/engineProtocol';
 import {
   TConfigureResult,
@@ -7,23 +9,27 @@ import {
 } from 'shared/types/engine.types';
 
 import { log } from '../helpers';
-import { ENGINE_HEARTBEAT_SECONDS, PYTHON_APP, VERBOSE } from '../main.constants';
+import { ENGINE_BINARY, ENGINE_DIR, ENGINE_HEARTBEAT_SECONDS, VERBOSE } from '../main.constants';
 
 import { Engine } from './Engine';
 import { DEFAULT_ENGINE_SETTINGS } from './createEngine.constants';
 import { TCreateEngineParams } from './createEngine.types';
 
 export function createEngine({ app }: TCreateEngineParams): Engine {
-  const args = ['main.py', 'serve', '--heartbeat', ENGINE_HEARTBEAT_SECONDS];
+  const args = ['serve', '--heartbeat', ENGINE_HEARTBEAT_SECONDS];
   if (process.env.WISPNOTE_NO_TAP) {
     args.push('--no-tap');
   }
 
+  if (!fs.existsSync(ENGINE_BINARY)) {
+    log('error', `${ENGINE_BINARY} is missing — run \`npm run engine:build\` first`);
+  }
+
   const engine = new Engine({
-    command: process.env.WISPNOTE_PYTHON || 'python3',
+    command: ENGINE_BINARY,
     args,
-    cwd: PYTHON_APP,
-    env: { ...process.env, PYTHONUNBUFFERED: '1' },
+    cwd: ENGINE_DIR,
+    env: process.env,
   });
 
   async function configure(): Promise<void> {
@@ -41,7 +47,7 @@ export function createEngine({ app }: TCreateEngineParams): Engine {
     }
   }
 
-  engine.on('log', (line: string) => log('python', line.replace(/^\[wispnote\]\s*/, '')));
+  engine.on('log', (line: string) => log('engine', line.replace(/^\[wispnote\]\s*/, '')));
 
   engine.on('status', (status: string) => {
     if (status === 'unhealthy' || status === 'failed') {
@@ -50,7 +56,7 @@ export function createEngine({ app }: TCreateEngineParams): Engine {
   });
 
   engine.on('ready', (frame: TReadyFrame) => {
-    log('engine', `ready · pid ${frame.pid} · engine ${frame.version} · python ${frame.python}`);
+    log('engine', `ready · pid ${frame.pid} · engine ${frame.version} · runtime ${frame.runtime}`);
 
     if (!frame.accessibility) {
       log('engine', 'accessibility DENIED — every capture will come back empty');
@@ -59,7 +65,7 @@ export function createEngine({ app }: TCreateEngineParams): Engine {
       log('engine', `event tap OFF — ${frame.tap_error}`);
     }
     if (!frame.pdf) {
-      log('engine', 'PyMuPDF missing — PDF notes save without page or section');
+      log('engine', 'PDF tools unavailable — PDF notes save without page or section');
     }
 
     // INFO: (serhat) sent on every ready, so a restart and a first launch are the same path.

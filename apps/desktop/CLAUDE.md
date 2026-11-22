@@ -11,9 +11,9 @@ Two processes:
 | Process | Owns |
 | --- | --- |
 | **Electron** (this repo) | All UI. Supervises the engine. Eventually: SQLite, messaging, cloud API |
-| **Python engine** (`engine/`) | Only what nothing else can do: the ⌃⇧ event tap, the Accessibility API, PyMuPDF. Stateless: no disk, no network |
+| **Swift engine** (`engine/`) | Only what nothing else can do: the ⌃⇧ event tap, the Accessibility API, PDFKit. Stateless: no disk, no network |
 
-The guiding rule: **Python keeps only what is impossible elsewhere.** Everything
+The guiding rule: **the engine keeps only what is impossible elsewhere.** Everything
 else moves here over time.
 
 ## Status
@@ -24,9 +24,9 @@ implemented; the notes and settings screens are not.
 - ✅ Capture HUD (one morphing shape: Basic, Detailed, Result), tray, supervisor, bridge
 - ✅ Engine rewritten in `engine/` (protocol v4); saves go main → backend via `src/main/actions/`
 - ⬜ Next: notes window, settings, then packaging
-- ⬜ Later: move SQLite + messaging here, leaving Python stateless
+- ⬜ Later: move SQLite + messaging here, leaving the engine stateless
 
-Run `npm run dev`. It spawns the engine itself — never run `python main.py serve`
+Run `npm run dev`. It builds and spawns the engine itself — never run `wispnote-engine serve`
 too, or two event taps fire every gesture twice.
 
 ## Documentation
@@ -35,7 +35,7 @@ too, or two event taps fire every gesture twice.
 | --- | --- |
 | `.claude/tech-design/architecture.md` | What every file and folder is for, the invariants, and where to add a command / action / window / screen |
 | `.claude/tech-design/backend-architecture.md` | Moving off local storage onto a backend: engine scope, API client in main, auth, outbox, TanStack Query over IPC |
-| `.claude/tech-design/engine-migration.md` | The Python engine in `engine/`: what was carried from `../wispnote-app`, protocol v2, the traps the code used to explain in comments, Python conventions |
+| `.ai/docs/swift-engine.md` | The Swift engine in `engine/`: file structure, code rules, the protocol reference, and the traps that are easy to lose |
 | `.claude/tech-design/implementation-status.md` | What is actually built, decisions taken while building, next steps |
 
 ## Architecture invariants
@@ -66,8 +66,8 @@ Break these and the app breaks in ways that are hard to trace.
 
 ## Bridge protocol
 
-Line-delimited JSON over stdin/stdout. stdout is taken away from Python's `print`
-so diagnostics (stderr) cannot corrupt it.
+Line-delimited JSON over stdin/stdout. The engine redirects its own stdout to stderr and
+writes frames to a private copy, so a stray `print` cannot corrupt the stream.
 
 Protocol v4. Every ⌃⇧ gesture is a `trigger`; the engine never decides what an
 action means. A `trigger` may carry `supersedes: { trigger, action }` when it upgrades
@@ -85,9 +85,9 @@ also reaches the app that has the keyboard. The renderer does not handle esc or 
 **Host → engine:** `ping` `capture` `configure` `hud` `paste` `pdf_info` `pdf_locate`
 `pdf_annotations` `shutdown`
 
-Engine side: `engine/wispnote/bridge/`. Host side: `src/main/engine/`, with
+Engine side: `engine/Sources/EngineCore/Bridge/`. Host side: `src/main/engine/`, with
 `src/shared/types/engine.types.ts` as the contract. `ENGINE_PROTOCOL_VERSION`
-must match `PROTOCOL_VERSION` in `bridge.py`; a mismatch quits the app.
+must match `protocolVersion` in `EngineInfo.swift`; a mismatch quits the app.
 
 ## macOS + Electron facts (learned the hard way)
 
@@ -122,7 +122,7 @@ Do not re-derive these.
   white flash, which ruins a capture HUD.
 - **Modifier-only gestures are not Electron accelerators.** `globalShortcut` cannot
   bind ⌃⇧ without a letter, let alone tell which key went down first, so the
-  gestures need a `CGEventTap`. The tap stays in Python permanently.
+  gestures need a `CGEventTap`. The tap lives in the engine.
 - **Accessibility permission attaches to the binary.** In dev that is
   `node_modules/electron/dist/Electron.app`; reinstalling `node_modules` or
   bumping Electron voids the grant.
@@ -133,7 +133,7 @@ Do not re-derive these.
 
 ## Supervision facts
 
-- **pid liveness is not health.** A wedged PyObjC run loop stays alive and does
+- **pid liveness is not health.** A wedged run loop stays alive and does
   nothing. The heartbeat carries `tap`; a dead tap means restart.
 - **stdin EOF does not detect a dead parent.** Electron's helper processes
   inherit the stdin pipe, so it never closes. Use a `getppid()` watchdog.
@@ -315,9 +315,9 @@ src/
 ```
 
 `src/shared/` is the contract between all three processes and mirrors
-`bridge.py`. The wire is snake_case; `capture.helpers.ts` converts once, at the
-main-process boundary, so Python field names never reach a component. Change
-`models.py` and these types together.
+the engine's `Bridge/Frames`. The wire is snake_case; `capture.helpers.ts` converts once, at the
+main-process boundary, so wire field names never reach a component. Change
+`CaptureContext.swift` and these types together.
 
 Conventions in force: `T`-prefixed types, one `.types.ts` per module, logic in
 `.hooks.ts` / `.helpers.ts` so components only describe what is on screen,
@@ -334,12 +334,16 @@ Prettier hook in `.claude/settings.json`, and reference them from a table here.
 
 ## Environment
 
-- Engine path is `engine/` (`process.resourcesPath/engine` when packaged);
-  override the interpreter with `WISPNOTE_PYTHON`. Install its dependencies with
-  `pip install -r engine/requirements.txt`.
+- The engine is the Swift binary built from `engine/` (`process.resourcesPath/engine` when
+  packaged). `npm run dev` builds it first; `npm run engine:build` builds it alone. Design,
+  file structure, code rules and traps: `.ai/docs/swift-engine.md`.
+- Swift conventions for `engine/`: one type per file, no nested types, no comments, no
+  singletons, dependencies through `init`, format with `swift format` (config in
+  `engine/.swift-format`). No third-party packages.
 - `WISPNOTE_HOME` relocates the data directory — always set it when testing so
   real notes are untouched.
 - `WISPNOTE_NO_TAP=1` skips the event tap (no Accessibility permission needed).
 - `WISPNOTE_VERBOSE=1` prints heartbeats.
-- The engine has no test suite by decision. Smoke-test it with
-  `WISPNOTE_NO_TAP=1 python3 engine/main.py serve` and `{"id":1,"cmd":"ping"}`.
+- The engine's only tests cover the gesture state machine: `npm run engine:test`. Smoke-test
+  the rest with `engine/.build/release/wispnote-engine serve --no-tap` and
+  `{"id":1,"cmd":"ping"}`, or `wispnote-engine capture --delay 3` for one capture as JSON.

@@ -15,7 +15,7 @@ export type TReadyFrame = {
   protocol: number;
   version: string;
   pid: number;
-  python: string;
+  runtime: string;
   accessibility: boolean;
   tap: boolean;
   tap_error: string | null;
@@ -62,7 +62,6 @@ export type TKeyFrame = {
 export type TErrorFrame = {
   type: 'error';
   message: string;
-  trigger?: string;
 };
 
 export type TEngineFrame =

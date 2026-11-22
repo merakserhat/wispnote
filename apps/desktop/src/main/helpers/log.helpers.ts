@@ -22,7 +22,6 @@ export type TLogChannel =
   | 'capture'
   | 'db'
   | 'result'
-  | 'python'
   | 'api'
   | 'auth'
   | 'settings'

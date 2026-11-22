@@ -35,6 +35,6 @@ export const NOT_A_PDF_RESULT: TCaptureHudResult = {
 export const PDF_UNAVAILABLE_RESULT: TCaptureHudResult = {
   icon: 'alert',
   look: 'warning',
-  title: 'PyMuPDF is not installed',
-  caption: 'pip install pymupdf, then restart the engine',
+  title: 'PDF tools are unavailable',
+  caption: 'Restart the engine from the menu bar',
 };

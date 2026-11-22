@@ -5,12 +5,8 @@ out/
 
 .claude/
 
-# Python engine
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-.ruff_cache/
+# Swift engine
+engine/.build/
 storybook-static
 
 ### AI assistants ###
