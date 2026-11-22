@@ -4,4 +4,5 @@ enum BridgeTimings {
   static let shutdownDelaySeconds = 0.1
   static let commandWorkers = 4
   static let supersedeReuseSeconds = 1.0
+  static let tapRetrySeconds = 2.0
 }

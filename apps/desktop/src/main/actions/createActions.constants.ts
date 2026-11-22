@@ -25,6 +25,13 @@ export const NOTHING_TO_SAVE_RESULT: TCaptureHudResult = {
   caption: 'No text selected and no note typed',
 };
 
+export const ACCESSIBILITY_OFF_RESULT: TCaptureHudResult = {
+  icon: 'alert',
+  look: 'warning',
+  title: 'WispNote cannot read the selection',
+  caption: 'Allow Accessibility from the menu bar icon',
+};
+
 export const NOT_A_PDF_RESULT: TCaptureHudResult = {
   icon: 'alert',
   look: 'warning',

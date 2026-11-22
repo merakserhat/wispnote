@@ -28,6 +28,10 @@ export class Engine extends EventEmitter {
 
   ready: TReadyFrame | null = null;
 
+  tap = false;
+
+  accessibility = false;
+
   status: TEngineStatus = 'stopped';
 
   failures = 0;
@@ -134,6 +138,8 @@ export class Engine extends EventEmitter {
         return;
       }
       this.ready = frame;
+      this.setTap(frame.tap);
+      this.setAccessibility(frame.accessibility);
       this.beatInterval = (frame.heartbeat || 2) * 1000;
       this.lastBeatAt = Date.now();
       this.setStatus('running');
@@ -144,7 +150,7 @@ export class Engine extends EventEmitter {
     if (frame.type === 'heartbeat') {
       this.lastBeatAt = Date.now();
       // INFO: (serhat) a live process with a dead tap looks fine and does nothing, so it is restarted.
-      if (this.ready?.tap && !frame.tap) {
+      if (this.tap && !frame.tap) {
         this.log('event tap died - restarting');
         this.setStatus('unhealthy');
         this.kill();
@@ -153,6 +159,8 @@ export class Engine extends EventEmitter {
       if (this.status !== 'running') {
         this.setStatus('running');
       }
+      this.setTap(frame.tap);
+      this.setAccessibility(frame.accessibility);
       this.emit('heartbeat', frame);
       return;
     }
@@ -261,6 +269,8 @@ export class Engine extends EventEmitter {
     const lived = Date.now() - this.startedAt;
     this.child = null;
     this.ready = null;
+    this.setTap(false);
+    this.setAccessibility(false);
 
     this.pending.forEach((waiting) => waiting.reject(new Error('engine exited')));
     this.pending.clear();
@@ -287,6 +297,22 @@ export class Engine extends EventEmitter {
     const delay = BACKOFF[Math.min(this.failures - 1, BACKOFF.length - 1)];
     this.log(`restarting in ${delay}ms (attempt ${this.failures})`);
     this.restartTimer = setTimeout(() => this.start(), delay);
+  }
+
+  private setTap(tap: boolean): void {
+    if (this.tap === tap) {
+      return;
+    }
+    this.tap = tap;
+    this.emit('tap', tap);
+  }
+
+  private setAccessibility(accessibility: boolean): void {
+    if (this.accessibility === accessibility) {
+      return;
+    }
+    this.accessibility = accessibility;
+    this.emit('accessibility', accessibility);
   }
 
   private setStatus(status: TEngineStatus): void {

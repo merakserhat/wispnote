@@ -1,0 +1,44 @@
+appId: app.wispnote.desktop
+productName: WispNote
+copyright: Copyright © 2026 Serhat Merak
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - out/**
+  - package.json
+  - "!node_modules/**"
+
+extraResources:
+  - from: engine/.build/apple/Products/Release/wispnote-engine
+    to: engine/wispnote-engine
+  - from: resources/tray
+    to: tray
+
+mac:
+  category: public.app-category.productivity
+  icon: build/icon.icns
+  identity: "-"
+  hardenedRuntime: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  target:
+    - target: dmg
+      arch: arm64
+    - target: zip
+      arch: arm64
+  extendInfo:
+    LSUIElement: true
+
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: true
+
+publish: null

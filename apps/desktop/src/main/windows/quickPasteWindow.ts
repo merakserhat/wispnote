@@ -5,6 +5,7 @@ import { TCaretRect } from 'shared/types/capture.types';
 import { TQuickPastePlacement, TQuickPasteState } from 'shared/types/quickPaste.types';
 
 import { loadRenderer } from './loadRenderer';
+import { lockNavigation } from './lockNavigation';
 import {
   PASTE_BLUR_GRACE_MS,
   PASTE_CARET_MAX_HEIGHT,
@@ -81,6 +82,8 @@ export class QuickPasteWindow {
       }
       this.blurHandler?.();
     });
+
+    lockNavigation(this.window);
 
     loadRenderer(this.window, 'paste');
 

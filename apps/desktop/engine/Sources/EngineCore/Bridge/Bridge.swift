@@ -12,6 +12,7 @@ final class Bridge {
   private let commands: Commands
   private let router: CommandRouter
   private var lastGesture: LastGesture?
+  private var tapRetry: ScheduledWork?
 
   private var reader: CommandReader?
   private var heartbeat: Heartbeat?
@@ -56,6 +57,14 @@ final class Bridge {
     let tapStarted = wantsTap && shortcuts.start()
     if wantsTap && !tapStarted {
       channel.log(shortcuts.lastError ?? "event tap unavailable")
+      requestPermissions()
+      retryTap()
+    }
+
+    let accessibility = AccessibilityPermission.isGranted()
+    if tapStarted && !accessibility {
+      channel.log("accessibility is off, every capture will be empty")
+      _ = AccessibilityPermission.isGranted(prompt: true)
     }
 
     capture.watchActivations()
@@ -66,7 +75,7 @@ final class Bridge {
         version: EngineInfo.version,
         pid: getpid(),
         runtime: EngineInfo.runtime,
-        accessibility: AccessibilityPermission.isGranted(),
+        accessibility: accessibility,
         tap: tapStarted,
         tapError: tapStarted ? nil : shortcuts.lastError,
         pdf: pdf.isAvailable,
@@ -77,7 +86,12 @@ final class Bridge {
 
     let heartbeat = Heartbeat(seconds: heartbeatSeconds) { [self] sequence in
       channel.send(
-        HeartbeatFrame(seq: sequence, uptime: uptime.seconds, tap: shortcuts.isRunning)
+        HeartbeatFrame(
+          seq: sequence,
+          uptime: uptime.seconds,
+          tap: shortcuts.isRunning,
+          accessibility: AccessibilityPermission.isGranted()
+        )
       )
     }
     let watchdog = OrphanWatchdog(seconds: BridgeTimings.orphanCheckSeconds) { [self] in
@@ -131,6 +145,26 @@ final class Bridge {
         }
       )
     )
+  }
+
+  private func requestPermissions() {
+    let accessibility = AccessibilityPermission.isGranted(prompt: true)
+    let inputMonitoring = InputMonitoringPermission.isGranted
+    channel.log("accessibility \(accessibility) · input monitoring \(inputMonitoring)")
+
+    if !inputMonitoring {
+      InputMonitoringPermission.request()
+    }
+  }
+
+  private func retryTap() {
+    tapRetry = MainScheduler().schedule(after: BridgeTimings.tapRetrySeconds) { [self] in
+      if shortcuts.start() {
+        channel.log("event tap started")
+      } else {
+        retryTap()
+      }
+    }
   }
 
   private func reusableContext(for supersedes: Trigger?) -> CaptureContext? {

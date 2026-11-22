@@ -29,6 +29,7 @@ export type THeartbeatFrame = {
   seq: number;
   uptime: number;
   tap: boolean;
+  accessibility: boolean;
 };
 
 export type TTriggerFrame = {

@@ -44,6 +44,12 @@ final class EventTap {
     CFRunLoopAddSource(CFRunLoopGetCurrent(), source, .commonModes)
     CGEvent.tapEnable(tap: port, enable: true)
 
+    guard CGEvent.tapIsEnabled(tap: port) else {
+      CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, .commonModes)
+      CFMachPortInvalidate(port)
+      return false
+    }
+
     self.port = port
     self.source = source
     isRunning = true
@@ -51,11 +57,12 @@ final class EventTap {
   }
 
   func stop() {
-    if let port {
-      CGEvent.tapEnable(tap: port, enable: false)
-    }
     if let source {
       CFRunLoopRemoveSource(CFRunLoopGetCurrent(), source, .commonModes)
+    }
+    if let port {
+      CGEvent.tapEnable(tap: port, enable: false)
+      CFMachPortInvalidate(port)
     }
     port = nil
     source = nil

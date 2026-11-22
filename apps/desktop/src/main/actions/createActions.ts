@@ -26,6 +26,7 @@ import {
   toWorkingResult,
 } from './actions.helpers';
 import {
+  ACCESSIBILITY_OFF_RESULT,
   NOT_A_PDF_RESULT,
   NOTHING_TO_SAVE_RESULT,
   PDF_REQUEST_TIMEOUT_MS,
@@ -66,7 +67,7 @@ export function createActions({
 
   async function saveCapture({ context, userNote }: TSaveCaptureParams): Promise<void> {
     if (!hasContent(context, userNote)) {
-      hud.showResult(NOTHING_TO_SAVE_RESULT);
+      hud.showResult(engine.accessibility ? NOTHING_TO_SAVE_RESULT : ACCESSIBILITY_OFF_RESULT);
       return;
     }
 

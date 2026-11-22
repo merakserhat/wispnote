@@ -8,6 +8,7 @@ import {
   MAIN_WINDOW_WIDTH,
 } from './mainWindow.constants';
 import { loadRenderer } from './loadRenderer';
+import { lockNavigation } from './lockNavigation';
 
 export class MainWindow {
   private window: BrowserWindow | null = null;
@@ -50,19 +51,29 @@ export class MainWindow {
       this.hide();
     });
 
+    lockNavigation(this.window);
+
     loadRenderer(this.window, 'main');
 
     return this.window;
   }
 
-  show(): void {
+  async show(): Promise<void> {
     if (!this.window) {
       return;
     }
 
-    app.dock?.show();
+    if (app.dock && !app.dock.isVisible()) {
+      await app.dock.show();
+    }
     this.window.show();
     this.window.focus();
+  }
+
+  reveal(): void {
+    if (!this.isVisible()) {
+      this.show();
+    }
   }
 
   hide(): void {

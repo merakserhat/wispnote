@@ -114,11 +114,17 @@ to grant it again.
 
 ### Environment variables
 
-There is no `.env` file. These are optional shell variables, and every one has a default:
+Every variable has a default, so a fresh clone runs without any setup. To change the backend
+address or the Google client id, create an untracked `apps/desktop/.env`:
 
 ```bash
-WISPNOTE_API_URL=https://api.example.com npm run dev
+WISPNOTE_API_URL=https://api.example.com
+WISPNOTE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 ```
+
+These two values are written into the build, so a packaged app keeps them. A shell variable
+wins over the file: `WISPNOTE_API_URL=https://api.example.com npm run dev`. The other variables
+are read from the shell only.
 
 | Variable | Purpose | Default |
 | --- | --- | --- |

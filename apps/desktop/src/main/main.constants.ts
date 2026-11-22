@@ -9,6 +9,10 @@ export const ENGINE_BINARY = app.isPackaged
   ? path.join(ENGINE_DIR, 'wispnote-engine')
   : path.join(ENGINE_DIR, '.build/release/wispnote-engine');
 
+export const TRAY_ICON = app.isPackaged
+  ? path.join(process.resourcesPath, 'tray/trayTemplate.png')
+  : path.resolve(__dirname, '../../resources/tray/trayTemplate.png');
+
 export const ENGINE_HEARTBEAT_SECONDS = '2';
 
 export const VERBOSE = Boolean(process.env.WISPNOTE_VERBOSE);

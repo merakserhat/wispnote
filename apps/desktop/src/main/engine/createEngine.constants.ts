@@ -1,5 +1,7 @@
 import { TEngineSettings } from 'shared/types/engine.types';
 
+export const ENGINE_ENVIRONMENT_KEYS = ['PATH', 'HOME', 'USER', 'TMPDIR', 'LANG'];
+
 export const DEFAULT_ENGINE_SETTINGS: TEngineSettings = {
   triggers: {
     'ctrl+shift': 'show_panel',

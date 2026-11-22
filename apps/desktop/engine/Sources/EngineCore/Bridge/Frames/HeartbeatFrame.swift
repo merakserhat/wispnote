@@ -3,4 +3,5 @@ struct HeartbeatFrame: Encodable {
   let seq: Int
   let uptime: Double
   let tap: Bool
+  let accessibility: Bool
 }

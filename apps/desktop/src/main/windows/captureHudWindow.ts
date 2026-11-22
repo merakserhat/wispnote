@@ -14,6 +14,7 @@ import {
   HUD_WIDTH,
 } from './captureHudWindow.constants';
 import { loadRenderer } from './loadRenderer';
+import { lockNavigation } from './lockNavigation';
 
 // INFO: (serhat) one transparent window for every capture state. The shape is drawn in CSS, so the
 // window never resizes or moves while a state is up, and outside the shape clicks pass through.
@@ -61,6 +62,8 @@ export class CaptureHudWindow {
       }
       this.blurHandler?.();
     });
+
+    lockNavigation(this.window);
 
     loadRenderer(this.window, 'hud');
 

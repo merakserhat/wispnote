@@ -12,8 +12,17 @@ import { log } from '../helpers';
 import { ENGINE_BINARY, ENGINE_DIR, ENGINE_HEARTBEAT_SECONDS, VERBOSE } from '../main.constants';
 
 import { Engine } from './Engine';
-import { DEFAULT_ENGINE_SETTINGS } from './createEngine.constants';
+import { DEFAULT_ENGINE_SETTINGS, ENGINE_ENVIRONMENT_KEYS } from './createEngine.constants';
 import { TCreateEngineParams } from './createEngine.types';
+
+function engineEnvironment(): NodeJS.ProcessEnv {
+  return Object.fromEntries(
+    ENGINE_ENVIRONMENT_KEYS.filter((key) => process.env[key] !== undefined).map((key) => [
+      key,
+      process.env[key],
+    ])
+  );
+}
 
 export function createEngine({ app }: TCreateEngineParams): Engine {
   const args = ['serve', '--heartbeat', ENGINE_HEARTBEAT_SECONDS];
@@ -29,7 +38,7 @@ export function createEngine({ app }: TCreateEngineParams): Engine {
     command: ENGINE_BINARY,
     args,
     cwd: ENGINE_DIR,
-    env: process.env,
+    env: engineEnvironment(),
   });
 
   async function configure(): Promise<void> {
@@ -70,6 +79,18 @@ export function createEngine({ app }: TCreateEngineParams): Engine {
 
     // INFO: (serhat) sent on every ready, so a restart and a first launch are the same path.
     configure();
+  });
+
+  engine.on('accessibility', (accessibility: boolean) => {
+    if (!engine.ready) {
+      return;
+    }
+    log(
+      'engine',
+      accessibility
+        ? 'accessibility allowed'
+        : 'accessibility DENIED — every capture will come back empty'
+    );
   });
 
   engine.on('incompatible', (frame: TReadyFrame) => {

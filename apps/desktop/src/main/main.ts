@@ -14,8 +14,14 @@ import { createSettingsStore } from './settings';
 import { createTray } from './tray';
 import { CaptureHudWindow, MainWindow, QuickPasteWindow } from './windows';
 
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+}
+
 app.whenReady().then(() => {
-  app.dock?.hide();
+  if (app.dock?.isVisible()) {
+    app.dock.hide();
+  }
 
   const settings = createSettingsStore();
   const preloadPath = path.join(__dirname, '../preload/preload.js');
@@ -51,4 +57,11 @@ app.whenReady().then(() => {
     onOpenMainWindow: () => mainWindow.show(),
   });
   registerShutdown({ app, engine });
+
+  app.on('activate', () => mainWindow.reveal());
+  app.on('second-instance', () => mainWindow.reveal());
+
+  if (app.isPackaged) {
+    mainWindow.show();
+  }
 });
