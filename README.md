@@ -4,6 +4,10 @@ WispNote is a macOS app that saves the text you highlight together with where it
 
 Download and details: https://wispnote.app
 
+[![Watch the WispNote video](.github/welcome-poster.jpg)](https://wispnote.app)
+
+Watch the one-minute video on [wispnote.app](https://wispnote.app).
+
 This is the monorepo for it.
 
 | Path | What | Stack |
